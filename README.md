@@ -46,7 +46,7 @@ Suggested future work:
 [6] Zhao, Y., Jiang, Z., Men, A., & Ju, G. (2019). [Pyramid Real Image Denoising Network](https://arxiv.org/abs/1908.00273).
 
 
-## Appendix: Geting Started
+## Appendix: Getting Started
 Instruction on how to install the application to train and apply the denoiser autoencoder model. Training images are not provided.
 
 ### Installation
