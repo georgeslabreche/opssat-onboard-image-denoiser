@@ -1,14 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
+# tensorflow
+import tensorflow as tf
 from tensorflow.keras import layers, losses
-from tensorflow.keras.models import Model
 
 # make sure constants are set as desired before training
 from constants import *
 
+# autoencoders
+from autoencoders import NaiveDenoiser, SimpleDenoiser
 
 # function to resize and normalize the input images
 def preprocess_image(file_path):
@@ -102,38 +104,16 @@ if DISPLAY_TEST_NOISE:
   plt.show()
 
 
-# define a convolutional autoencoder
-# use Conv2D layers in the encoder and Conv2DTranspose layers in the decoder
-class Denoise(Model):
-  def __init__(self):
-    super(Denoise, self).__init__()
-
-    # Conv2D layers in the encoder that applies two convolutional layers with downsampling
-    # the strides=2 parameter indicates that:
-    #  - the convolution operation moves by two pixels at a time
-    #  - i.e. the layer downsamples the input by a factor of 2
-    self.encoder = tf.keras.Sequential([
-      layers.Input(shape=(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)),
-      #layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=2),
-      layers.Conv2D(16, (3, 3), activation='relu', padding='same', strides=2),
-      layers.Conv2D(8, (3, 3), activation='relu', padding='same', strides=2)
-    ])
-
-    # Conv2DTranspose layers in the decoder
-    # the layers upsample the input by a factor of 2 (strides=2)
-    self.decoder = tf.keras.Sequential([
-      layers.Conv2DTranspose(8, kernel_size=3, strides=2, activation='relu', padding='same'),
-      layers.Conv2DTranspose(16, kernel_size=3, strides=2, activation='relu', padding='same'),
-      #layers.Conv2DTranspose(32, kernel_size=3, strides=2, activation='relu', padding='same'),
-      layers.Conv2D(1, kernel_size=(3, 3), activation='sigmoid', padding='same')])
-
-  def call(self, x):
-    encoded = self.encoder(x)
-    decoded = self.decoder(encoded)
-    return decoded
-
-# the denoiser autoencoder
-denoiser = Denoise()
+# instanciate the desired denoiser autoencoder
+# todo: make scalable with Factory Pattern
+denoiser = None
+if DENOISER_TYPE == 1:
+  denoiser = NaiveDenoiser(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+elif DENOISER_TYPE == 2:
+  denoiser = SimpleDenoiser(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+else:
+  print(f"Error: unsupported denoiser encoder typel: {DENOISER_TYPE}")
+  quit()
 
 # compile
 denoiser.compile(optimizer='adam', loss=losses.MeanSquaredError())

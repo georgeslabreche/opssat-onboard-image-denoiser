@@ -9,6 +9,12 @@ DIR_PATH_IMAGES_TEST = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/test
 # flag to display or not the test noisy images
 DISPLAY_TEST_NOISE = True
 
+# two types of denoisers are implemented:
+# - 1 for NaiveDenoiser
+# - 2 for SimpleDenoiser
+# see autoencoders.py for implementation
+DENOISER_TYPE = 1
+
 # some hyperparameters
 EPOCHS = 10
 BATCH_SIZE = 32
