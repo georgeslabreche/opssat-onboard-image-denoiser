@@ -8,7 +8,7 @@ Past experiments have successfully demonstrated the use of TensorFlow models on-
 
 
 ## Implementation
-Mostly following and adapting TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as an [example from Keras](https://keras.io/examples/vision/autoencoder/). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data. Implementation can be found [here](autoencoders.py).
+Mostly following and adapting TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as an [example from Keras](https://keras.io/examples/vision/autoencoder/). Implementation of the Autoencodres can be found [here](autoencoders.py). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data.
 
 ![Figure 1: FPN noise for CCD (left) and CMOS (right) noise.](./figures/fig1_fixed_pattern_noise.png)
 
