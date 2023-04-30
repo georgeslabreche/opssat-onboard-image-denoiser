@@ -72,10 +72,7 @@ Install the application's Python package dependencies:
 pip install -r requirements.txt
 ```
 
-Run the application
-```bash
-python denoiser.py
-```
+Run the application, refer to the "Execution" section.
 
 Deactivate the environment:
 ```bash
