@@ -35,3 +35,9 @@ deactivate
 
 ## Implementation
 Mostly following and adapting TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder).
+
+## Execution
+1. Use `find_bad_jpegs.py` to identify corrupt images that will break the training (get rid of those images, if they exist).
+2. Edit `constants.py` with the desired training parameters.
+3. Train the model with `train_denoiser.py`.
+4. Test the model on some images with `denoise.py`.

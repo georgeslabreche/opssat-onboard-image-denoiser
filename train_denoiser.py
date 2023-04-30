@@ -3,36 +3,67 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, losses
-from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.models import Model
 
-# flag to display or not the test noisy images
-DISPLAY_TEST_NOISE = False
+# make sure constants are set as desired before training
+from constants import *
 
-# training epochs
-EPOCHS = 10
 
-# import the dataset to omit the modifications made earlier
-(x_train, _), (x_test, _) = fashion_mnist.load_data()
+# function to resize and normalize the input images
+def preprocess_image(file_path):
 
-x_train = x_train.astype('float32') / 255.
-x_test = x_test.astype('float32') / 255.
+  # read image file
+  image = tf.io.read_file(file_path)
 
-x_train = x_train[..., tf.newaxis]
-x_test = x_test[..., tf.newaxis]
+  # decode image in desired channel
+  image = tf.image.decode_jpeg(image, channels=DESIRED_CHANNELS)
 
-print(x_train.shape)
+  # resize image in desired 
+  image = tf.image.resize(image, [DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH])
+  
+  # normalization
+  image /= 255.0
+
+  return image
+
+
+# list the image files
+list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGES_EARTH + "/*.jpeg")
+
+# get the number of files
+num_files = len(list(list_image_files))
+print("Number of images files in the dataset:", num_files)
+
+# shuffle the dataset
+list_image_files = list_image_files.shuffle(buffer_size=1000, seed=42)
+
+# calculate the number of files in the training set
+num_train = int(num_files * TRAIN_RATIO)
+
+# separate the dataset into training and testing sets
+train_data = list_image_files.take(num_train)
+test_data = list_image_files.skip(num_train)
+
+# load the images for both training and testing datasets
+train_data = train_data.map(preprocess_image)
+test_data = test_data.map(preprocess_image)
+
+# convert the train and test datasets to NumPy arrays
+x_train = np.array(list(train_data))
+x_test = np.array(list(test_data))
+
+# print the shapes of the train and test datasets
+print("Train images shape:", x_train.shape)
+print("Test images shape:", x_test.shape)
 
 # adding random noise to the images
-noise_factor = 0.1
-x_train_noisy = x_train + noise_factor * tf.random.normal(shape=x_train.shape) 
-x_test_noisy = x_test + noise_factor * tf.random.normal(shape=x_test.shape) 
+x_train_noisy = x_train + NOISE_FACTOR * tf.random.normal(shape=x_train.shape)
+x_test_noisy = x_test + NOISE_FACTOR * tf.random.normal(shape=x_test.shape)
 
 x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
 x_test_noisy = tf.clip_by_value(x_test_noisy, clip_value_min=0., clip_value_max=1.)
+
 
 # plot the first 10 images
 # first row: original
@@ -57,7 +88,10 @@ if DISPLAY_TEST_NOISE:
     plt.gray()
     bx.get_xaxis().set_visible(False)
     bx.get_yaxis().set_visible(False)
+
+  # show the plot
   plt.show()
+
 
 # define a convolutional autoencoder
 # use Conv2D layers in the encoder and Conv2DTranspose layers in the decoder
@@ -65,16 +99,23 @@ class Denoise(Model):
   def __init__(self):
     super(Denoise, self).__init__()
 
-    # Conv2D layers in the encoder
+    # Conv2D layers in the encoder that applies two convolutional layers with downsampling
+    # the strides=2 parameter indicates that:
+    #  - the convolution operation moves by two pixels at a time
+    #  - i.e. the layer downsamples the input by a factor of 2
     self.encoder = tf.keras.Sequential([
-      layers.Input(shape=(28, 28, 1)),
+      layers.Input(shape=(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)),
+      #layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=2),
       layers.Conv2D(16, (3, 3), activation='relu', padding='same', strides=2),
-      layers.Conv2D(8, (3, 3), activation='relu', padding='same', strides=2)])
+      layers.Conv2D(8, (3, 3), activation='relu', padding='same', strides=2)
+    ])
 
     # Conv2DTranspose layers in the decoder
+    # the layers upsample the input by a factor of 2 (strides=2)
     self.decoder = tf.keras.Sequential([
       layers.Conv2DTranspose(8, kernel_size=3, strides=2, activation='relu', padding='same'),
       layers.Conv2DTranspose(16, kernel_size=3, strides=2, activation='relu', padding='same'),
+      #layers.Conv2DTranspose(32, kernel_size=3, strides=2, activation='relu', padding='same'),
       layers.Conv2D(1, kernel_size=(3, 3), activation='sigmoid', padding='same')])
 
   def call(self, x):
@@ -92,19 +133,19 @@ denoiser.compile(optimizer='adam', loss=losses.MeanSquaredError())
 # use the training dataset
 denoiser.fit(x_train_noisy, x_train,
   epochs=EPOCHS,
+  batch_size=BATCH_SIZE,
   shuffle=True,
   validation_data=(x_test_noisy, x_test))
 
-denoiser.save('models/denoiser')
+denoiser.save(MODEL_PATH)
 
 # convert the model to a tflite mode and save
 converter = tf.lite.TFLiteConverter.from_keras_model(denoiser)
 tflite_denoiser = converter.convert()
 
 # save the tflite model
-with open('models/denoiser.tflite', 'wb') as f:
+with open(MODEL_PATH + '.tflite', 'wb') as f:
   f.write(tflite_denoiser)
-
 
 # print encoder and decoder summaries
 denoiser.encoder.summary()
@@ -135,4 +176,6 @@ for i in range(n):
     plt.gray()
     bx.get_xaxis().set_visible(False)
     bx.get_yaxis().set_visible(False)
+
+# show the reconstruction
 plt.show()
