@@ -28,7 +28,7 @@ This experiment is a naive implementation of TensorFlow Autodecoders with little
 ## Future Work
 Suggested future work:
 1. Improve denoising results with more training data. If not enough training images are availble from OPS-SAT then the Random Forest experiment in [[4](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/)] demonstrated that [Landsat](https://landsat.gsfc.nasa.gov/) images can also be used as training data for models that apply to OPS-SAT imagery.
-2. Re-use proven denoising models, such as the Pyramid Real Image Denoising Network (PRIDNet) [6]. These models weren't trained with satellite imagery in mind but are likely to yield good results and demonstrate the benefits of open-source reusability that edge computing allows on board a spacecraft. The disk footprint size of these models will present a challenge as they need to be reduced for spacecraft uplink (or apply only on the ground after image downlink).
+2. Re-use proven denoising models, such as the Pyramid Real Image Denoising Network (PRIDNet) [[6](https://arxiv.org/abs/1908.00273)]. These models weren't trained with satellite imagery in mind but are likely to yield good results and demonstrate the benefits of open-source reusability that edge computing allows on board a spacecraft. The disk footprint size of these models will present a challenge as they need to be reduced for spacecraft uplink (or apply only on the ground after image downlink).
 3. Train a denoising model using noise distribution that is representative of a CMOS sensor vertical scan.
 4. Explore removing noise from radiation damage on camera sensors for future missions exposed to high levels of radiation such as with interplanetary radiation belts or Io's surface radiation in the Jupiter system.
 
