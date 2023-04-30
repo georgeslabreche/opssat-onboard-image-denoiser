@@ -34,7 +34,7 @@ deactivate
 ```
 
 ## Implementation
-Mostly following and adapting TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder).
+Mostly following and adapting TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder). There's another example by Keras, [here](https://keras.io/examples/vision/autoencoder/).
 
 ## Execution
 1. Use `find_bad_jpegs.py` to identify corrupt images that will break the training (get rid of those images, if they exist).
