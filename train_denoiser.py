@@ -57,12 +57,21 @@ x_test = np.array(list(test_data))
 print("Train images shape:", x_train.shape)
 print("Test images shape:", x_test.shape)
 
-# adding random noise to the images
+# adding random noise to the images using a normal distribution
 x_train_noisy = x_train + NOISE_FACTOR * tf.random.normal(shape=x_train.shape)
-x_test_noisy = x_test + NOISE_FACTOR * tf.random.normal(shape=x_test.shape)
-
 x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
+
+x_test_noisy = x_test + NOISE_FACTOR * tf.random.normal(shape=x_test.shape)
 x_test_noisy = tf.clip_by_value(x_test_noisy, clip_value_min=0., clip_value_max=1.)
+
+# another way of adding noise
+# use NumPy's random normal distribution centered at 0.5 with a standard deviation of 0.5
+#train_noise = np.random.normal(loc=0.5, scale=0.5, size=x_train.shape)
+#x_train_noisy = np.clip(x_train + train_noise, 0, 1)
+
+# another way of adding noise, using numpy
+#test_noise = np.random.normal(loc=0.5, scale=0.5, size=x_test.shape)
+#x_test_noisy = np.clip(x_test + test_noise, 0, 1)
 
 
 # plot the first 10 images

@@ -7,7 +7,7 @@ DIR_PATH_IMAGES_EDGE = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/edge
 DIR_PATH_IMAGES_TEST = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/test"
 
 # flag to display or not the test noisy images
-DISPLAY_TEST_NOISE = False
+DISPLAY_TEST_NOISE = True
 
 # some hyperparameters
 EPOCHS = 10
