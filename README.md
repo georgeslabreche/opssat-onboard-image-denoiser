@@ -57,7 +57,7 @@ pip install virtualenv
 virtualenv venv
 ```
 
-Activate the environment in Linux:
+Activate the virtual environment in Linux:
 ```bash
 source venv/bin/activate
 ```
@@ -72,14 +72,13 @@ Install the application's Python package dependencies:
 pip install -r requirements.txt
 ```
 
-Run the application, refer to the "Execution" section.
-
-Deactivate the environment:
+Deactivate the virtual environment:
 ```bash
 deactivate
 ```
 
 ### Execution
+Activate the virtual environment and:
 1. Use `find_bad_jpegs.py` to identify corrupt images that will break the training (get rid of those images, if they exist).
 2. Edit `constants.py` with the desired training parameters.
 3. Train the model with `train_denoiser.py`.
