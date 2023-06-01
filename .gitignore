@@ -1,2 +1,5 @@
 __pycache__
 venv
+dist
+.pytest_cache
+image_denoiser_cguz.egg-info
