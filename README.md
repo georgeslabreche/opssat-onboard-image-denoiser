@@ -67,9 +67,24 @@ In Windows:
 .\venv\Scripts\activate
 ```
 
-Install the application's Python package dependencies:
+Make sure you are in the last version:
 ```
-pip install -r requirements.txt
+python3 -m pip install --upgrade build
+```
+
+Make sure that you pass all the test:
+```
+pytest
+```
+
+Compile the last version:
+```
+python3 -m build
+```
+
+Install using pip:
+```
+pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
 ```
 
 Deactivate the virtual environment:
