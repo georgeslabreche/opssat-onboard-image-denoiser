@@ -72,11 +72,6 @@ Make sure you are in the last version:
 python3 -m pip install --upgrade build
 ```
 
-Make sure that you pass all the test:
-```
-pytest
-```
-
 Compile the last version:
 ```
 python3 -m build
@@ -85,6 +80,11 @@ python3 -m build
 Install using pip:
 ```
 pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
+```
+
+Make sure that you pass all the test:
+```
+pytest
 ```
 
 Deactivate the virtual environment:

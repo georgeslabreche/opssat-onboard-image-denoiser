@@ -2,8 +2,8 @@
 MODEL_PATH = "models/v4/denoiser"
 
 # location of the image data
-DIR_PATH_IMAGES_EARTH = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/earth"
-DIR_PATH_IMAGES_EDGE = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/edge"
+DIR_PATH_IMAGES_EARTH = "./data/OPSSAT/opssat-thumbnails/01_unprocessed/earth"
+DIR_PATH_IMAGES_EDGE = "./data/OPSSAT/opssat-thumbnails/01_unprocessed/edge"
 DIR_PATH_IMAGES_TEST = "D:/Pictures/OPSSAT/opssat-thumbnails/01_unprocessed/test"
 
 # flag to display or not the test noisy images
