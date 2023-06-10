@@ -7,7 +7,10 @@ The European Space Agency's [OPS-SAT](opssat1.esoc.esa.int/) spacecraft has a BS
 Past experiments have successfully demonstrated the use of TensorFlow models on-board the spacecraft's edge computer payload [[2](https://ieeexplore.ieee.org/document/9843402), [3](https://www.researchgate.net/publication/363599665_Augmenting_Digital_Signal_Processing_with_Machine_Learning_techniques_using_the_Software_Defined_Radio_on_the_OPS-SAT_Space_Lab), [4](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/)], notably with the [SmartCam app](https://github.com/georgeslabreche/opssat-smartcam). Training a neural networks model using TensorFlow for on-board inferences has since been common practice by the OPS-SAT mission control team, particularly for autonomous decision-making in image classification. This experiment builds on those successes to train a denoising TensorFlow Lite model that can be plugged into the [SmartCam's inference pipeline](https://github.com/georgeslabreche/opssat-smartcam#33-building-an-image-classification-pipeline) to "fix" potentially grainy images. Denoising on-board rather than on the ground allows for image-based on-board autonomous decision-making that requires high fidelity imagery with little to no loss of pixel data.
 
 
-## Implementation
+## Implementations
+
+### Autoencoders
+
 The Autoencoders implemented for this experiment are taken from TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as from a [Keras example](https://keras.io/examples/vision/autoencoder/). The source code of the Autoencoders can be found [here](autoencoders.py). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data.
 
 ![Figure 1: FPN noise for CCD (left) and CMOS (right) noise.](./figures/fig1_fixed_pattern_noise.png)
@@ -24,6 +27,10 @@ This experiment is a naive implementation of TensorFlow Autodecoders with little
 ### Simple Denoiser
 ![Result from using a simple implementaton of the denoiser autoencoder.](./figures/fig3_result_denoiser_simple.png)
 **Figure 3: Result from using a simple implementaton of the denoiser autoencoder.**
+
+### Generative adversarial networks (GANs)
+
+Working on
 
 ## Future Work
 Suggested future work:
@@ -51,8 +58,10 @@ Suggested future work:
 Instructions on how to install the application to train and apply the denoiser autoencoder model. Training images are not provided.
 
 ### Installation
-Install the virtual environment:
+
+Install and create the virtual environment:
 ```bash
+apt install python3-venv
 pip install virtualenv
 virtualenv venv
 ```
@@ -62,28 +71,28 @@ Activate the virtual environment in Linux:
 source venv/bin/activate
 ```
 
-In Windows:
-```
-.\venv\Scripts\activate
-```
-
 Make sure you are in the last version:
-```
+```bash
 python3 -m pip install --upgrade build
 ```
 
-Make sure that you pass all the test:
+Install Pytest:
+```bash
+pip install pytest
 ```
+
+Make sure that you pass all the test:
+```bash
 pytest
 ```
 
 Compile the last version:
-```
+```bash
 python3 -m build
 ```
 
 Install using pip:
-```
+```bash
 pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
 ```
 
