@@ -61,7 +61,7 @@ Instructions on how to install the application to train and apply the denoiser a
 
 Install and create the virtual environment:
 ```bash
-apt install python3-venv
+sudo apt install python3-venv
 pip install virtualenv
 virtualenv venv
 ```
