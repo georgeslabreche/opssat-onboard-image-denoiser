@@ -61,8 +61,8 @@ Sample outputs with column FPN:
 <table>
   <tr>
     <td><img src="sample.jpeg" width="200"/><br>Original</td>
-    <td><img src="samples/sample.noisy.cfpn.050.jpeg" width="200"/><br>NF 25</td>
-    <td><img src="samples/sample.noisy.cfpn.100.jpeg" width="200"/><br>NF 50</td>
+    <td><img src="samples/sample.noisy.cfpn.050.jpeg" width="200"/><br>NF 50</td>
+    <td><img src="samples/sample.noisy.cfpn.100.jpeg" width="200"/><br>NF 100</td>
   </tr>
 </table>
 
