@@ -37,28 +37,36 @@ void generate_fixed_noise_pattern(unsigned char* noise_pattern, int size, double
 }
 
 // function to add noise to image
-void add_noise_to_image(unsigned char* image, unsigned char* noise_pattern, int size, double noise_factor, int noise_type) {
+void add_noise_to_image(unsigned char* image, unsigned char* noise_pattern, int width, int height, int channels, double noise_factor, int noise_type) {
 
   // use current time as seed for random number generator
   srand(time(NULL)); 
 
-  for(int i = 0; i < size; ++i) {
-    int noisy_value = 0;
+  for(int y = 0; y < height; ++y) {
+    for(int x = 0; x < width; ++x) {
+      for(int c = 0; c < channels; ++c) {
+        int i = (y * width * channels) + (x * channels) + c;
+        int noisy_value = 0;
 
-    if (noise_type == 0) { 
-      // Gaussian noise
-      noisy_value = (int) ((double) image[i] + noise_factor * generate_gaussian_noise(0, 1));
-    } else {
-      // fixed pattern noise (FPN)
-      noisy_value = (int) ((double) image[i] + (double) noise_pattern[i]);
+        if (noise_type == 0) { 
+          // Gaussian noise
+          noisy_value = (int) ((double) image[i] + noise_factor * generate_gaussian_noise(0, 1));
+        } else if (noise_type == 1) {
+          // fixed pattern noise (FPN)
+          noisy_value = (int) ((double) image[i] + (double) noise_pattern[i]);
+        } else if (noise_type == 2) {
+          // column fixed pattern noise
+          noisy_value = (int) ((double) image[i] + (double) noise_pattern[x * channels + c]);
+        }
+
+        // clamp the noisy_value to [0, 255]
+        noisy_value = noisy_value < 0 ? 0 : noisy_value;
+        noisy_value = noisy_value > 255 ? 255 : noisy_value;
+
+        // re-use the image input buffer as the image output buffer
+        image[i] = (unsigned char) noisy_value;
+      }
     }
-
-    // clamp the noisy_value to [0, 255]
-    noisy_value = noisy_value < 0 ? 0 : noisy_value;
-    noisy_value = noisy_value > 255 ? 255 : noisy_value;
-
-    // re-use the image input buffer as the image output buffer
-    image[i] = (unsigned char) noisy_value;
   }
 }
 
@@ -85,7 +93,7 @@ char* create_output_filename(char* input_filename) {
 // arguments:
 //  - image_filepath: The filepath of the image input.
 //  - noise_type: The noise factor to determine how much noise to apply (e.g. 150).
-//  - noise_type: The noise type is a flag where 0 means Gaussian noise and 1 means fixed pattern noise.
+//  - noise_type: The noise type is a flag where, 0 means Gaussian noise, 1 means FPN (for CCD noise simulation), and 2 means column FPN (for CMOS noise simulation)
 int main(int argc, char *argv[]) {
 
   // check for expected number of arguments
@@ -124,12 +132,13 @@ int main(int argc, char *argv[]) {
   }
 
   // generate fixed pattern noise (FPN)
-  if (noise_type == 1) {
-    generate_fixed_noise_pattern(noise_pattern, size, noise_factor);
+  if (noise_type == 1 || noise_type == 2) {
+    int pattern_size = noise_type == 1 ? size : width * channels;
+    generate_fixed_noise_pattern(noise_pattern, pattern_size, noise_factor);
   }
 
   // add noise to the image
-  add_noise_to_image(image, noise_pattern, size, noise_factor, noise_type);
+    add_noise_to_image(image, noise_pattern, width, height, channels, noise_factor, noise_type);
 
   // write the noisy image
   stbi_write_jpg(output_filename, width, height, channels, image, 100);
