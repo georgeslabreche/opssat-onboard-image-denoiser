@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -6,14 +8,24 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras import layers, losses
 
-# make sure constants are set as desired before training
-from constants import *
-
 # autoencoders
 from autoencoders import NaiveDenoiser, SimpleDenoiser
 
+# make sure constants are set as desired before training
+from constants import *
+
+# increase this when running on a proper ML training computer with GPU
+# set to None to train with all available training data
+TRAINING_DATA_SAMPLE_SIZE = 2000
+
+# keep track of the number of images processed
+num_image_processed = tf.Variable(0)
+
 # function to resize and normalize the input images
 def preprocess_image(file_path):
+
+  # track the number of images processed
+  global num_image_processed
 
   # read image file
   image = tf.io.read_file(file_path)
@@ -21,24 +33,42 @@ def preprocess_image(file_path):
   # decode image in desired channel
   image = tf.image.decode_jpeg(image, channels=DESIRED_CHANNELS)
 
-  # resize image in desired 
-  image = tf.image.resize(image, [DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH])
-  
+  # resize image in desired
+  if RESIZE_IMAGE is True:
+    image = tf.image.resize(image, [DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH])
+  else:
+    # convert the image data to float32
+    image = tf.cast(image, tf.float32)
+
   # normalization
   image /= 255.0
 
+  # increase the counter and print the number of processed images
+  num_image_processed.assign_add(1)
+  if num_image_processed % 100 == 0:  # print every 100 images
+    tf.print('Images preprocessed:', num_image_processed)
+
+  # return the image
   return image
 
 
 # list the image files
-list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGES_EARTH + "/*.jpeg")
+list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpg")
 
 # get the number of files
 num_files = len(list(list_image_files))
-print("Number of images files in the dataset:", num_files)
+print("Images in the dataset:", num_files)
 
 # shuffle the dataset
 list_image_files = list_image_files.shuffle(buffer_size=1000, seed=42)
+
+# Take a subsample only in dev environment.
+if TRAINING_DATA_SAMPLE_SIZE is not None:
+  list_image_files = list_image_files.take(TRAINING_DATA_SAMPLE_SIZE)
+
+  # get the number of files
+  num_files = len(list(list_image_files))
+  print("Images sampled from the dataset:", num_files)
 
 # calculate the number of files in the training set
 num_train = int(num_files * TRAIN_RATIO)
@@ -88,7 +118,7 @@ if DISPLAY_TEST_NOISE:
     ax = plt.subplot(2, n, i + 1)
     plt.title("original")
     plt.imshow(tf.squeeze(x_test[i]))
-    plt.gray()
+    #plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
@@ -96,7 +126,7 @@ if DISPLAY_TEST_NOISE:
     bx = plt.subplot(2, n, i + n + 1)
     plt.title("original + noise")
     plt.imshow(tf.squeeze(x_test_noisy[i]))
-    plt.gray()
+    #plt.gray()
     bx.get_xaxis().set_visible(False)
     bx.get_yaxis().set_visible(False)
 
@@ -126,6 +156,7 @@ denoiser.fit(x_train_noisy, x_train,
   shuffle=True,
   validation_data=(x_test_noisy, x_test))
 
+# save the model
 denoiser.save(MODEL_PATH)
 
 # convert the model to a tflite mode and save
@@ -154,7 +185,7 @@ for i in range(n):
     ax = plt.subplot(2, n, i + 1)
     plt.title("original + noise")
     plt.imshow(tf.squeeze(x_test_noisy[i]))
-    plt.gray()
+    #plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
@@ -162,7 +193,7 @@ for i in range(n):
     bx = plt.subplot(2, n, i + n + 1)
     plt.title("reconstructed")
     plt.imshow(tf.squeeze(decoded_imgs[i]))
-    plt.gray()
+    #plt.gray()
     bx.get_xaxis().set_visible(False)
     bx.get_yaxis().set_visible(False)
 
