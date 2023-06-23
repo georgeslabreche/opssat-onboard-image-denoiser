@@ -92,8 +92,8 @@ char* create_output_filename(char* input_filename) {
 // usage: ./noiser <image_filepath> <noise_factor> <noise_type>
 // arguments:
 //  - image_filepath: The filepath of the image input.
-//  - noise_type: The noise factor to determine how much noise to apply (e.g. 150).
-//  - noise_type: The noise type is a flag where, 0 means Gaussian noise, 1 means FPN (for CCD noise simulation), and 2 means column FPN (for CMOS noise simulation)
+//  - noise_factor: The noise factor to determine how much noise to apply (e.g. 150).
+//  - noise_type: The noise type where, 0 means Gaussian noise, 1 means FPN (for CCD noise simulation), and 2 means column FPN (for CMOS noise simulation)
 int main(int argc, char *argv[]) {
 
   // check for expected number of arguments

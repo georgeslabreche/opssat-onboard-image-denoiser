@@ -3,31 +3,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from utils import *
 
 # make sure constants are set as desired before executing this script
 from constants import *
-
-# function to resize and normalize the input images
-def preprocess_image(file_path):
-
-  # read image file
-  image = tf.io.read_file(file_path)
-
-  # decode image in desired channel
-  image = tf.image.decode_jpeg(image, channels=DESIRED_CHANNELS)
-
-  # resize image in desired
-  if RESIZE_IMAGE is True:
-    image = tf.image.resize(image, [DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH])
-  else:
-    # convert the image data to float32
-    image = tf.cast(image, tf.float32)
-
-  # normalization
-  image /= 255.0
-
-  # return the image
-  return image
 
 # load the denoiser model
 denoiser = tf.keras.models.load_model(MODEL_PATH)
@@ -40,22 +19,23 @@ denoiser.encoder.summary()
 denoiser.decoder.summary()
 
 # list the image files
-list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpg")
+list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpeg")
 
 # get the number of files
 num_files = len(list(list_image_files))
 print("\nImages in the dataset:", num_files)
 
 # load the images
-x_images = list_image_files.map(preprocess_image)
+input_data = list_image_files.map(lambda x: load_and_preprocess_image(x, resize=True))
 
-# convert the image to NumPy arrays
-x_images = np.array(list(x_images))
-print(x_images.shape)
+# load an preprocess the images
+x_images, x_images_noisy = zip(*list(input_data))
 
-# add the noise
-x_images_noisy = x_images + NOISE_FACTOR * tf.random.normal(shape=x_images.shape)
-x_images_noisy = tf.clip_by_value(x_images_noisy, clip_value_min=0., clip_value_max=1.)
+# convert tuples back into a single tensor
+x_images_noisy = tf.stack(x_images_noisy)
+
+# print the shape of the image inputs
+print("Images shape:", np.shape(x_images_noisy))
 
 # encode the noisy images
 encoded_imgs = denoiser.encoder(x_images_noisy).numpy()

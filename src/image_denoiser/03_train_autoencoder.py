@@ -3,54 +3,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-# tensorflow
-import tensorflow as tf
+from PIL import Image
+import tensorflow as tf # tensorflow
 from tensorflow.keras import layers, losses
-
-# autoencoders
 from autoencoders import NaiveDenoiser, SimpleDenoiser
+from utils import *
 
 # make sure constants are set as desired before training
 from constants import *
 
+
 # increase this when running on a proper ML training computer with GPU
 # set to None to train with all available training data
-TRAINING_DATA_SAMPLE_SIZE = 2000
-
-# keep track of the number of images processed
-num_image_processed = tf.Variable(0)
-
-# function to resize and normalize the input images
-def preprocess_image(file_path):
-
-  # track the number of images processed
-  global num_image_processed
-
-  # read image file
-  image = tf.io.read_file(file_path)
-
-  # decode image in desired channel
-  image = tf.image.decode_jpeg(image, channels=DESIRED_CHANNELS)
-
-  # resize image in desired
-  if RESIZE_IMAGE is True:
-    image = tf.image.resize(image, [DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH])
-  else:
-    # convert the image data to float32
-    image = tf.cast(image, tf.float32)
-
-  # normalization
-  image /= 255.0
-
-  # increase the counter and print the number of processed images
-  num_image_processed.assign_add(1)
-  if num_image_processed % 100 == 0:  # print every 100 images
-    tf.print('Images preprocessed:', num_image_processed)
-
-  # return the image
-  return image
-
+TRAINING_DATA_SAMPLE_SIZE = 3000
 
 # list the image files
 list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpg")
@@ -73,38 +38,29 @@ if TRAINING_DATA_SAMPLE_SIZE is not None:
 # calculate the number of files in the training set
 num_train = int(num_files * TRAIN_RATIO)
 
-# separate the dataset into training and testing sets
-train_data = list_image_files.take(num_train)
-test_data = list_image_files.skip(num_train)
+# separate the image file path datasets into training and testing sets
+list_image_files_train = list_image_files.take(num_train)
+list_image_files_test  = list_image_files.skip(num_train)
 
-# load the images for both training and testing datasets
-train_data = train_data.map(preprocess_image)
-test_data = test_data.map(preprocess_image)
+# load an preprocess the images
+train_data = list_image_files_train.map(lambda x: load_and_preprocess_image(x, resize=False))
+test_data  = list_image_files_test.map(lambda x: load_and_preprocess_image(x, resize=False))
 
 # convert the train and test datasets to NumPy arrays
-x_train = np.array(list(train_data))
-x_test = np.array(list(test_data))
+x_train, x_train_noisy = zip(*list(train_data))
+x_test, x_test_noisy = zip(*list(test_data))
+
+# convert tuples back into a single tensor
+x_train       = tf.stack(x_train)
+x_train_noisy = tf.stack(x_train_noisy)
+x_test        = tf.stack(x_test)
+x_test_noisy  = tf.stack(x_test_noisy)
 
 # print the shapes of the train and test datasets
-print("Train images shape:", x_train.shape)
-print("Test images shape:", x_test.shape)
-
-# adding random noise to the images using a normal distribution
-x_train_noisy = x_train + NOISE_FACTOR * tf.random.normal(shape=x_train.shape)
-x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
-
-x_test_noisy = x_test + NOISE_FACTOR * tf.random.normal(shape=x_test.shape)
-x_test_noisy = tf.clip_by_value(x_test_noisy, clip_value_min=0., clip_value_max=1.)
-
-# another way of adding noise
-# use NumPy's random normal distribution centered at 0.5 with a standard deviation of 0.5
-#train_noise = np.random.normal(loc=0.5, scale=0.5, size=x_train.shape)
-#x_train_noisy = np.clip(x_train + train_noise, 0, 1)
-
-# another way of adding noise, using numpy
-#test_noise = np.random.normal(loc=0.5, scale=0.5, size=x_test.shape)
-#x_test_noisy = np.clip(x_test + test_noise, 0, 1)
-
+print("Train images shape:",         np.shape(x_train))
+print("Train images shape (noisy):", np.shape(x_train_noisy))
+print("Test images shape:",          np.shape(x_test))
+print("Test images shape (noisy):",  np.shape(x_test_noisy))
 
 # plot the first 10 images
 # first row: original

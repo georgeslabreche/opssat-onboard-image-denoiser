@@ -36,19 +36,22 @@ DIR_PATH_IMAGERY_LANDSAT8_VALIDATE = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/
 
 # where to save the fetched imaged (in the training data folder)
 DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGERY_LANDSAT8_TRAIN
-DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
+
+# directory containing imagery to validate the model
+#DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
+DIR_PATH_IMAGERY_VALIDATE =DIR_PATH_IMAGES_OPSSAT_VALIDATE
 
 # flag to display or not the test noisy images
 DISPLAY_TEST_NOISE = True
 
-# two types of denoisers are implemented:
+# two types of denoisers autoencoders are implemented:
 # - 1 for NaiveDenoiser
 # - 2 for SimpleDenoiser
 # see autoencoders.py for implementation
 DENOISER_TYPE = 1
 
 # some hyperparameters
-EPOCHS = 10
+EPOCHS = 20
 BATCH_SIZE = 32
 
 # set the proportion of data to use for training and testing
@@ -57,11 +60,14 @@ TRAIN_RATIO = 0.9
 # greyscale the images to go easy on processing needs
 DESIRED_CHANNELS = 3
 
-# noise factor image
-NOISE_FACTOR = 0.2
+# the noise factor to determine how much noise to apply (e.g. 150).
+NOISE_FACTOR = 50
 
-# resize the image
-RESIZE_IMAGE = False
+# the noise type:
+#  0 is Gaussian noise
+#  1 is FPN (for CCD noise simulation)
+#  2 is column FPN (for CMOS noise simulation)
+NOISE_TYPE = 1
 
 #DESIRED_INPUT_HEIGHT = 614
 #DESIRED_INPUT_WIDTH = 583
