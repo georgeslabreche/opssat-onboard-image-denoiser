@@ -81,11 +81,6 @@ Install Pytest:
 pip install pytest
 ```
 
-Make sure that you pass all the test:
-```bash
-pytest
-```
-
 Compile the last version:
 ```bash
 python3 -m build
@@ -94,6 +89,11 @@ python3 -m build
 Install using pip:
 ```bash
 pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
+```
+
+Make sure that you pass all the test:
+```bash
+pytest
 ```
 
 Deactivate the virtual environment:

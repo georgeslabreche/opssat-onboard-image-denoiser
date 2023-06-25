@@ -4,3 +4,4 @@ dist
 .pytest_cache
 image_denoiser.egg-info
 data/
+models
