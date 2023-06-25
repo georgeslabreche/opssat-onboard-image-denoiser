@@ -11,7 +11,7 @@ Past experiments have successfully demonstrated the use of TensorFlow models on-
 
 ### Autoencoders
 
-The Autoencoders implemented for this experiment are taken from TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as from a [Keras example](https://keras.io/examples/vision/autoencoder/). The source code of the Autoencoders can be found [here](autoencoders.py). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data.
+The Autoencoders implemented for this experiment are taken from TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as from a [Keras example](https://keras.io/examples/vision/autoencoder/). The source code of the Autoencoders can be found [here](autoencoders.py). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data. The noiser is an executable binary implemented in C and can be found [here](./tools/noiser/).
 
 ![Figure 1: FPN noise for CCD (left) and CMOS (right) noise.](./figures/fig1_fixed_pattern_noise.png)
 
@@ -107,3 +107,4 @@ Activate the virtual environment and:
 2. Edit `constants.py` with the desired training parameters.
 3. Train the model with `train_denoiser.py`.
 4. Test the model on some images with `denoise.py`.
+=======

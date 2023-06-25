@@ -1,0 +1,3 @@
+[submodule "tools/noiser/stb"]
+	path = tools/noiser/stb
+	url = https://github.com/georgeslabreche/stb.git

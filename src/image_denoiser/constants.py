@@ -1,5 +1,24 @@
+'''
+the dataset ids for Landsat imagery:
+
+  ref_landcovernet_af_v1: LandCoverNet Africa
+  ref_landcovernet_as_v1: LandCoverNet Asia
+  ref_landcovernet_au_v1: LandCoverNet Australia
+  ref_landcovernet_eu_v1: LandCoverNet Europe
+  ref_landcovernet_na_v1: LandCoverNet North America
+  ref_landcovernet_sa_v1: LandCoverNet South America
+'''
+LANDCOVERNET_DATASET_ID_EU = 'ref_landcovernet_eu_v1'
+LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
+
+# imagery source
+LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
+
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "models/v4/denoiser"
+MODEL_PATH = "./models/landsat8v1"
+
+# directory path for the imagery archive that will be downloaded
+DIR_PATH_IMAGES_DOWNLOAD = './data'
 
 DIR_INIT = "/home/cguzman/git/cguz/opssat-image-denoiser/"
 
@@ -7,6 +26,18 @@ DIR_INIT = "/home/cguzman/git/cguz/opssat-image-denoiser/"
 DIR_PATH_IMAGES_EARTH = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/earth"
 DIR_PATH_IMAGES_EDGE = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/edge"
 DIR_PATH_IMAGES_TEST = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/test"
+# parent directory path of the imagery
+DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA = f'{DIR_PATH_IMAGES_DOWNLOAD}/{LANDCOVERNET_DATASET_ID_NA}_source_{LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8}'
+
+# target directory for the merged RGB bands imagery
+DIR_PATH_IMAGERY_LANDSAT8_TRAIN = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/train'
+
+# director for validation
+DIR_PATH_IMAGERY_LANDSAT8_VALIDATE = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/validate'
+
+# where to save the fetched imaged (in the training data folder)
+DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGERY_LANDSAT8_TRAIN
+DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
 
 # flag to display or not the test noisy images
 DISPLAY_TEST_NOISE = True
@@ -22,15 +53,17 @@ EPOCHS = 10
 BATCH_SIZE = 32
 
 # set the proportion of data to use for training and testing
-TRAIN_RATIO = 0.8
+TRAIN_RATIO = 0.9
 
 # greyscale the images to go easy on processing needs
-DESIRED_CHANNELS = 1
+DESIRED_CHANNELS = 3
 
 # noise factor image
-NOISE_FACTOR = 0.03
+NOISE_FACTOR = 0.2
 
 # resize the image
+RESIZE_IMAGE = False
+
 #DESIRED_INPUT_HEIGHT = 614
 #DESIRED_INPUT_WIDTH = 583
 
