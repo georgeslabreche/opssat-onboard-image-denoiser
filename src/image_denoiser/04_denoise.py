@@ -15,8 +15,9 @@ denoiser = tf.keras.models.load_model(MODEL_PATH)
 denoiser.summary()
 
 # print encoder and decoder summaries
-denoiser.encoder.summary()
-denoiser.decoder.summary()
+if DENOISER_TYPE != 4:
+  denoiser.encoder.summary()
+  denoiser.decoder.summary()
 
 # list the image files
 list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpeg")
@@ -37,11 +38,22 @@ x_images_noisy = tf.stack(x_images_noisy)
 # print the shape of the image inputs
 print("Images shape:", np.shape(x_images_noisy))
 
-# encode the noisy images
-encoded_imgs = denoiser.encoder(x_images_noisy).numpy()
+# the decoded images
+decoded_imgs = None
 
-# decode the encoded images
-decoded_imgs = denoiser.decoder(encoded_imgs).numpy()
+# denoise the noisy images into decoded images
+if DENOISER_TYPE == 4:
+  # pass the noisy images through the denoiser model
+  decoded_imgs = denoiser(x_images_noisy)
+else:
+  # encode the noisy images
+  encoded_imgs = denoiser.encoder(x_images_noisy).numpy()
+
+  # decode the encoded images
+  decoded_imgs = denoiser.decoder(encoded_imgs).numpy()
+
+  #predicted_noise = denoiser.predict(x_images_noisy)
+  #decoded_imgs = x_images_noisy - predicted_noise
 
 # function to plot 3 images in a row: 1) the original image, 2) the image with noise, and 3) the constructed image
 def plot_images(images, titles):

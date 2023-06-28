@@ -1,8 +1,5 @@
 import tensorflow as tf
 import numpy as np
-from PIL import Image
-import os
-import argparse
 import math
 import time
 
@@ -52,32 +49,3 @@ def add_noise_to_image(image, noise_pattern, noise_factor, noise_type):
 
   # return the noisy image
   return tf.cast(image, tf.uint8)
-
-'''
-def add_noise_to_image(image, noise_pattern, noise_factor, noise_type):
-  #add noise to image
-
-  np.random.seed(int(time.time()))
-  noisy_image = image.copy()
-
-  if noise_type == 0:
-    # Gaussian noise
-    noisy_image = noisy_image + noise_factor * np.random.normal(0, 1, image.shape)
-  elif noise_type == 1:
-    # fixed pattern noise (FPN)
-    noisy_image = noisy_image + noise_pattern
-  elif noise_type == 2:
-    # column fixed pattern noise (FPN)
-    for x in range(noisy_image.shape[1]):
-      for c in range(noisy_image.shape[2]):
-        noisy_image[:,x,c] = noisy_image[:,x,c] + noise_pattern[x, c]
-  else:
-    print(f'Invalid noise type: {noise_type}')
-    exit(1)
-
-  # clamp the values to [0, 255]
-  np.clip(noisy_image, 0, 255, out=noisy_image)
-
-  # return the noisy image
-  return noisy_image.astype(np.uint8)
-'''

@@ -6,7 +6,7 @@ import pandas as pd
 from PIL import Image
 import tensorflow as tf # tensorflow
 from tensorflow.keras import layers, losses
-from autoencoders import NaiveDenoiser, SimpleDenoiser
+from autoencoders import *
 from utils import *
 
 # make sure constants are set as desired before training
@@ -15,7 +15,7 @@ from constants import *
 
 # increase this when running on a proper ML training computer with GPU
 # set to None to train with all available training data
-TRAINING_DATA_SAMPLE_SIZE = 3000
+TRAINING_DATA_SAMPLE_SIZE = 2000
 
 # list the image files
 list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpg")
@@ -94,9 +94,13 @@ if DISPLAY_TEST_NOISE:
 # todo: make scalable with Factory Pattern
 denoiser = None
 if DENOISER_TYPE == 1:
-  denoiser = NaiveDenoiser(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+  denoiser = DenoiseNaiveAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
 elif DENOISER_TYPE == 2:
-  denoiser = SimpleDenoiser(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+  denoiser = DenoiseSimpleAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+elif DENOISER_TYPE == 3:
+  denoiser = DenoiseComplexAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+elif DENOISER_TYPE == 4:
+  denoiser = DenoiseSkipAutoencoder()
 else:
   print(f"Error: unsupported denoiser encoder typel: {DENOISER_TYPE}")
   quit()
@@ -124,14 +128,23 @@ with open(MODEL_PATH + '.tflite', 'wb') as f:
   f.write(tflite_denoiser)
 
 # print encoder and decoder summaries
-denoiser.encoder.summary()
-denoiser.decoder.summary()
+if DENOISER_TYPE != 4:
+  denoiser.encoder.summary()
+  denoiser.decoder.summary()
 
-# encode the noisy images from the test set
-encoded_imgs = denoiser.encoder(x_test_noisy).numpy()
+# decoded images:
+decoded_imgs = None
 
-# decode the encoded images
-decoded_imgs = denoiser.decoder(encoded_imgs).numpy()
+# denoise the test noisy images into decoded images
+if DENOISER_TYPE == 4:
+  # pass the noisy images through the denoiser model
+  decoded_imgs = denoiser(x_test_noisy)
+else:
+  # encode the noisy images from the test set
+  encoded_imgs = denoiser.encoder(x_test_noisy).numpy()
+
+  # decode the encoded images
+  decoded_imgs = denoiser.decoder(encoded_imgs).numpy()
 
 # plot both the noisy images and the denoised images produced by the denoiser autoencoder
 n = 10

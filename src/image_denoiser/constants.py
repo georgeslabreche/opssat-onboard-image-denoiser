@@ -15,7 +15,7 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "./models/landsat8v1"
+MODEL_PATH = "./models/landsat8v3"
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
@@ -45,13 +45,15 @@ DIR_PATH_IMAGERY_VALIDATE =DIR_PATH_IMAGES_OPSSAT_VALIDATE
 DISPLAY_TEST_NOISE = True
 
 # two types of denoisers autoencoders are implemented:
-# - 1 for NaiveDenoiser
-# - 2 for SimpleDenoiser
+# - 1 for DenoiseNaiveAutoencoder
+# - 2 for DenoiseSimpleAutoencoder
+# - 3 for DenoiseComplexAutoencoder
+# - 4 for DenoiseSkipAutoencoder
 # see autoencoders.py for implementation
-DENOISER_TYPE = 1
+DENOISER_TYPE = 4
 
 # some hyperparameters
-EPOCHS = 20
+EPOCHS = 10
 BATCH_SIZE = 32
 
 # set the proportion of data to use for training and testing
