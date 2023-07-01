@@ -15,7 +15,7 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "./models/landsat8v1"
+MODEL_PATH = "./models/landsat8v3"
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
@@ -37,16 +37,21 @@ DIR_PATH_IMAGERY_LANDSAT8_VALIDATE = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/
 
 # where to save the fetched imaged (in the training data folder)
 DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGERY_LANDSAT8_TRAIN
-DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
+
+# directory containing imagery to validate the model
+#DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
+DIR_PATH_IMAGERY_VALIDATE =DIR_PATH_IMAGES_OPSSAT_VALIDATE
 
 # flag to display or not the test noisy images
 DISPLAY_TEST_NOISE = True
 
-# two types of denoisers are implemented:
-# - 1 for NaiveDenoiser
-# - 2 for SimpleDenoiser
+# two types of denoisers autoencoders are implemented:
+# - 1 for DenoiseNaiveAutoencoder
+# - 2 for DenoiseSimpleAutoencoder
+# - 3 for DenoiseComplexAutoencoder
+# - 4 for DenoiseSkipAutoencoder
 # see autoencoders.py for implementation
-DENOISER_TYPE = 1
+DENOISER_TYPE = 4
 
 # some hyperparameters
 EPOCHS = 10
@@ -58,11 +63,14 @@ TRAIN_RATIO = 0.9
 # greyscale the images to go easy on processing needs
 DESIRED_CHANNELS = 3
 
-# noise factor image
-NOISE_FACTOR = 0.2
+# the noise factor to determine how much noise to apply (e.g. 150).
+NOISE_FACTOR = 50
 
-# resize the image
-RESIZE_IMAGE = False
+# the noise type:
+#  0 is Gaussian noise
+#  1 is FPN (for CCD noise simulation)
+#  2 is column FPN (for CMOS noise simulation)
+NOISE_TYPE = 1
 
 #DESIRED_INPUT_HEIGHT = 614
 #DESIRED_INPUT_WIDTH = 583
