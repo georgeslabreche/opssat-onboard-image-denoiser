@@ -15,36 +15,74 @@ from constants import *
 
 # increase this when running on a proper ML training computer with GPU
 # set to None to train with all available training data
-TRAINING_DATA_SAMPLE_SIZE = 2000
+TRAINING_DATA_SAMPLE_SIZE = None
+
+# resize training data
+TRAINING_DATA_RESIZE = True
+
+# increase the training dataset size by rotating the images
+INCLUDE_ROTATED_IMAGES = True
+
+def rot90_image(image, image_noisy):
+  return tf.image.rot90(image, 1), tf.image.rot90(image_noisy, 1)
+
 
 # list the image files
-list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpg")
+list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpeg")
 
 # get the number of files
 num_files = len(list(list_image_files))
 print("Images in the dataset:", num_files)
 
 # shuffle the dataset
-list_image_files = list_image_files.shuffle(buffer_size=1000, seed=42)
+#list_image_files = list_image_files.shuffle(buffer_size=1000, seed=42)
 
 # Take a subsample only in dev environment.
 if TRAINING_DATA_SAMPLE_SIZE is not None:
   list_image_files = list_image_files.take(TRAINING_DATA_SAMPLE_SIZE)
 
-  # get the number of files
-  num_files = len(list(list_image_files))
-  print("Images sampled from the dataset:", num_files)
-
-# calculate the number of files in the training set
-num_train = int(num_files * TRAIN_RATIO)
-
-# separate the image file path datasets into training and testing sets
-list_image_files_train = list_image_files.take(num_train)
-list_image_files_test  = list_image_files.skip(num_train)
+# get the number of files
+num_files = len(list(list_image_files))
+print("Images sampled from the dataset:", num_files)
 
 # load an preprocess the images
-train_data = list_image_files_train.map(lambda x: load_and_preprocess_image(x, resize=False))
-test_data  = list_image_files_test.map(lambda x: load_and_preprocess_image(x, resize=False))
+image_data = list_image_files.map(lambda x: load_and_preprocess_image(x, resize=TRAINING_DATA_RESIZE))
+
+# rotate the images to create more training data
+if INCLUDE_ROTATED_IMAGES is True:
+  
+  # the original size of the training dataset
+  len1 = len(list(image_data))
+  print("Increase training dataset by rotating images:")
+
+  # rotate the images
+  image_data_rot90  = image_data.map(rot90_image)
+  image_data_rot180 = image_data_rot90.map(rot90_image)
+  image_data_rot270 = image_data_rot180.map(rot90_image)
+
+  # and append to the original image dataset
+  image_data = image_data.concatenate(image_data_rot90)
+  len2 = len(list(image_data))
+  print(f"  {len1} --> {len2}")
+
+  image_data = image_data.concatenate(image_data_rot180)
+  len3 = len(list(image_data))
+  print(f"  {len2} --> {len3}")
+
+  image_data = image_data.concatenate(image_data_rot270)
+  len4 = len(list(image_data))
+  print(f"  {len3} --> {len4}")
+
+# calculate the number of files in the training dataset to use as training data
+# the rest will be used as test data
+num_train = int(len(list(image_data)) * TRAIN_RATIO)
+
+# shuffle
+image_data = image_data.shuffle(buffer_size=3000)
+
+# split the image data between train and test data
+train_data = image_data.take(num_train)
+test_data  = image_data.skip(num_train)
 
 # convert the train and test datasets to NumPy arrays
 x_train, x_train_noisy = zip(*list(train_data))
@@ -61,6 +99,7 @@ print("Train images shape:",         np.shape(x_train))
 print("Train images shape (noisy):", np.shape(x_train_noisy))
 print("Test images shape:",          np.shape(x_test))
 print("Test images shape (noisy):",  np.shape(x_test_noisy))
+
 
 # plot the first 10 images
 # first row: original
@@ -94,13 +133,19 @@ if DISPLAY_TEST_NOISE:
 # todo: make scalable with Factory Pattern
 denoiser = None
 if DENOISER_TYPE == 1:
-  denoiser = DenoiseNaiveAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+  denoiser = DenoiseAutoencoderNaive(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
 elif DENOISER_TYPE == 2:
-  denoiser = DenoiseSimpleAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+  denoiser = DenoiseAutoencoderSimple(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
 elif DENOISER_TYPE == 3:
-  denoiser = DenoiseComplexAutoencoder(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
+  denoiser = DenoiseAutoencoderComplex(DESIRED_INPUT_HEIGHT, DESIRED_INPUT_WIDTH, DESIRED_CHANNELS)
 elif DENOISER_TYPE == 4:
-  denoiser = DenoiseSkipAutoencoder()
+  denoiser = DenoiseAutoencoderSkipConnection()
+elif DENOISER_TYPE == 5:
+  denoiser = DenoiseAutoencoderVGG16()
+elif DENOISER_TYPE == 6:
+  denoiser = DenoiseAutoencoderSkipConnectionVGG16()
+elif DENOISER_TYPE == 7:
+  denoiser = DenoiseAutoencoderSkipConnectionMobileNetV2()
 else:
   print(f"Error: unsupported denoiser encoder typel: {DENOISER_TYPE}")
   quit()
@@ -128,7 +173,7 @@ with open(MODEL_PATH + '.tflite', 'wb') as f:
   f.write(tflite_denoiser)
 
 # print encoder and decoder summaries
-if DENOISER_TYPE != 4:
+if DENOISER_TYPE not in [4, 5, 6]:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
 
@@ -136,7 +181,7 @@ if DENOISER_TYPE != 4:
 decoded_imgs = None
 
 # denoise the test noisy images into decoded images
-if DENOISER_TYPE == 4:
+if DENOISER_TYPE >= 4:
   # pass the noisy images through the denoiser model
   decoded_imgs = denoiser(x_test_noisy)
 else:
@@ -150,21 +195,21 @@ else:
 n = 10
 plt.figure(figsize=(20, 4))
 for i in range(n):
-    # display original + noise
-    ax = plt.subplot(2, n, i + 1)
-    plt.title("original + noise")
-    plt.imshow(tf.squeeze(x_test_noisy[i]))
-    #plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+  # display original + noise
+  ax = plt.subplot(2, n, i + 1)
+  plt.title("original + noise")
+  plt.imshow(tf.squeeze(x_test_noisy[i]))
+  #plt.gray()
+  ax.get_xaxis().set_visible(False)
+  ax.get_yaxis().set_visible(False)
 
-    # display reconstruction
-    bx = plt.subplot(2, n, i + n + 1)
-    plt.title("reconstructed")
-    plt.imshow(tf.squeeze(decoded_imgs[i]))
-    #plt.gray()
-    bx.get_xaxis().set_visible(False)
-    bx.get_yaxis().set_visible(False)
+  # display reconstruction
+  bx = plt.subplot(2, n, i + n + 1)
+  plt.title("reconstructed")
+  plt.imshow(tf.squeeze(decoded_imgs[i]))
+  #plt.gray()
+  bx.get_xaxis().set_visible(False)
+  bx.get_yaxis().set_visible(False)
 
 # show the reconstruction
 plt.show()

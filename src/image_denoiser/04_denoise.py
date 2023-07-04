@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from utils import *
+from PIL import Image
 
 # make sure constants are set as desired before executing this script
 from constants import *
@@ -15,7 +16,7 @@ denoiser = tf.keras.models.load_model(MODEL_PATH)
 denoiser.summary()
 
 # print encoder and decoder summaries
-if DENOISER_TYPE != 4:
+if DENOISER_TYPE < 4:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
 
@@ -42,7 +43,7 @@ print("Images shape:", np.shape(x_images_noisy))
 decoded_imgs = None
 
 # denoise the noisy images into decoded images
-if DENOISER_TYPE == 4:
+if DENOISER_TYPE >= 4:
   # pass the noisy images through the denoiser model
   decoded_imgs = denoiser(x_images_noisy)
 else:
@@ -54,6 +55,7 @@ else:
 
   #predicted_noise = denoiser.predict(x_images_noisy)
   #decoded_imgs = x_images_noisy - predicted_noise
+
 
 # function to plot 3 images in a row: 1) the original image, 2) the image with noise, and 3) the constructed image
 def plot_images(images, titles):
