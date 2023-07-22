@@ -157,12 +157,11 @@ class DenoiseAutoencoderSkipConnection(Model):
     return self.final_conv(x)
 
 
-
 class DenoiseAutoencoderVGG16(Model):
   def __init__(self):
     super(DenoiseAutoencoderVGG16, self).__init__()
 
-    base_model = VGG16(include_top=False, weights='imagenet', input_shape=(256, 256, 3))
+    base_model = VGG16(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
     base_model.trainable = False
 
     self.encoder = Model(base_model.input, [base_model.get_layer('block1_conv2').output, 
@@ -191,20 +190,21 @@ class DenoiseAutoencoderVGG16(Model):
     return decoded
 
 
-
 class DenoiseAutoencoderSkipConnectionVGG16(Model):
   def __init__(self):
     super(DenoiseAutoencoderSkipConnectionVGG16, self).__init__()
 
-    base_model = VGG16(include_top=False, weights='imagenet', input_shape=(256, 256, 3))
+    base_model = VGG16(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
     base_model.trainable = False
 
+    # Fixme: not needed? Just do self.encoder = base_model?
     self.encoder = Model(base_model.input, [base_model.get_layer('block1_conv2').output, 
                                                     base_model.get_layer('block2_conv2').output,
                                                     base_model.get_layer('block3_conv3').output,
                                                     base_model.get_layer('block4_conv3').output,
                                                     base_model.get_layer('block5_conv3').output])
 
+    # fixme: not needed
     self.upsample = layers.UpSampling2D(size=(2, 2))  # define the upsampling operation
 
     self.upsample1 = layers.Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same')
@@ -224,45 +224,72 @@ class DenoiseAutoencoderSkipConnectionVGG16(Model):
 
     return decoded
 
+
+class DenoiseAutoencoderMobileNetV2(Model):
+  def __init__(self, **kwargs):
+    super(DenoiseAutoencoderMobileNetV2, self).__init__(**kwargs)
+    # Load MobileNetV2 as encoder
+    self.encoder = MobileNetV2(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
+    # Freeze the encoder
+    self.encoder.trainable = False
+    # The layers for the decoder
+    self.decoder = tf.keras.Sequential([
+      layers.Conv2DTranspose(128, kernel_size=3, strides=2, padding='same', activation='relu'),
+      layers.Conv2DTranspose(64, kernel_size=3, strides=2, padding='same', activation='relu'),
+      layers.Conv2DTranspose(32, kernel_size=3, strides=2, padding='same', activation='relu'),
+      layers.Conv2DTranspose(3, kernel_size=3, strides=2, padding='same', activation='sigmoid'),  # RGB channels
+      layers.UpSampling2D()  # Additional upsampling layer
+    ])
+
+  def call(self, x):
+    encoded = self.encoder(x)
+    decoded = self.decoder(encoded)
+    return decoded
+
 # FIXME: this doesn't work
 class DenoiseAutoencoderSkipConnectionMobileNetV2(Model):
-  def __init__(self):
-    super(DenoiseAutoencoderSkipConnectionMobileNetV2, self).__init__()
+  def __init__(self, **kwargs):
+    super(DenoiseAutoencoderSkipConnectionMobileNetV2, self).__init__(**kwargs)
 
-    base_model = MobileNetV2(include_top=False, weights='imagenet', input_shape=(256, 256, 3))
-    base_model.trainable = False
+    base_model = MobileNetV2(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
 
-    self.encoder_layers = [
-      base_model.get_layer('block_1_expand_relu').output,
-      base_model.get_layer('block_3_expand_relu').output,
-      base_model.get_layer('block_6_expand_relu').output,
-      base_model.get_layer('block_13_expand_relu').output,
-      base_model.get_layer('out_relu').output
-    ]
-    self.decoder_layers = [
-      layers.Conv2DTranspose(256, (3, 3), strides=(2, 2), padding='same', activation='relu'),
-      layers.Conv2DTranspose(128, (3, 3), strides=(2, 2), padding='same', activation='relu'),
-      layers.Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same', activation='relu'),
-      layers.Conv2DTranspose(32, (3, 3), strides=(2, 2), padding='same', activation='relu'),
-      layers.Conv2D(3, (3, 3), activation='sigmoid', padding='same')
-    ]
+    # Redefining encoder model with those layers
+    # fixme: use base_model?
+    self.encoder = Model(base_model.input,[
+      base_model.get_layer('block_2_project').output,
+      base_model.get_layer('block_5_project').output,
+      base_model.get_layer('block_9_project').output,
+      base_model.get_layer('block_12_project').output,
+      base_model.get_layer('block_15_project').output,
+      base_model.get_layer('block_16_project').output])
+
+
+    # Freeze the encoder
+    self.encoder.trainable = False
+
+    self.upsample1 = layers.Conv2DTranspose(320, (3, 3), strides=2, padding='same', activation='relu')
+    self.upsample2 = layers.Conv2DTranspose(160, (3, 3), strides=2, padding='same', activation='relu')
+    self.upsample3 = layers.Conv2DTranspose(96, (3, 3), strides=2, padding='same', activation='relu')
+    self.upsample4 = layers.Conv2DTranspose(64, (3, 3), strides=2, padding='same', activation='relu')
+    self.upsample5 = layers.Conv2DTranspose(32, (3, 3), strides=2, padding='same', activation='relu')
+    self.upsample6 = layers.Conv2DTranspose(24, (3, 3), strides=2, padding='same', activation='relu')
+    self.final_layer = layers.Conv2D(3, (3, 3), strides=2, padding='same', activation='sigmoid')
+
+    self.upsample_skip = layers.UpSampling2D()  # For resizing skip connection layers to match upsampled layers
+
+    self.upsample_skip_2x = layers.UpSampling2D(size=(2, 2))  # Upsamples by a factor of 2
+    self.upsample_skip_4x = layers.UpSampling2D(size=(4, 4))  # Upsamples by a factor of 4
 
   def call(self, inputs):
-    # Define the encoder
-    skips = []
-    x = inputs
-    for layer in self.encoder_layers:
-      x = layer(x)
-      skips.append(x)
+    # Encoder
+    encoded1, encoded2, encoded3, encoded4, encoded5, encoded6 = self.encoder(inputs)
 
-    # Reverse the skips for the decoder
-    skips = reversed(skips[:-1])
+    x1 = layers.Concatenate()([self.upsample1(encoded6), self.upsample_skip_2x(encoded5)])
+    x2 = layers.Concatenate()([self.upsample2(x1), self.upsample_skip_2x(encoded4)])
+    x3 = layers.Concatenate()([self.upsample3(x2), self.upsample_skip_4x(encoded3)])
+    x4 = layers.Concatenate()([self.upsample4(x3), self.upsample_skip_4x(encoded2)])
+    x5 = layers.Concatenate()([self.upsample5(x4), self.upsample_skip_4x(encoded1)])
+    decoded = self.final_layer(self.upsample_skip_2x(x5))
 
-    # Define the decoder
-    for skip_layer, decoder_layer in zip(skips, self.decoder_layers):
-      x = self.upsample(x)
-      x = layers.Concatenate()([x, skip_layer])
-      x = decoder_layer(x)
-
-    decoded = self.decoder_layers[-1](x)
     return decoded
+  

@@ -21,11 +21,12 @@ TRAINING_DATA_SAMPLE_SIZE = None
 TRAINING_DATA_RESIZE = True
 
 # increase the training dataset size by rotating the images
-INCLUDE_ROTATED_IMAGES = True
+INCLUDE_ROTATED_IMAGES_IN_TRAINING = True
 
+
+# function to rotate the image 90 degrees counter clockwise
 def rot90_image(image, image_noisy):
   return tf.image.rot90(image, 1), tf.image.rot90(image_noisy, 1)
-
 
 # list the image files
 list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpeg")
@@ -33,9 +34,6 @@ list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpeg"
 # get the number of files
 num_files = len(list(list_image_files))
 print("Images in the dataset:", num_files)
-
-# shuffle the dataset
-#list_image_files = list_image_files.shuffle(buffer_size=1000, seed=42)
 
 # Take a subsample only in dev environment.
 if TRAINING_DATA_SAMPLE_SIZE is not None:
@@ -49,7 +47,7 @@ print("Images sampled from the dataset:", num_files)
 image_data = list_image_files.map(lambda x: load_and_preprocess_image(x, resize=TRAINING_DATA_RESIZE))
 
 # rotate the images to create more training data
-if INCLUDE_ROTATED_IMAGES is True:
+if INCLUDE_ROTATED_IMAGES_IN_TRAINING is True:
   
   # the original size of the training dataset
   len1 = len(list(image_data))
@@ -145,6 +143,8 @@ elif DENOISER_TYPE == 5:
 elif DENOISER_TYPE == 6:
   denoiser = DenoiseAutoencoderSkipConnectionVGG16()
 elif DENOISER_TYPE == 7:
+  denoiser = DenoiseAutoencoderMobileNetV2()
+elif DENOISER_TYPE == 8:
   denoiser = DenoiseAutoencoderSkipConnectionMobileNetV2()
 else:
   print(f"Error: unsupported denoiser encoder typel: {DENOISER_TYPE}")
@@ -173,7 +173,7 @@ with open(MODEL_PATH + '.tflite', 'wb') as f:
   f.write(tflite_denoiser)
 
 # print encoder and decoder summaries
-if DENOISER_TYPE not in [4, 5, 6]:
+if DENOISER_TYPE < 4:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
 

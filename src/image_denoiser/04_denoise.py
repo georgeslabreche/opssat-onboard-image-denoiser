@@ -20,8 +20,31 @@ if DENOISER_TYPE < 4:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
 
-# list the image files
-list_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpeg")
+# list the jpeg image files
+list_image_files_jpeg = None
+try:
+  list_image_files_jpeg = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpeg")
+except:
+  pass
+
+# list the jpg image files
+list_image_files_jpg = None
+try:
+  list_image_files_jpg = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpg")
+except:
+  pass
+
+# merge the list of image files
+list_image_files = None
+if None not in [list_image_files_jpeg, list_image_files_jpg]:
+  list_image_files = list_image_files_jpeg.concatenate(list_image_files_jpg)
+elif list_image_files_jpeg is not None:
+  list_image_files = list_image_files_jpeg
+elif list_image_files_jpg is not None:
+  list_image_files = list_image_files_jpg
+else:
+  print(f"No images found in {DIR_PATH_IMAGERY_VALIDATE}")
+  exit(1)
 
 # get the number of files
 num_files = len(list(list_image_files))

@@ -15,7 +15,7 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "./models/landsat8v6opssat"
+MODEL_PATH = "./models/landsat8v9opssat"
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
@@ -23,7 +23,8 @@ DIR_PATH_IMAGES_DOWNLOAD = './data'
 # location of the image data
 DIR_PATH_IMAGES_OPSSAT_EARTH = "./data/opssat/earth"
 DIR_PATH_IMAGES_OPSSAT_EDGE  = "./data/opssat/edge"
-DIR_PATH_IMAGES_OPSSAT_VALIDATE  = "./data/opssat/validate"
+DIR_PATH_IMAGES_OPSSAT_VALIDATE = "./data/opssat/validate"
+DIR_PATH_IMAGES_OPSSAT_WHITEBALANCED = "./data/opssat/wb"
 
 # a pale blue dot
 DIR_PATH_IMAGES_PALEBLUEDOT = "./data/pale_blue_dot"
@@ -45,6 +46,7 @@ DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGES_OPSSAT_EARTH         # train using ops-
 # directory containing imagery to validate the model
 #DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
 DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_VALIDATE
+#DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_WHITEBALANCED
 #DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_PALEBLUEDOT
 
 # flag to display or not the test noisy images
@@ -56,10 +58,11 @@ DISPLAY_TEST_NOISE = True
 # - 3 for DenoiseAutoencoderComplex
 # - 4 for DenoiseAutoencoderSkipConnection                 --> finalist - 2nd place (~1 MB)
 # - 5 for DenoiseAutoencoderVGG16                          --> garbage
-# - 6 for DenoiseAutoencoderSkipConnectionVGG16            --> finalist - 1st place (~60 MB)
-# - 7 for DenoiseAutoencoderSkipConnectionMobileNetV2
+# - 6 for DenoiseAutoencoderSkipConnectionVGG16            --> finalist - 1st place (~60 MB) ---> try without freezing the pre-trained model
+#   7 for DenoiseAutoencoderMobileNetV2                    --> garbage
+# - 8 for DenoiseAutoencoderSkipConnectionMobileNetV2
 # see autoencoders.py for implementation
-DENOISER_TYPE = 6
+DENOISER_TYPE = 8
 
 # some hyperparameters
 EPOCHS = 10
@@ -86,8 +89,12 @@ NOISE_TYPE = 1
 #DESIRED_INPUT_HEIGHT = 300
 #DESIRED_INPUT_WIDTH = 300
 
-DESIRED_INPUT_HEIGHT = 256
-DESIRED_INPUT_WIDTH = 256
+#DESIRED_INPUT_HEIGHT = 256
+#DESIRED_INPUT_WIDTH = 256
+
+# For transfer learning: MobileNetV2 and VGG16
+DESIRED_INPUT_HEIGHT = 224
+DESIRED_INPUT_WIDTH = 224
 
 #DESIRED_INPUT_HEIGHT = 512
 #DESIRED_INPUT_WIDTH = 512
