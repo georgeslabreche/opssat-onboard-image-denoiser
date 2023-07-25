@@ -1,22 +1,22 @@
 TARGET = dev
 
 # Compiler options.
-CC_DEV = gcc
-CC_ARM = /usr/bin/arm-linux-gnueabihf-gcc
+CC_DEV = g++
+CC_ARM = /usr/bin/arm-linux-gnueabihf-g++
 
 # Header includes.
 INCLUDEPATH = -Istb
 
 # Flags.
-CFLAGS = -Wall -static -O3
+CFLAGS = -Wall -static -O3 -std=c++14
 
 # Library flags
 LIBFLAGS = -lm
 
 # Source directory and files.
 SOURCEDIR = src
-HEADERS := $(wildcard $(SOURCEDIR)/*.h)
-SOURCES := $(wildcard $(SOURCEDIR)/*.c)
+HEADERS := $(wildcard $(SOURCEDIR)/*.hpp)
+SOURCES := $(wildcard $(SOURCEDIR)/*.cpp)
 
 # Target output.
 BUILDTARGET = noiser
