@@ -11,6 +11,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
@@ -20,8 +23,8 @@
 /* indicate if we are building for the OPS-SAT spacecraft or not */
 #define TARGET_BUILD_OPSSAT                                                                           1
 
-/* jpeg write quality */
-#define JPEG_WRITE_QUALITY                                                                          100
+/* default jpeg write quality */
+#define DEFAULT_JPEG_WRITE_QUALITY                                                                  100
 
 /* define convenience macros */
 #define streq(s1,s2)    (!strcmp ((s1), (s2)))
@@ -32,8 +35,9 @@
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_write_mode, 
-    int *argv_index_noise_factor, int *argv_index_noise_type)
+    int *argv_index_input, int *argv_index_write_mode, int *argv_index_write_quality,
+    int *argv_index_noise_factor, int *argv_index_noise_type,
+    int *argv_index_resize)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -49,8 +53,10 @@ int parse_options(int argc, char **argv,
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
+      printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
       printf("\n  --noise    / -n       the noise factor (e.g. 50, 100, 150...)");
       printf("\n  --type     / -t       the noise type (0 for Gaussian noise, 1 for FPN, and 2 for column FPN)");
+      printf("\n  --resize   / -r       resize the input image (e.g. 224x224)");
       printf("\n  --help     / -?       this information\n");
       
       /* program error exit code */
@@ -58,25 +64,33 @@ int parse_options(int argc, char **argv,
       return EAGAIN;
     }
     else
-    if (streq (argv [argn], "--input")
-    ||  streq (argv [argn], "-i"))
+    if (streq (argv[argn], "--input")
+    ||  streq (argv[argn], "-i"))
       *argv_index_input = ++argn;
     else
-    if (streq (argv [argn], "--write")
-    ||  streq (argv [argn], "-w"))
+    if (streq (argv[argn], "--write")
+    ||  streq (argv[argn], "-w"))
       *argv_index_write_mode = ++argn;
     else
-    if (streq (argv [argn], "--noise")
-    ||  streq (argv [argn], "-n"))
+    if (streq (argv [argn], "--quality")
+    ||  streq (argv [argn], "-q"))
+      *argv_index_write_quality = ++argn;
+    else
+    if (streq (argv[argn], "--noise")
+    ||  streq (argv[argn], "-n"))
       *argv_index_noise_factor = ++argn;
     else
-    if (streq (argv [argn], "--type")
-    ||  streq (argv [argn], "-t"))
+    if (streq (argv[argn], "--type")
+    ||  streq (argv[argn], "-t"))
       *argv_index_noise_type = ++argn;
+    else
+    if (streq (argv[argn], "--resize")
+    ||  streq (argv[argn], "-r"))
+      *argv_index_resize = ++argn;
     else
     {
       /* print error message */
-      printf("Unknown option. Get help: ./%s -?\n", PROGRAM_NAME);
+      printf("Unknown option %s. Get help: ./%s -?\n", argv[argn], PROGRAM_NAME);
 
       /* program error exit code */
       /* 22 	EINVAL 	Invalid argument */
@@ -258,12 +272,14 @@ int main(int argc, char **argv)
   /* get provider host and port from command arguments */
   int argv_index_input = -1;
   int argv_index_write_mode = -1;
+  int argv_index_write_quality = -1;
   int argv_index_noise_factor = -1;
   int argv_index_noise_type = -1;
+  int argv_index_resize = -1;
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_write_mode, &argv_index_noise_factor, &argv_index_noise_type);
+    &argv_index_input, &argv_index_write_mode, &argv_index_write_quality, &argv_index_noise_factor, &argv_index_noise_type, &argv_index_resize);
 
   /* error check */
   if(rc != 0)
@@ -299,10 +315,32 @@ int main(int argc, char **argv)
     /* cast given write mode option to integer */
     write_mode = atoi(argv[argv_index_write_mode]);
 
+    /* check that the write mode value is valid */
     if(write_mode < 0 || write_mode > 3)
     {
       /* print error message */
       printf("Invalid write mode option. Get help: ./%s -?\n", PROGRAM_NAME);
+
+      /* program error exit code */
+      /* 22 	EINVAL 	Invalid argument */
+      return EINVAL;
+    }
+  }
+
+  /* set the default jpeg write quality */
+  int jpeg_write_quality = DEFAULT_JPEG_WRITE_QUALITY;
+
+  /* overwrite the default jpeg write quality if a target value is given */
+  if(argv_index_write_quality != -1)
+  {
+     /* cast given write quality option to integer */
+    jpeg_write_quality = atoi(argv[argv_index_write_quality]);
+
+    /* check that the write quality value is valid */
+    if(jpeg_write_quality <= 0 || jpeg_write_quality > 100)
+    {
+      /* print error message */
+      printf("Invalid write quality option. Get help: ./%s -?\n", PROGRAM_NAME);
 
       /* program error exit code */
       /* 22 	EINVAL 	Invalid argument */
@@ -334,9 +372,59 @@ int main(int argc, char **argv)
     return EINVAL;
   }
 
+  /* check that the image resize was given */
+  int resize_width, resize_height;
+  if(argv_index_resize != -1)
+  {
+    char *resize = argv[argv_index_resize];
+
+    /* extract the resize values from the string and assign them to variables */
+    if (sscanf(resize, "%dx%d", &resize_width, &resize_height) != 2)
+    {
+      /* print error message */
+      printf("Invalid resize value option. Get help: ./%s -?\n", PROGRAM_NAME);
+
+      /* program error exit code */
+      /* 22 	EINVAL 	Invalid argument */
+      return EINVAL;
+    }
+  }
+
   /* read the image */
-  int width, height, channels;
-  unsigned char* img_buffer = stbi_load(inimg_filename, &width, &height, &channels, 0);
+  int input_width, input_height, channels;
+  unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, 0);
+
+  /* resize the image */
+  if(argv_index_resize != -1)
+  {
+    /* dynamically allocate the resized image buffer so that it can later overwrite the original image buffer */
+    int img_buffer_resized_size = resize_width * resize_height * channels;
+    unsigned char* img_buffer_resized = (unsigned char*) malloc(img_buffer_resized_size * sizeof(unsigned char));
+
+    /* downsample the image i.e., resize the image to a smaller dimension */
+    rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, channels);
+
+    /* error check */
+    /* confusingly, stb result is 1 for success and 0 in case of an error */
+    if(rc != 1)
+    {
+      /* free the input image data buffers */
+      stbi_image_free(img_buffer);
+      stbi_image_free(img_buffer_resized);
+
+      /* end of program */
+      /* return 1 for error, not the rc error value of 0 set by stb */
+      return 1;
+    }
+
+    /* free the memory for the original img_buffer and point it to img_buffer_resized */
+    stbi_image_free(img_buffer);
+    img_buffer = img_buffer_resized;
+
+    /* reset the input image dimensions to the resized value */
+    input_width = resize_width;
+    input_height = resize_height;
+  }
 
   /* build file name output string (the file name of the output image that will be written) */
   char outimg_filename[100] = {0};
@@ -355,7 +443,7 @@ int main(int argc, char **argv)
   }
 
   /* the size of the image buffer data */
-  int img_buffer_size = width * height * channels;
+  int img_buffer_size = input_width * input_height * channels;
 
   /* buffer for the noise pattern */
   unsigned char noise_pattern[img_buffer_size];
@@ -363,15 +451,15 @@ int main(int argc, char **argv)
   /* generate fixed pattern noise (FPN) */
   if (noise_type == 1 || noise_type == 2)
   {
-    int pattern_size = noise_type == 1 ? img_buffer_size : width * channels;
+    int pattern_size = noise_type == 1 ? img_buffer_size : input_width * channels;
     generate_fixed_noise_pattern(noise_pattern, pattern_size, noise_factor);
   }
 
   /* add noise to the image */
-  add_noise_to_image(img_buffer, noise_pattern, width, height, channels, noise_factor, noise_type);
+  add_noise_to_image(img_buffer, noise_pattern, input_width, input_height, channels, noise_factor, noise_type);
 
   /* write the noisy image */
-  stbi_write_jpg(outimg_filename, width, height, channels, img_buffer, JPEG_WRITE_QUALITY);
+  stbi_write_jpg(outimg_filename, input_width, input_height, channels, img_buffer, jpeg_write_quality);
 
   /* deallocate resources */
   stbi_image_free(img_buffer);
