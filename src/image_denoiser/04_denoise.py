@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 
+import os
+
+# Somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
+os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from utils import *
 from PIL import Image
+
+from sklearn.metrics import mean_squared_error
+from skimage.metrics import normalized_root_mse, peak_signal_noise_ratio, structural_similarity
+
 
 # make sure constants are set as desired before executing this script
 from constants import *
@@ -95,6 +104,37 @@ def plot_images(images, titles):
 
 # plot both the noisy images and the denoised images produced by the denoiser autoencoder
 for i in range(num_files):
+
+  # evaluate the similarities between the original image and the denoised image by using the following metrics:
+
+  # Mean Squared Error (MSE):
+  #  - this is a common quantitative measure for comparing two images
+  #  - it computes the average squared difference between the corresponding pixels in the two images
+  #  - lower MSE values indicate closer match (0 indicates indentical images)
+  mse = mean_squared_error(tf.reshape(x_images[i], [-1]), tf.reshape(x_images_noisy[i], [-1]))
+  
+  # Normalized Root Mean Squared Error (NRMSE):
+  # - normalized by the maximum pixel intensity, making it scale invariant.
+  # - this means that it provides a relative measure of the overall error between the two images, instead of an absolute measure
+  # - lower NRMSE values indicate closer match (0 indicates indentical images)
+  nrmse = normalized_root_mse(x_images[i].numpy(), decoded_imgs[i].numpy())
+  
+  # Peak Signal-to-Noise Ratio (PSNR):
+  #  - this is a common measure that is especially used in image processing tasks
+  #  - it measures the peak error
+  #  - a higher PSNR indicates a closer match between the two images
+  psnr = peak_signal_noise_ratio(x_images[i].numpy(), decoded_imgs[i].numpy())
+  
+  # Structural Similarity Index (SSIM):
+  #  - this is a more advanced measure that considers changes in structural information, luminance, and contrast
+  #  - a value of 1 indicates a perfect match
+  # see: https://scikit-image.org/docs/stable/auto_examples/transform/plot_ssim.html
+  ssim = structural_similarity(x_images[i].numpy(), decoded_imgs[i].numpy(), multichannel=True, channel_axis=-1, data_range=1)
+  
+  # print results
+  print(f"mse: {mse}, nrmse: {nrmse}, psnr: {psnr}, ssim: {ssim}")
+
+  # plot the images
   images = [x_images[i], x_images_noisy[i], decoded_imgs[i]]
   titles = ["original", "original + noise", "reconstructed"]
   plot_images(images, titles)

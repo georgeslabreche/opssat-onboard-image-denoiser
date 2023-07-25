@@ -49,6 +49,15 @@ Deactivate the virtual environment:
 deactivate
 ```
 
+In Windows with Conda:
+```powershell
+conda create -n denoiser
+conda activate denoiser
+conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
+conda install -c nvidia cuda-nvcc=11.3
+pip install -r requirements.txt
+```
+
 ## Configure MLHub
 - Training data are fetched from [mlhub.earth](https://mlhub.earth/).
 - Create an account and generate an API Key.

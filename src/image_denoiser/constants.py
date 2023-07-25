@@ -15,7 +15,8 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "./models/landsat8v9opssat"
+MODEL_NAME = "gpu6v1opssat"
+MODEL_PATH = "./models/" + MODEL_NAME
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
@@ -50,23 +51,23 @@ DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_VALIDATE
 #DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_PALEBLUEDOT
 
 # flag to display or not the test noisy images
-DISPLAY_TEST_NOISE = True
+DISPLAY_TEST_NOISE = False
 
 # two types of denoisers autoencoders are implemented:
 # - 1 for DenoiseAutoencoderNaive
 # - 2 for DenoiseAutoencoderSimple
 # - 3 for DenoiseAutoencoderComplex
-# - 4 for DenoiseAutoencoderSkipConnection                 --> finalist - 2nd place (~1 MB)
+# - 4 for DenoiseAutoencoderSkipConnection                 --> finalist - 1st place (~1 MB)
 # - 5 for DenoiseAutoencoderVGG16                          --> garbage
-# - 6 for DenoiseAutoencoderSkipConnectionVGG16            --> finalist - 1st place (~60 MB) ---> try without freezing the pre-trained model
+# - 6 for DenoiseAutoencoderSkipConnectionVGG16            --> finalist - 2nd place (~60 MB) ---> try without freezing the pre-trained model
 #   7 for DenoiseAutoencoderMobileNetV2                    --> garbage
 # - 8 for DenoiseAutoencoderSkipConnectionMobileNetV2
 # see autoencoders.py for implementation
-DENOISER_TYPE = 8
+DENOISER_TYPE = 4
 
 # some hyperparameters
-EPOCHS = 10
-BATCH_SIZE = 32
+EPOCHS = 100
+BATCH_SIZE = 10
 
 # set the proportion of data to use for training and testing
 TRAIN_RATIO = 0.9

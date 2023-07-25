@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 
+import os
+
+# Somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
+os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
+
+import shutil
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PIL import Image
 import tensorflow as tf # tensorflow
 from tensorflow.keras import layers, losses
+from tensorflow.keras.callbacks import EarlyStopping
 from autoencoders import *
 from utils import *
 
@@ -21,7 +28,27 @@ TRAINING_DATA_SAMPLE_SIZE = None
 TRAINING_DATA_RESIZE = True
 
 # increase the training dataset size by rotating the images
-INCLUDE_ROTATED_IMAGES_IN_TRAINING = True
+# set to None for no rotations
+NUMBER_OF_ROTATED_IMAGES_IN_TRAINING = None
+
+
+# Print Tensorflow version
+print(tf.__version__)
+
+# Check if Tensorflow was built with CUDA and GPU support
+print("Built with CUDA: ", tf.test.is_built_with_cuda())
+print("Built with GPU support: ", tf.test.is_built_with_gpu_support())
+
+# Verbosity on the number of GPUs available
+print("Number GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+# Delete model folder if it exists already
+if os.path.exists(MODEL_PATH):
+  shutil.rmtree(MODEL_PATH)
+
+# Delete model tflite file if it exists already
+if os.path.exists(MODEL_PATH + ".tflite"):
+  os.remove(MODEL_PATH + ".tflite")
 
 
 # function to rotate the image 90 degrees counter clockwise
@@ -47,29 +74,31 @@ print("Images sampled from the dataset:", num_files)
 image_data = list_image_files.map(lambda x: load_and_preprocess_image(x, resize=TRAINING_DATA_RESIZE))
 
 # rotate the images to create more training data
-if INCLUDE_ROTATED_IMAGES_IN_TRAINING is True:
+if NUMBER_OF_ROTATED_IMAGES_IN_TRAINING is not None:
   
   # the original size of the training dataset
   len1 = len(list(image_data))
   print("Increase training dataset by rotating images:")
 
   # rotate the images
-  image_data_rot90  = image_data.map(rot90_image)
-  image_data_rot180 = image_data_rot90.map(rot90_image)
-  image_data_rot270 = image_data_rot180.map(rot90_image)
-
   # and append to the original image dataset
-  image_data = image_data.concatenate(image_data_rot90)
-  len2 = len(list(image_data))
-  print(f"  {len1} --> {len2}")
-
-  image_data = image_data.concatenate(image_data_rot180)
-  len3 = len(list(image_data))
-  print(f"  {len2} --> {len3}")
-
-  image_data = image_data.concatenate(image_data_rot270)
-  len4 = len(list(image_data))
-  print(f"  {len3} --> {len4}")
+  if NUMBER_OF_ROTATED_IMAGES_IN_TRAINING in [1, 2, 3]: 
+    image_data_rot90 = image_data.map(rot90_image)
+    image_data = image_data.concatenate(image_data_rot90)
+    len2 = len(list(image_data))
+    print(f"  {len1} --> {len2}")
+  
+  if NUMBER_OF_ROTATED_IMAGES_IN_TRAINING in [2, 3]:
+    image_data_rot180 = image_data_rot90.map(rot90_image)
+    image_data = image_data.concatenate(image_data_rot180)
+    len3 = len(list(image_data))
+    print(f"  {len2} --> {len3}")
+  
+  if NUMBER_OF_ROTATED_IMAGES_IN_TRAINING == 3:
+    image_data_rot270 = image_data_rot180.map(rot90_image)
+    image_data = image_data.concatenate(image_data_rot270)
+    len4 = len(list(image_data))
+    print(f"  {len3} --> {len4}")
 
 # calculate the number of files in the training dataset to use as training data
 # the rest will be used as test data
@@ -153,13 +182,19 @@ else:
 # compile
 denoiser.compile(optimizer='adam', loss=losses.MeanSquaredError())
 
+
+# define the early stopping criteria
+early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+
+
 # train the denoiser autoencoder
 # use the training dataset
-denoiser.fit(x_train_noisy, x_train,
+history = denoiser.fit(x_train_noisy, x_train,
   epochs=EPOCHS,
   batch_size=BATCH_SIZE,
   shuffle=True,
-  validation_data=(x_test_noisy, x_test))
+  validation_data=(x_test_noisy, x_test),
+  callbacks=[early_stop])
 
 # save the model
 denoiser.save(MODEL_PATH)
@@ -176,9 +211,27 @@ with open(MODEL_PATH + '.tflite', 'wb') as f:
 if DENOISER_TYPE < 4:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
+  
+  
+# Plot training & validation loss values
+plt.figure(figsize=(12, 6))
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper right')
+plt.show()
+  
+# plot some denoised test images
 
 # decoded images:
 decoded_imgs = None
+
+# take the first 10 items
+number_of_test_denoise_to_plot = 4
+x_test_noisy = tf.random.shuffle(x_test_noisy)
+x_test_noisy = x_test_noisy[:number_of_test_denoise_to_plot]
 
 # denoise the test noisy images into decoded images
 if DENOISER_TYPE >= 4:
@@ -192,7 +245,7 @@ else:
   decoded_imgs = denoiser.decoder(encoded_imgs).numpy()
 
 # plot both the noisy images and the denoised images produced by the denoiser autoencoder
-n = 10
+n = number_of_test_denoise_to_plot
 plt.figure(figsize=(20, 4))
 for i in range(n):
   # display original + noise

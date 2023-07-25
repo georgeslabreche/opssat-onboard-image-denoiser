@@ -103,6 +103,7 @@ class DenoiseAutoencoderComplex(Model):
   
 
 # a denoiser that uses skip connections
+# finalist - 1st place (~1 MB)
 class DenoiseAutoencoderSkipConnection(Model):
   def __init__(self):
     super(DenoiseAutoencoderSkipConnection, self).__init__()
@@ -189,7 +190,7 @@ class DenoiseAutoencoderVGG16(Model):
 
     return decoded
 
-
+# finalist - 2nd place (~60 MB)
 class DenoiseAutoencoderSkipConnectionVGG16(Model):
   def __init__(self):
     super(DenoiseAutoencoderSkipConnectionVGG16, self).__init__()
