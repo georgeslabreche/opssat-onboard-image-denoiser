@@ -52,3 +52,59 @@ Suggested future work:
 [5] Mohammadnejad, S., Nasiri, M., Roshani, S., & Roshani, S. (2012). [A Novel Fixed Pattern Noise Reduction Technique in Image Sensors for Satellite Applications](https://www.semanticscholar.org/paper/A-Novel-Fixed-Pattern-Noise-Reduction-Technique-in-Mohammadnejad-Nasiri/7b9a47d68a8da2f412466662dd9dbb10d3a23a36). _Electrical and Electronic Engineering_, 2(5): 271-276.
 
 [6] Zhao, Y., Jiang, Z., Men, A., & Ju, G. (2019). [Pyramid Real Image Denoising Network](https://arxiv.org/abs/1908.00273).
+
+
+## Appendix: Getting Started
+Instructions on how to install the application to train and apply the denoiser autoencoder model. Training images are not provided.
+
+### Installation
+
+Install and create the virtual environment:
+```bash
+sudo apt install python3-venv
+pip install virtualenv
+virtualenv venv
+```
+
+Activate the virtual environment in Linux:
+```bash
+source venv/bin/activate
+```
+
+Make sure you are in the last version:
+```bash
+python3 -m pip install --upgrade build
+```
+
+Install Pytest:
+```bash
+pip install pytest
+```
+
+Compile the last version:
+```bash
+python3 -m build
+```
+
+Install using pip:
+```bash
+pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
+```
+
+Make sure that you pass all the test:
+```bash
+pytest
+```
+
+Deactivate the virtual environment:
+```bash
+deactivate
+```
+
+### Execution
+Activate the virtual environment and:
+1. Use `find_bad_jpegs.py` to identify corrupt images that will break the training (get rid of those images, if they exist).
+2. Edit `constants.py` with the desired training parameters.
+3. Train the model with `train_denoiser.py`.
+4. Test the model on some images with `denoise.py`.
+=======

@@ -30,6 +30,13 @@ DIR_PATH_IMAGES_OPSSAT_WHITEBALANCED = "./data/opssat/wb"
 # a pale blue dot
 DIR_PATH_IMAGES_PALEBLUEDOT = "./data/pale_blue_dot"
 
+# FIXME: use relative paths
+DIR_INIT = "/home/cguzman/git/cguz/opssat-image-denoiser/"
+
+# location of the image data
+DIR_PATH_IMAGES_EARTH = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/earth"
+DIR_PATH_IMAGES_EDGE = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/edge"
+DIR_PATH_IMAGES_TEST = DIR_INIT + "./data/OPSSAT/opssat-thumbnails/01_unprocessed/test"
 # parent directory path of the imagery
 DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA = f'{DIR_PATH_IMAGES_DOWNLOAD}/{LANDCOVERNET_DATASET_ID_NA}_source_{LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8}'
 
