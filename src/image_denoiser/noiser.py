@@ -25,21 +25,17 @@ def generate_fixed_noise_pattern(size, noise_factor):
 
 
 def add_noise_to_image(image, noise_pattern, noise_factor, noise_type):
-  #add noise to image
-
-  np.random.seed(int(time.time()))
+  ''' add noise to image '''
 
   if noise_type == 0:
     # Gaussian noise
-    image = image + noise_factor * np.random.normal(0, 1, image.shape)
-  elif noise_type == 1:
-    # fixed pattern noise (FPN)
+    np.random.seed(int(time.time()))
+    noise = tf.random.normal(shape=tf.shape(image), mean=0.0, stddev=1.0)
+    image = tf.cast(image, tf.float32) + noise_factor * noise
+
+  elif noise_type in [1, 2]:
+    # fixed pattern noise (FPN) or column fixed pattern noise (FPN)
     image = image + noise_pattern
-  elif noise_type == 2:
-    # column fixed pattern noise (FPN)
-    for x in range(image.shape[1]):
-      for c in range(image.shape[2]):
-        image[:,x,c] = image[:,x,c] + noise_pattern[x, c]
   else:
     print(f'Invalid noise type: {noise_type}')
     exit(1)

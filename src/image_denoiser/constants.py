@@ -15,11 +15,22 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_PATH = "./models/landsat8v3"
+MODEL_NAME = "gpu6v1opssat"
+MODEL_PATH = "./models/" + MODEL_NAME
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
 
+# location of the image data
+DIR_PATH_IMAGES_OPSSAT_EARTH = "./data/opssat/earth"
+DIR_PATH_IMAGES_OPSSAT_EDGE  = "./data/opssat/edge"
+DIR_PATH_IMAGES_OPSSAT_VALIDATE = "./data/opssat/validate"
+DIR_PATH_IMAGES_OPSSAT_WHITEBALANCED = "./data/opssat/wb"
+
+# a pale blue dot
+DIR_PATH_IMAGES_PALEBLUEDOT = "./data/pale_blue_dot"
+
+# FIXME: use relative paths
 DIR_INIT = "/home/cguzman/git/cguz/opssat-image-denoiser/"
 
 # location of the image data
@@ -35,27 +46,35 @@ DIR_PATH_IMAGERY_LANDSAT8_TRAIN = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/tra
 # director for validation
 DIR_PATH_IMAGERY_LANDSAT8_VALIDATE = f'{DIR_PATH_IMAGERY_INPUT_LANDSAT8_NA}_rgb/validate'
 
-# where to save the fetched imaged (in the training data folder)
-DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGERY_LANDSAT8_TRAIN
+# where to save the fetched images (in the training data folder)
+# also where to read the training images for training
+#DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGERY_LANDSAT8_TRAIN     # train using landsat training images
+DIR_PATH_IMAGERY_TRAIN = DIR_PATH_IMAGES_OPSSAT_EARTH         # train using ops-sat training images
 
 # directory containing imagery to validate the model
 #DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGERY_LANDSAT8_VALIDATE
-DIR_PATH_IMAGERY_VALIDATE =DIR_PATH_IMAGES_OPSSAT_VALIDATE
+DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_VALIDATE
+#DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_WHITEBALANCED
+#DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_PALEBLUEDOT
 
 # flag to display or not the test noisy images
-DISPLAY_TEST_NOISE = True
+DISPLAY_TEST_NOISE = False
 
 # two types of denoisers autoencoders are implemented:
-# - 1 for DenoiseNaiveAutoencoder
-# - 2 for DenoiseSimpleAutoencoder
-# - 3 for DenoiseComplexAutoencoder
-# - 4 for DenoiseSkipAutoencoder
+# - 1 for DenoiseAutoencoderNaive
+# - 2 for DenoiseAutoencoderSimple
+# - 3 for DenoiseAutoencoderComplex
+# - 4 for DenoiseAutoencoderSkipConnection                 --> finalist - 1st place (~1 MB)
+# - 5 for DenoiseAutoencoderVGG16                          --> garbage
+# - 6 for DenoiseAutoencoderSkipConnectionVGG16            --> finalist - 2nd place (~60 MB) ---> try without freezing the pre-trained model
+#   7 for DenoiseAutoencoderMobileNetV2                    --> garbage
+# - 8 for DenoiseAutoencoderSkipConnectionMobileNetV2
 # see autoencoders.py for implementation
 DENOISER_TYPE = 4
 
 # some hyperparameters
-EPOCHS = 10
-BATCH_SIZE = 32
+EPOCHS = 100
+BATCH_SIZE = 10
 
 # set the proportion of data to use for training and testing
 TRAIN_RATIO = 0.9
@@ -78,8 +97,12 @@ NOISE_TYPE = 1
 #DESIRED_INPUT_HEIGHT = 300
 #DESIRED_INPUT_WIDTH = 300
 
-DESIRED_INPUT_HEIGHT = 256
-DESIRED_INPUT_WIDTH = 256
+#DESIRED_INPUT_HEIGHT = 256
+#DESIRED_INPUT_WIDTH = 256
+
+# For transfer learning: MobileNetV2 and VGG16
+DESIRED_INPUT_HEIGHT = 224
+DESIRED_INPUT_WIDTH = 224
 
 #DESIRED_INPUT_HEIGHT = 512
 #DESIRED_INPUT_WIDTH = 512
