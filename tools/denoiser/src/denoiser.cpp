@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "tensorflow/lite/c/c_api.h"
+#include "tensorflow/lite/c/common.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -20,10 +23,10 @@
 #include "stb_image_write.h"
 
 /* define the name of this program for convenience purposes when printing instructions */
-#define PROGRAM_NAME                                                                           "noiser"
+#define PROGRAM_NAME                                                                         "denoiser"
 
 /* the output image label */
-#define OUTPUT_IMAGE_LABEL                                                                     "noised"
+#define OUTPUT_IMAGE_LABEL                                                                   "denoised"
 
 /* indicate if we are building for the OPS-SAT spacecraft or not */
 #define TARGET_BUILD_OPSSAT                                                                           1
@@ -37,14 +40,21 @@
 /* define convenience macros */
 #define streq(s1,s2)    (!strcmp ((s1), (s2)))
 
-
+/* tensorflow error codes */
+typedef enum {
+  TF_ALLOCATE_TENSOR              = 11, /* Error allocating tensors */
+  TF_RESIZE_TENSOR                = 12, /* Error resizing tensor */
+  TF_ALLOCATE_TENSOR_AFTER_RESIZE = 13, /* Error allocating tensors after resize */
+  TF_COPY_BUFFER_TO_INPUT         = 14, /* Error copying input from buffer */
+  TF_INVOKE_INTERPRETER           = 15, /* Error invoking interpreter */
+  TF_COPY_OUTOUT_TO_BUFFER        = 16, /* Error copying output to buffer */
+} tf_error_code_t;
 
 // --------------------------------------------------------------------------
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_resize,
-    int *argv_index_noise_factor, int *argv_index_noise_type,
+    int *argv_index_input, int *argv_index_resize, int *argv_index_model,
     int *argv_index_write_mode, int *argv_index_write_quality)
 {
   int argn;
@@ -56,12 +66,7 @@ int parse_options(int argc, char **argv,
       printf("%s [options] ...", PROGRAM_NAME);
       printf("\n  --input    / -i       the file path of the input image");
       printf("\n  --resize   / -r       resize the input image (optional, e.g. 224x224)");
-      printf("\n  --noise    / -n       the noise factor (e.g. 50, 100, 150...)");
-      printf("\n  --type     / -t       the noise type"
-              "\n\t0 - gaussian noise"
-              "\n\t1 - fixed-pattern noise (FPN)"
-              "\n\t2 - column fixed-pattern noise (cFPN)"
-            );
+      printf("\n  --model    / -m       the file path of the model");
       printf("\n  --write    / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
               "\n\t1 - write a new image as a new file"
@@ -70,7 +75,7 @@ int parse_options(int argc, char **argv,
             );
       printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
       printf("\n  --help     / -?       this information\n");
-
+      
       /* program error exit code */
       /* 11 EAGAIN try again */
       return EAGAIN;
@@ -84,13 +89,9 @@ int parse_options(int argc, char **argv,
     ||  streq (argv[argn], "-r"))
       *argv_index_resize = ++argn;
     else
-    if (streq (argv[argn], "--noise")
-    ||  streq (argv[argn], "-n"))
-      *argv_index_noise_factor = ++argn;
-    else
-    if (streq (argv[argn], "--type")
-    ||  streq (argv[argn], "-t"))
-      *argv_index_noise_type = ++argn;
+    if (streq (argv[argn], "--model")
+    ||  streq (argv[argn], "-m"))
+      *argv_index_model = ++argn;
     else
     if (streq (argv[argn], "--write")
     ||  streq (argv[argn], "-w"))
@@ -102,7 +103,7 @@ int parse_options(int argc, char **argv,
     else
     {
       /* print error message */
-      printf("unknown option %s. get help: ./%s -?\n", argv[argn], PROGRAM_NAME);
+      printf("unknown option %s. Get help: ./%s -?\n", argv[argn], PROGRAM_NAME);
 
       /* program error exit code */
       /* 22 EINVAL invalid argument */
@@ -110,14 +111,13 @@ int parse_options(int argc, char **argv,
     }
   }
 
-
   // --------------------------------------------------------------------------
   // check that image input was given
 
   if(*argv_index_input == -1)
   {
     /* print error message */
-    printf("no image input path specified. get help: ./%s -?\n", PROGRAM_NAME);
+    printf("no image input path specified. Get help: ./%s -?\n", PROGRAM_NAME);
 
     /* program error exit code */
     /* 22 EINVAL invalid argument */
@@ -125,25 +125,12 @@ int parse_options(int argc, char **argv,
   }
 
   // --------------------------------------------------------------------------
-  // check that the noise factor value was given
+  // check that the model was given
 
-  if(*argv_index_noise_factor == -1)
+  if(*argv_index_model == -1)
   {
     /* print error message */
-    printf("no noise factor specified. get help: ./%s -?\n", PROGRAM_NAME);
-
-    /* program error exit code */
-    /* 22 EINVAL invalid argument */
-    return EINVAL;
-  }
-
-  // --------------------------------------------------------------------------
-  // check that the noise type value was given
-
-  if(*argv_index_noise_type == -1)
-  {
-    /* print error message */
-    printf("no noise type specified. get help: ./%s -?\n", PROGRAM_NAME);
+    printf("no model specified. Get help: ./%s -?\n", PROGRAM_NAME);
 
     /* program error exit code */
     /* 22 EINVAL invalid argument */
@@ -237,86 +224,20 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 
 
 // --------------------------------------------------------------------------
-// function to generate Gaussian noise
+// dispose of the model and interpreter objects.
 
-double generate_gaussian_noise(double mean, double std_dev)
+void dispose_tflite_objects(TfLiteModel* pModel, TfLiteInterpreter* pInterpreter)
 {
-  /* uniformly distributed random number between 0 and 1 */
-  double u1 = (double) rand() / RAND_MAX;
-  double u2 = (double) rand() / RAND_MAX;
-
-  /* the Box-Muller transform */
-  double rand_std_normal = sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2);
-
-  /* random normal distribution(mean, stdDev^2) */
-  double rand_normal = mean + std_dev * rand_std_normal;
-
-  return rand_normal;
-}
-
-
-// --------------------------------------------------------------------------
-// function to generate a fixed noise pattern (FNP)
-
-void generate_fixed_noise_pattern(unsigned char* noise_pattern, int size, double noise_factor)
-{
-
-  /* use a fixed seed for deterministic random numbers */
-  srand(1);
-
-  /* generate noise pattern */
-  for(int i = 0; i < size; ++i)
+  if(pModel != NULL)
   {
-    noise_pattern[i] = (unsigned char) (noise_factor * rand() / RAND_MAX);
+    TfLiteModelDelete(pModel);
+  }
+
+  if(pInterpreter)
+  {
+    TfLiteInterpreterDelete(pInterpreter);
   }
 }
-
-
-// --------------------------------------------------------------------------
-// function to add noise to image
-
-void add_noise_to_image(unsigned char* image, unsigned char* noise_pattern, int width, int height, int channels, double noise_factor, int noise_type)
-{
-
-  /* use current time as seed for random number generator */
-  srand(time(NULL)); 
-
-  for(int y = 0; y < height; ++y)
-  {
-    for(int x = 0; x < width; ++x)
-    {
-      for(int c = 0; c < channels; ++c)
-      {
-        int i = (y * width * channels) + (x * channels) + c;
-        int noisy_value = 0;
-
-        if (noise_type == 0)
-        {
-          /* Gaussian noise */
-          noisy_value = (int) ((double) image[i] + noise_factor * generate_gaussian_noise(0, 1));
-        }
-        else if (noise_type == 1)
-        {
-          /* fixed pattern noise (FPN) */
-          noisy_value = (int) ((double) image[i] + (double) noise_pattern[i]);
-        }
-        else if (noise_type == 2)
-        {
-          /* column fixed pattern noise */
-          noisy_value = (int) ((double) image[i] + (double) noise_pattern[x * channels + c]);
-        }
-
-        /* clamp the noisy_value to [0, 255] */
-        noisy_value = noisy_value < 0 ? 0 : noisy_value;
-        noisy_value = noisy_value > 255 ? 255 : noisy_value;
-
-        /* re-use the image input buffer as the image output buffer */
-        image[i] = (unsigned char) noisy_value;
-      }
-    }
-  }
-}
-
 
 // --------------------------------------------------------------------------
 // the main function
@@ -326,18 +247,26 @@ int main(int argc, char **argv)
   /* the return code */
   int rc = 0;
 
+  /* TensorFlow Lite operation execution status for error handling */
+  TfLiteStatus tflStatus;
+
+  /**
+   * STEP 1:
+   *  - parse the program options
+   *  - initalize variables
+   *  - check for invalid values
+   */
+
   /* get provider host and port from command arguments */
   int argv_index_input = -1;
   int argv_index_resize = -1;
-  int argv_index_noise_factor = -1;
-  int argv_index_noise_type = -1;
+  int argv_index_model = -1;
   int argv_index_write_mode = -1;
   int argv_index_write_quality = -1;
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_resize,
-    &argv_index_noise_factor, &argv_index_noise_type,
+    &argv_index_input, &argv_index_resize, &argv_index_model,
     &argv_index_write_mode, &argv_index_write_quality);
 
   /* error check */
@@ -381,29 +310,8 @@ int main(int argc, char **argv)
     }
   }
 
-  /* check that the noise factor value is valid */
-  double noise_factor = atof(argv[argv_index_noise_factor]);
-  if(noise_factor <= 0)
-  {
-    /* print error message */
-    printf("invalid noise factor value option. get help: ./%s -?\n", PROGRAM_NAME);
-
-    /* program error exit code */
-    /* 22 EINVAL invalid argument */
-    return EINVAL;
-  }
-
-  /* check that the noise type value is valid */
-  int noise_type = atoi(argv[argv_index_noise_type]);
-  if(noise_type < 0 || noise_type > 2)
-  {
-    /* print error message */
-    printf("invalid noise type value option. get help: ./%s -?\n", PROGRAM_NAME);
-
-    /* program error exit code */
-    /* 22 EINVAL invalid argument */
-    return EINVAL;
-  }
+  /* the filename of the model */
+  char *model_filename = argv[argv_index_model];
 
   /* check that write mode was given and if not set it to default value */
   /* the write mode variable */
@@ -453,6 +361,12 @@ int main(int argc, char **argv)
     }
   }
 
+  /**
+   * STEP 2:
+   *  - read the input image into a data buffer
+   *  - normalize the image's RGB data
+   */
+
   /* read the image */
   int input_width, input_height, channels;
   unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, 0);
@@ -492,20 +406,150 @@ int main(int argc, char **argv)
   /* the size of the image buffer data */
   int img_buffer_size = input_width * input_height * channels;
 
-  /* buffer for the noise pattern */
-  unsigned char noise_pattern[img_buffer_size];
+  /* the normalized image buffer */
+  float img_buffer_normalized[img_buffer_size];
 
-  /* generate fixed pattern noise (FPN) */
-  if (noise_type == 1 || noise_type == 2)
+  /* normalize the image's RGB values */
+  for(int i = 0; i < img_buffer_size; i++)
   {
-    int pattern_size = noise_type == 1 ? img_buffer_size : input_width * channels;
-    generate_fixed_noise_pattern(noise_pattern, pattern_size, noise_factor);
+    img_buffer_normalized[i] = (float)img_buffer[i] / 255.0;
   }
 
-  /* add noise to the image */
-  add_noise_to_image(img_buffer, noise_pattern, input_width, input_height, channels, noise_factor, noise_type);
+
+  /**
+   * STEP 3:
+   *  - load the denoising model
+   *  - prepare the image tensor input
+   *  - set the input dimension
+   */
+
+  /* load the model */
+  TfLiteModel* model = TfLiteModelCreateFromFile(model_filename);
+
+  /* create the interpreter */
+  TfLiteInterpreter* interpreter = TfLiteInterpreterCreate(model, NULL);
+
+  /* allocate tensors */
+  tflStatus = TfLiteInterpreterAllocateTensors(interpreter);
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* there was an error */
+
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_ALLOCATE_TENSOR;
+  }
+
+  /* in TensorFlow, images are represented by tensors of shape [height, width, channels] */
+  int input_dimensions[4] = {1, input_height, input_width, channels};
+  tflStatus = TfLiteInterpreterResizeInputTensor(interpreter, 0, input_dimensions, 4);
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* there was an error */
+
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_RESIZE_TENSOR;
+  }
+
+  /* need to reallocate tensors after resizing */
+  tflStatus = TfLiteInterpreterAllocateTensors(interpreter);
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_ALLOCATE_TENSOR_AFTER_RESIZE;
+  }
+
+  /**
+   * STEP 4:
+   *  - invoke the TensorFlow intepreter given the input and the model
+   */
+
+  /* The input tensor */
+  TfLiteTensor* input_tensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
+
+  /* copy the image data into the input tensor */
+  tflStatus = TfLiteTensorCopyFromBuffer(input_tensor, img_buffer_normalized, img_buffer_size * sizeof(float));
   
-  /* write the noisy image */
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* there was an error */
+
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_COPY_BUFFER_TO_INPUT;
+  }
+
+  /* invoke the interpreter */
+  tflStatus = TfLiteInterpreterInvoke(interpreter);
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* there was an error */
+
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_INVOKE_INTERPRETER;
+  }
+
+
+  /**
+   * STEP 5:
+   *  - feed the input image into the denoiser model
+   *  - get the denoised output image
+   */
+
+  /* extract the output tensor data */
+  const TfLiteTensor* output_tensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
+
+  /* the model's output is a denoised image of the same size as the input image */
+  float img_buffer_denoised[img_buffer_size];
+  tflStatus = TfLiteTensorCopyToBuffer(output_tensor, img_buffer_denoised, img_buffer_size * sizeof(float));
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* deallocate the TensorFlow Lite objects */
+    dispose_tflite_objects(model, interpreter);
+
+    /* end of program */
+    return TF_COPY_OUTOUT_TO_BUFFER;
+  }
+
+  /**
+   * STEP 6:
+   *  - denormalize the output image
+   *  - write the output into an image file
+   */
+
+  /* normalize the denoised output image's RGB values */
+  uint8_t img_buffer_denoised_denormalized[img_buffer_size];
+  for(int i=0; i<img_buffer_size; i++)
+  {
+    /* round to the nearest integer */
+    img_buffer_denoised_denormalized[i] = (uint8_t)(img_buffer_denoised[i] * 255 + 0.5);
+  }
+  
+  /* write the denoised image */
   if(write_mode >= 1)
   {
     /* build file name output string (the file name of the output image that will be written) */
@@ -524,27 +568,19 @@ int main(int argc, char **argv)
       return rc;
     }
 
-    /* write the noisy image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, img_buffer, jpeg_write_quality);
+    /* write the denoised image */
+    stbi_write_jpg(outimg_filename, input_width, input_height, channels, img_buffer_denoised_denormalized, jpeg_write_quality);
   }
-
+  
   /* deallocate resources */
   stbi_image_free(img_buffer);
 
 #if TARGET_BUILD_OPSSAT /* this logic is specific to the OPS-SAT spacecraft */
   /* create classification result json object (because that's what the OPS-SAT SmartCam expects) */
-  /* in this case we aren't classifying anything so just apply a constant "noisy" classifier label all the time */
-  printf("{");
-
-  /* there's a bug in the SmartCam: it doesn't ignore the keys that are prefixed with underscore and thus interprets them as labels */
-  /* this is a problem when the metadata values are greater than the "noisy" label value (it will label the image as the name of the metadata) */
-  /* workaround: just set a very high value for the noisy label */
-  printf("\"%s\": 10000, ", OUTPUT_IMAGE_LABEL);
-  printf("\"_noise_factor\": %d, ", static_cast<int>(noise_factor)); /* prefixed by an underscore means it's metadata, not a label */
-  printf("\"_noise_type\": %d", noise_type);                         /* prefixed by an underscore means it's metadata, not a label */
-  printf("}");
+  /* in this case we aren't classifying anything so just apply a constant "denoised" classifier label all the time */
+  printf("{\"%s\": 1}", OUTPUT_IMAGE_LABEL);
 #endif
 
-  /* end of program */
+  /* end program */
   return 0;
 }

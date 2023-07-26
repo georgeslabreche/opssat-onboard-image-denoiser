@@ -15,8 +15,9 @@ LANDCOVERNET_DATASET_ID_NA = 'ref_landcovernet_na_v1'
 LANDCOVERNET_IMAGERY_SOURCE_LANDSAT8 = 'landsat_8'
 
 # path where the trained model will be saved (and loaded)
-MODEL_NAME = "gpu6v1opssat"
-MODEL_PATH = "./models/" + MODEL_NAME
+MODEL_NAME = "model"
+MODEL_DIR = "./models"
+MODEL_PATH = MODEL_DIR + "/" + MODEL_NAME
 
 # directory path for the imagery archive that will be downloaded
 DIR_PATH_IMAGES_DOWNLOAD = './data'
@@ -60,6 +61,13 @@ DIR_PATH_IMAGERY_VALIDATE = DIR_PATH_IMAGES_OPSSAT_VALIDATE
 # flag to display or not the test noisy images
 DISPLAY_TEST_NOISE = False
 
+# flag to display or not training & validation loss values
+DISPLAY_TRAINING_AND_VALIDATION_LOSS_VALUES = False
+
+# flag to display or not the validation noisy to denoise images
+DISPLAY_VALIDATE_NOISE = False
+
+
 # two types of denoisers autoencoders are implemented:
 # - 1 for DenoiseAutoencoderNaive
 # - 2 for DenoiseAutoencoderSimple
@@ -74,7 +82,7 @@ DENOISER_TYPE = 4
 
 # some hyperparameters
 EPOCHS = 100
-BATCH_SIZE = 10
+BATCH_SIZE = 16
 
 # set the proportion of data to use for training and testing
 TRAIN_RATIO = 0.9
@@ -82,14 +90,14 @@ TRAIN_RATIO = 0.9
 # greyscale the images to go easy on processing needs
 DESIRED_CHANNELS = 3
 
-# the noise factor to determine how much noise to apply (e.g. 150).
-NOISE_FACTOR = 50
-
 # the noise type:
-#  0 is Gaussian noise
-#  1 is FPN (for CCD noise simulation)
-#  2 is column FPN (for CMOS noise simulation)
+#  0 for Gaussian noise
+#  1 for fixed-pattern noise (for CCD noise simulation)
+#  2 for column fixed-pattern noise (for CMOS noise simulation)
 NOISE_TYPE = 1
+
+# the noise factor to determine how much noise to apply (e.g. 150)
+NOISE_FACTOR = 50
 
 #DESIRED_INPUT_HEIGHT = 614
 #DESIRED_INPUT_WIDTH = 583
