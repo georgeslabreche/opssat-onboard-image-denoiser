@@ -1,3 +1,9 @@
 [submodule "tools/noiser/stb"]
 	path = tools/noiser/stb
 	url = https://github.com/georgeslabreche/stb.git
+[submodule "tools/denoiser/stb"]
+	path = tools/denoiser/stb
+	url = https://github.com/nothings/stb
+[submodule "tools/tflite/tensorflow"]
+	path = tools/tflite/tensorflow
+	url = https://github.com/tensorflow/tensorflow.git

@@ -8,10 +8,7 @@ CC_ARM = /usr/bin/arm-linux-gnueabihf-g++
 INCLUDEPATH = -Istb
 
 # Flags.
-CFLAGS = -Wall -static -O3 -std=c++14
-
-# Library flags
-LIBFLAGS = -lm
+CFLAGS = -Wall -O3 -std=c++14
 
 # Source directory and files.
 SOURCEDIR = src
@@ -29,7 +26,7 @@ else
 endif
 
 all:
-	$(CC) $(CFLAGS) $(INCLUDEPATH) $(HEADERS) $(SOURCES) -o $(BUILDTARGET) $(LIBFLAGS)
+	$(CC) $(CFLAGS) $(INCLUDEPATH) $(HEADERS) $(SOURCES) -o $(BUILDTARGET)
 
 clean:
 	rm -f $(BUILDTARGET)

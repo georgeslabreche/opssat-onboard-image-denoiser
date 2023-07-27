@@ -1,0 +1,33 @@
+# Define the build stage
+FROM debian:buster AS build
+
+# Maintainer
+LABEL maintainer="georges@tanagraspace.com"
+
+# Install the required packages
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf \
+    make
+
+# Copy the denoiser source code
+COPY denoiser /denoiser
+
+# Copy the TensorFlow Lite C shared object
+COPY tflite/build/libtensorflowlite_c.so /denoiser/libtensorflowlite_c.so
+
+# Copy the TensorFlow source code
+COPY tflite/tensorflow /tensorflow
+
+# Set the working directory
+WORKDIR /denoiser
+
+# The argument for the compiler target
+ARG TARGET=dev
+
+# Compile the denoiser
+RUN make clean && make TARGET=$TARGET
+
+# Make the compiled binary executable
+RUN chmod +x denoiser
