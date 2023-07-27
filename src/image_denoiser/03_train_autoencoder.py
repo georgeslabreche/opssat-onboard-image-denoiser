@@ -54,8 +54,8 @@ parser = argparse.ArgumentParser(description='Parse training parameters.')
 # if a model name is provided as script argumen
 # then overwrite model name defined in constants.py
 parser.add_argument('-m', '--model', type=str, help='the filename of the model output')
-parser.add_argument('-t', '--noisetype', type=str, help='the noise type')
-parser.add_argument('-f', '--noisefactor', type=str, help='the noise factor')
+parser.add_argument('-t', '--noisetype', type=int, help='the noise type')
+parser.add_argument('-f', '--noisefactor', type=int, help='the noise factor')
 
 # parse the arguments
 args = parser.parse_args()
@@ -91,13 +91,20 @@ def rot90_image(image, image_noisy):
 # the image data
 image_data = None
 
+original_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "/*.jpeg"
+noisy_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "_noisy/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+
 if LOAD_NOISY_IMAGES_FROM_FILE is True:
+  # Some verbosity
+  print("Original images", original_image_dir_path)
+  print("Noised images", noisy_image_dir_path)
+
   # list original image files
-  original_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpeg")
+  original_image_files = tf.data.Dataset.list_files(original_image_dir_path)
   original_image_files = original_image_files.shuffle(buffer_size=10000).as_numpy_iterator()
 
   # list noisy image files
-  noisy_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "_noisy/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg")
+  noisy_image_files = tf.data.Dataset.list_files(noisy_image_dir_path)
   noisy_image_files = noisy_image_files.shuffle(buffer_size=10000).as_numpy_iterator()
 
   # sort both lists
@@ -115,9 +122,12 @@ if LOAD_NOISY_IMAGES_FROM_FILE is True:
   image_data = paired_dataset.map(lambda original_path, noisy_path: load_and_preprocess_image_pair(original_path, noisy_path, resize_original=TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE, resize_noisy=TRAINING_DATA_RESIZE_NOISY_FROM_FILE))
 
 else:
+  # Some verbosity
+  print("Original images", original_image_dir_path)
+
   # only load the original images from files
   # the noise will be adding in-memory on the loaded originals
-  original_image_files = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_TRAIN + "/*.jpeg")
+  original_image_files = tf.data.Dataset.list_files(original_image_dir_path)
 
   # load an preprocess the images
   # Setting apply_noise to False just means that we are reading the noisy images from pregenerated noisy image files rather than generating them
