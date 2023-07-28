@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Delete experiment user if exists.
+if id -u exp253 >/dev/null 2>&1; then
+  userdel -r -f exp253
+fi
