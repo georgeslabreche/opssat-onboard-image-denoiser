@@ -45,7 +45,7 @@
 int parse_options(int argc, char **argv,
     int *argv_index_input, int *argv_index_resize,
     int *argv_index_noise_factor, int *argv_index_noise_type,
-    int *argv_index_write_mode, int *argv_index_write_quality)
+    int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -68,6 +68,7 @@ int parse_options(int argc, char **argv,
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
+      printf("\n  --output   / -o       the output image (optional, overwrites -w)");
       printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
       printf("\n  --help     / -?       this information\n");
 
@@ -95,6 +96,10 @@ int parse_options(int argc, char **argv,
     if (streq (argv[argn], "--write")
     ||  streq (argv[argn], "-w"))
       *argv_index_write_mode = ++argn;
+    else
+    if (streq (argv[argn], "--output")
+    ||  streq (argv[argn], "-o"))
+      *argv_index_output = ++argn;
     else
     if (streq (argv [argn], "--quality")
     ||  streq (argv [argn], "-q"))
@@ -332,13 +337,14 @@ int main(int argc, char **argv)
   int argv_index_noise_factor = -1;
   int argv_index_noise_type = -1;
   int argv_index_write_mode = -1;
+  int argv_index_output = -1;
   int argv_index_write_quality = -1;
 
   /* parse the program options */
   rc = parse_options(argc, argv,
     &argv_index_input, &argv_index_resize,
     &argv_index_noise_factor, &argv_index_noise_type,
-    &argv_index_write_mode, &argv_index_write_quality);
+    &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
 
   /* error check */
   if(rc != 0)
@@ -504,9 +510,17 @@ int main(int argc, char **argv)
 
   /* add noise to the image */
   add_noise_to_image(img_buffer, noise_pattern, input_width, input_height, channels, noise_factor, noise_type);
-  
+
   /* write the noisy image */
-  if(write_mode >= 1)
+  if(argv_index_output != -1)
+  {
+    /* the filename of the input image */
+    char *outimg_filename = argv[argv_index_output];
+
+    /* write the noisy image */
+    stbi_write_jpg(outimg_filename, input_width, input_height, channels, img_buffer, jpeg_write_quality);
+  }
+  else if(write_mode >= 1)
   {
     /* build file name output string (the file name of the output image that will be written) */
     char outimg_filename[BUFFER_MAX_SIZE_FILENAME] = {0};

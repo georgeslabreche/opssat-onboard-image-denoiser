@@ -1,0 +1,7 @@
+Package: exp253
+Priority: optional
+Maintainer: esoc
+Architecture: sepp
+Section: Applications
+Version: 1.0
+Description: artificial neural networks to denoise grainy images

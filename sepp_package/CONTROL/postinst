@@ -1,0 +1,6 @@
+#!/bin/sh
+chown -R exp253:exp253 /home/exp253
+chmod -R 770 /home/exp253
+chmod +x /home/exp253/denoiser
+chmod +x /home/exp253/noiser
+echo "Installation finished."
