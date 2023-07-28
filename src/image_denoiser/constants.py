@@ -90,6 +90,14 @@ TRAIN_RATIO = 0.9
 # greyscale the images to go easy on processing needs
 DESIRED_CHANNELS = 3
 
+# we can either add the noise to the loaded original files
+# or load prenoised images from the filesystem (and then match them with the originals via filename)
+LOAD_NOISY_IMAGES_FROM_FILE = True
+
+# resize training data
+TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE = True
+TRAINING_DATA_RESIZE_NOISY_FROM_FILE    = False
+
 # the noise type:
 #  0 for Gaussian noise
 #  1 for fixed-pattern noise (for CCD noise simulation)

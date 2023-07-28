@@ -8,18 +8,44 @@ os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bi
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import argparse
 from utils import *
 from PIL import Image
 
 from sklearn.metrics import mean_squared_error
 from skimage.metrics import normalized_root_mse, peak_signal_noise_ratio, structural_similarity
 
-
 # make sure constants are set as desired before executing this script
 from constants import *
 
+# create an argument parser
+parser = argparse.ArgumentParser(description='Parse denoising parameters.')
+
+# parse the model base name, noise type, and noise factor
+parser.add_argument('-m', '--model', type=str, help='the base name of the model')
+parser.add_argument('-t', '--noisetype', type=int, help='the noise type')
+parser.add_argument('-f', '--noisefactor', type=int, help='the noise factor')
+
+# parse the arguments
+args = parser.parse_args()
+
+# use the given model name as the base name of the model
+# otherwise, use the default model name defined in constant.py
+# same deal with the noise type and the noise factor
+model_base_name = args.model if args.model else MODEL_NAME
+noise_type = args.noisetype if args.noisetype else NOISE_TYPE
+noise_factor = args.noisefactor if args.noisefactor else NOISE_FACTOR
+
+# construct the path to the model file
+noise_type_label = "fnp" if noise_type == 1 else "cfnp"
+model_name = model_base_name + "_" + noise_type_label + str(noise_factor)
+model_path = MODEL_DIR + "/" + model_name
+
 # load the denoiser model
-denoiser = tf.keras.models.load_model(MODEL_PATH)
+denoiser = tf.keras.models.load_model(model_path)
+
+# verbosity
+print("Loaded model:", model_path)
 
 # check its architecture
 denoiser.summary()
@@ -29,41 +55,61 @@ if DENOISER_TYPE < 4:
   denoiser.encoder.summary()
   denoiser.decoder.summary()
 
-# list the jpeg image files
-list_image_files_jpeg = None
-try:
-  list_image_files_jpeg = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpeg")
-except:
-  pass
 
-# list the jpg image files
-list_image_files_jpg = None
-try:
-  list_image_files_jpg = tf.data.Dataset.list_files(DIR_PATH_IMAGERY_VALIDATE + "/*.jpg")
-except:
-  pass
+# the image data
+image_data = None
 
-# merge the list of image files
-list_image_files = None
-if None not in [list_image_files_jpeg, list_image_files_jpg]:
-  list_image_files = list_image_files_jpeg.concatenate(list_image_files_jpg)
-elif list_image_files_jpeg is not None:
-  list_image_files = list_image_files_jpeg
-elif list_image_files_jpg is not None:
-  list_image_files = list_image_files_jpg
+# the image directory paths
+original_image_dir_path = DIR_PATH_IMAGERY_VALIDATE + "/original/*.jpeg"
+noisy_image_dir_path = DIR_PATH_IMAGERY_VALIDATE + "/noisy/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+
+if LOAD_NOISY_IMAGES_FROM_FILE is True:
+  # Some verbosity
+  print("Original images", original_image_dir_path)
+  print("Noised images", noisy_image_dir_path)
+
+  # list original image files
+  original_image_files = tf.data.Dataset.list_files(original_image_dir_path)
+  original_image_files = original_image_files.shuffle(buffer_size=10000).as_numpy_iterator()
+
+  # list noisy image files
+  noisy_image_files = tf.data.Dataset.list_files(noisy_image_dir_path)
+  noisy_image_files = noisy_image_files.shuffle(buffer_size=10000).as_numpy_iterator()
+
+  # sort both lists
+  original_image_files = sorted([img_path for img_path in original_image_files])
+  noisy_image_files = sorted([img_path for img_path in noisy_image_files])
+
+  # convert to Dataset object
+  original_image_files = tf.data.Dataset.from_tensor_slices(original_image_files)
+  noisy_image_files = tf.data.Dataset.from_tensor_slices(noisy_image_files)
+
+  # zip the two datasets together
+  paired_dataset = tf.data.Dataset.zip((original_image_files, noisy_image_files))
+
+  # get the image data
+  image_data = paired_dataset.map(lambda original_path, noisy_path: load_and_preprocess_image_pair(original_path, noisy_path, resize_original=TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE, resize_noisy=TRAINING_DATA_RESIZE_NOISY_FROM_FILE))
+
 else:
-  print(f"No images found in {DIR_PATH_IMAGERY_VALIDATE}")
-  exit(1)
+  # Some verbosity
+  print("Original images", original_image_dir_path)
+
+  # only load the original images from files
+  # the noise will be adding in-memory on the loaded originals
+  original_image_files = tf.data.Dataset.list_files(original_image_dir_path)
+
+  # load an preprocess the images
+  # Setting apply_noise to False just means that we are reading the noisy images from pregenerated noisy image files rather than generating them
+  # on the fly in-memory
+  image_data = original_image_files.map(lambda x: load_and_preprocess_image(x, resize=TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE, apply_noise=True, noise_type=noise_type, noise_factor=noise_factor))
+
 
 # get the number of files
-num_files = len(list(list_image_files))
-print("\nImages in the dataset:", num_files)
-
-# load the images
-input_data = list_image_files.map(lambda x: load_and_preprocess_image(x, resize=True))
+num_files = len(list(image_data))
+print("Images in the dataset:", num_files)
 
 # load an preprocess the images
-x_images, x_images_noisy = zip(*list(input_data))
+x_images, x_images_noisy = zip(*list(image_data))
 
 # convert tuples back into a single tensor
 x_images_noisy = tf.stack(x_images_noisy)
