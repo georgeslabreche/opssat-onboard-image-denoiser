@@ -6,7 +6,7 @@ from noiser import generate_fixed_noise_pattern, add_noise_to_image
 from constants import *
 
 
-def load_and_preprocess_image(path, resize=False, apply_noise=False, noise_type=1, noise_factor=50):
+def load_and_preprocess_image(path, resize=False, apply_noise=False, noise_type=None, noise_factor=None):
   ''' load and preprocess image 
  
     @param path: variable is a TensorFlow tensor

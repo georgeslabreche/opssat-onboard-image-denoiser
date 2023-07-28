@@ -25,17 +25,9 @@ from constants import *
 # TODO: implement this subsampling
 TRAINING_DATA_SAMPLE_SIZE = None
 
-# resize training data
-TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE = True
-TRAINING_DATA_RESIZE_NOISY_FROM_FILE    = False
-
 # increase the training dataset size by rotating the images
 # set to None for no rotations
 NUMBER_OF_ROTATED_IMAGES_IN_TRAINING = None
-
-# we can either add the noise to the loaded original files
-# or load prenoised images from the filesystem (and then match them with the originals via filename)
-LOAD_NOISY_IMAGES_FROM_FILE = True
 
 # Print Tensorflow version
 print(tf.__version__)
@@ -293,7 +285,7 @@ if DISPLAY_VALIDATE_NOISE:
   # decoded images:
   decoded_imgs = None
 
-  # take the first 10 items
+  # take the first 4 items
   number_of_test_denoise_to_plot = 4
   x_test_noisy = tf.random.shuffle(x_test_noisy)
   x_test_noisy = x_test_noisy[:number_of_test_denoise_to_plot]
