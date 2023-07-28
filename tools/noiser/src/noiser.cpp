@@ -25,6 +25,10 @@
 /* the output image label */
 #define OUTPUT_IMAGE_LABEL                                                                     "noised"
 
+/* the input image label */
+/* for the filename used to save the original image as backup */
+#define INPUT_IMAGE_LABEL                                                                    "original"
+
 /* indicate if we are building for the OPS-SAT spacecraft or not */
 #define TARGET_BUILD_OPSSAT                                                                           1
 
@@ -211,7 +215,7 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
       
       /* construct the new filename for the original file backup */
       char inimg_filename_new[BUFFER_MAX_SIZE_FILENAME] = {0};
-      snprintf(inimg_filename_new, BUFFER_MAX_SIZE_FILENAME, "%s/%s.original.%s", dir, base_copy, ext);
+      snprintf(inimg_filename_new, BUFFER_MAX_SIZE_FILENAME, "%s/%s.%s.%s", dir, base_copy, INPUT_IMAGE_LABEL, ext);
 
       /* rename the original file to the backup filename */
       rc = rename(inimg_filename, inimg_filename_new);

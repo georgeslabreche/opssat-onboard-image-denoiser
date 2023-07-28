@@ -24,6 +24,12 @@ if [ ! -f "$bin_noiser" ] || [ ! -f "$bin_denoiser" ] || [ ! -f "$lib_tensorflow
   exit 1
 fi
 
+# Display file info so that we can visually confirm that they are compiled for the correct architecture.
+echo "Architectures..."
+echo "Noiser:"; file $bin_noiser
+echo "Denoiser:"; file $bin_denoiser
+echo "TensorFlow Lite C API:"; file $lib_tensorflowlite_c
+
 # Extract the package name, version, and architecture from the control file.
 PKG_NAME=$(sed -n -e '/^Package/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
 PKG_VER=$(sed -n -e '/^Version/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
@@ -66,6 +72,11 @@ cp ${bin_noiser} ${deploy_exp_dir}
 cp ${bin_denoiser} ${deploy_exp_dir}
 cp ${lib_tensorflowlite_c} ${deploy_exp_dir}
 cp -R ${project_dir}/models/*.tflite ${deploy_models_dir}
+
+# Create the label files.
+# These are only required because the SmartCam expect's them.
+echo "noised" > ${deploy_exp_dir}/noiser.txt
+echo "denoised" > ${deploy_exp_dir}/denoiser.txt
 
 # Create the data tar file.
 cd ${deploy_dir}
