@@ -2,8 +2,9 @@
 
 import os
 
-# Somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
-os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
+# somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
+if True:
+  os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
 
 import shutil
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ import tensorflow as tf # tensorflow
 from tensorflow.keras import layers, losses
 from tensorflow.keras.callbacks import EarlyStopping
 from autoencoders import *
+
 from utils import *
 import argparse
 
@@ -22,7 +24,6 @@ from constants import *
 
 # increase this when running on a proper ML training computer with GPU
 # set to None to train with all available training data
-# TODO: implement this subsampling
 TRAINING_DATA_SAMPLE_SIZE = None
 
 # increase the training dataset size by rotating the images
@@ -32,14 +33,6 @@ NUMBER_OF_ROTATED_IMAGES_IN_TRAINING = None
 # Print Tensorflow version
 print(tf.__version__)
 
-# Check if Tensorflow was built with CUDA and GPU support
-print("Built with CUDA: ", tf.test.is_built_with_cuda())
-print("Built with GPU support: ", tf.test.is_built_with_gpu_support())
-
-# Verbosity on the number of GPUs available
-print("Number GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-
-
 # create an argument parser
 parser = argparse.ArgumentParser(description='Parse training parameters.')
 
@@ -48,9 +41,21 @@ parser = argparse.ArgumentParser(description='Parse training parameters.')
 parser.add_argument('-m', '--model', type=str, help='the filename of the model output')
 parser.add_argument('-t', '--noisetype', type=int, help='the noise type')
 parser.add_argument('-f', '--noisefactor', type=int, help='the noise factor')
+parser.add_argument('-p', '--prod', action='store_true', default=False, help="If set, process noised images")
+parser.add_argument('-s', '--splitsize', type=int, help='the size of the split patches (e.g. 52 for 52x52')
 
 # parse the arguments
 args = parser.parse_args()
+
+# check if TensorFlow was built with CUDA and GPU support
+if args.prod:
+
+  # print some GPU stuff
+  print("Built with CUDA: ", tf.test.is_built_with_cuda())
+  print("Built with GPU support: ", tf.test.is_built_with_gpu_support())
+
+  # Verbosity on the number of GPUs available
+  print("Number GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 # use the given model name as the base name of the model
 # otherwise, use the default model name defined in constant.py
@@ -83,8 +88,16 @@ def rot90_image(image, image_noisy):
 # the image data
 image_data = None
 
-original_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "/*.jpeg"
-noisy_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "_noisy/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+original_image_dir_path = None
+noisy_image_dir_path = None
+
+if args.splitsize is None:
+  original_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "/unnoised/original/*.jpeg"
+  noisy_image_dir_path = DIR_PATH_IMAGERY_TRAIN + "/noised/original/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+else:
+  original_image_dir_path = DIR_PATH_IMAGERY_TRAIN + f"/unnoised/split/{args.splitsize}/**/*.jpeg"
+  noisy_image_dir_path = DIR_PATH_IMAGERY_TRAIN + f"/noised/split/{args.splitsize}/" + noise_type_label + "/" + str(noise_factor) + "/**/*.jpeg"
+
 
 if LOAD_NOISY_IMAGES_FROM_FILE is True:
   # Some verbosity
@@ -109,6 +122,10 @@ if LOAD_NOISY_IMAGES_FROM_FILE is True:
 
   # zip the two datasets together
   paired_dataset = tf.data.Dataset.zip((original_image_files, noisy_image_files))
+
+  # take a subsample (to avoid OOM error)
+  if TRAINING_DATA_SAMPLE_SIZE is not None:
+    paired_dataset = paired_dataset.take(TRAINING_DATA_SAMPLE_SIZE)
 
   # get the image data 
   image_data = paired_dataset.map(lambda original_path, noisy_path: load_and_preprocess_image_pair(original_path, noisy_path, resize_original=TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE, resize_noisy=TRAINING_DATA_RESIZE_NOISY_FROM_FILE))

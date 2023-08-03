@@ -28,7 +28,7 @@
 #define PROGRAM_NAME                                                                         "denoiser"
 
 /* define the program version */
-#define PROGRAM_VERSION_MAJOR                                                                         1
+#define PROGRAM_VERSION_MAJOR                                                                         2
 #define PROGRAM_VERSION_MINOR                                                                         0
 
 /* the output image label */
@@ -46,6 +46,11 @@
 
 /* buffer size for the output noisy image filename */
 #define BUFFER_MAX_SIZE_FILENAME                                                                    256
+
+/* TODO: */
+/*  - make this an argument that takes width and height, e.g. 56x56 or 100x20 */
+/*  - the argument is optional, if not given then process the image without patching it */
+#define PATCH_SIZE                                                                                   56
 
 /* define convenience macros */
 #define streq(s1,s2)    (!strcmp ((s1), (s2)))
@@ -81,10 +86,10 @@ int parse_options(int argc, char **argv,
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
-      printf("\n  --output   / -o       the output image (optional, overwrites -w)");
+      printf("\n  --output   / -o       the output image (optional, overwrites --write)");
       printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
       printf("\n  --help     / -?       this information\n");
-      
+
       /* program error exit code */
       /* 11 EAGAIN try again */
       return EAGAIN;
@@ -162,17 +167,17 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 {
   /* the return code */
   int rc = 0;
-  
+
   /* duplicate the inimg_filename before passing to basename() and dirname() */
   char *tmp1 = strdup(inimg_filename);
   char *tmp2 = strdup(inimg_filename);
 
   /* get base filename */
   char* base = basename(tmp1);
-  
+
   /* get directory name */
   char* dir = dirname(tmp2);
-  
+
   /* duplicate base filename to separate it from the extension */
   char *base_copy = strdup(base);
 
@@ -188,7 +193,7 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
     /* move past the period */
     ext++;
   }
-  
+
   /* build output filename based on write mode */
   switch(write_mode)
   {
@@ -198,12 +203,12 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
       break;
 
     case 2: /* write a new image that overwrites the input image file */
-      /* use existing input image file name as the output image file name */   
+      /* use existing input image file name as the output image file name */
       snprintf(outimg_filename, BUFFER_MAX_SIZE_FILENAME, "%s/%s.%s", dir, base_copy, ext);
       break;
 
     case 3: /* write a new image that overwrites the input image file but back up the original input image */
-      
+
       /* construct the new filename for the original file backup */
       char inimg_filename_new[BUFFER_MAX_SIZE_FILENAME] = {0};
       snprintf(inimg_filename_new, BUFFER_MAX_SIZE_FILENAME, "%s/%s.%s.%s", dir, base_copy, INPUT_IMAGE_LABEL, ext);
@@ -359,6 +364,7 @@ int main(int argc, char **argv)
     }
   }
 
+
   /**
    * STEP 2:
    *  - read the input image into a data buffer
@@ -456,86 +462,66 @@ int main(int argc, char **argv)
   /* the size of the image buffer data */
   int img_buffer_size = input_width * input_height * channels;
 
-  /* normalize the image's RGB values */
-  /* set the tensor input to the normalized image data */
-  for(int i = 0; i < img_buffer_size; i++)
+
+  char *outimg_filename = argv[argv_index_output];
+
+  /* TODO: */
+  /*  - turn this into buffer for the entire output image (with all patches sewn together) */
+  /*  - add RGB data to this buffer as we denormalize the output tensor data after each patch inference */
+  int img_buffer_denoised_denormalized_size = PATCH_SIZE * PATCH_SIZE * channels;
+  unsigned char* img_buffer_denoised_denormalized = (unsigned char*) malloc(img_buffer_denoised_denormalized_size * sizeof(unsigned char));
+
+  /* figure out how many patches are in the image */
+  int pwidth_max = input_width / PATCH_SIZE;
+  int pheight_max = input_height / PATCH_SIZE;
+
+  /* the input tensor will contain normalized RGB data for a single patch of image at a given time */
+  for (int w = 0; w < pwidth_max; w++)
   {
-    input_tensor[i] = (float)img_buffer[i] / 255.0;
-  }
-
-
-  /**
-   * STEP 5:
-   *  - invoke the TensorFlow intepreter
-   *  - get the output tensor
-   *  - denormalize the output tensor into an output image buffer
-   */
-  /* copy the image data into the input tensor */
-  tflStatus = interpreter->Invoke();
-
-  /* error check */
-  if(tflStatus != kTfLiteOk)
-  {
-    /* there was an error */
-
-    /* end of program */
-    return TF_INVOKE_INTERPRETER;
-  }
-
-  /* get the output tensor */
-  float *output_tensor = interpreter->typed_output_tensor<float>(0);
-
-  /* the data buffer for the denormalized image output */
-  unsigned char* img_buffer_denoised_denormalized = (unsigned char*) malloc(img_buffer_size * sizeof(unsigned char));
-
-  /* denormalize the denoised output image's RGB values */
-  for(int i=0; i<img_buffer_size; i++)
-  {
-    /* round to the nearest integer */
-    img_buffer_denoised_denormalized[i] = (uint8_t)(output_tensor[i] * 255 + 0.5);
-  }
-
-
-  /**
-   * STEP 6:
-   *  - write the denormalized image output buffer into an image file
-   */
-
-  /* write the denoised image */
-  if(argv_index_output != -1)
-  {
-    /* the filename of the input image */
-    char *outimg_filename = argv[argv_index_output];
-
-    /* write the noisy image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
-  }
-  else if(write_mode >= 1)
-  {
-    /* build file name output string (the file name of the output image that will be written) */
-    char outimg_filename[BUFFER_MAX_SIZE_FILENAME] = {0};
-    rc = build_image_output_filename(write_mode, inimg_filename, outimg_filename);
-
-    /* error check */
-    if(rc != 0)
+    for (int h = 0; h < pheight_max; h++)
     {
-      /* there was an error */
+      /* allocate the tensor input buffer */
+      for (int j = h * PATCH_SIZE; j < (h + 1) * PATCH_SIZE; j++)
+      {
+        for (int i = w * PATCH_SIZE; i < (w + 1) * PATCH_SIZE; i++)
+        {
+          for (int k = 0; k < 3; k++)
+          {
+            int offset = (((channels) * ((input_width * j) + i)) + k);
+            input_tensor[((channels) * ((PATCH_SIZE * (j - h * PATCH_SIZE)) + (i - w * PATCH_SIZE))) + k] = (float)img_buffer[offset] / 255.0;
+          }
+        }
+      }
 
-      /* free the image data buffer */
-      stbi_image_free(img_buffer);
-      stbi_image_free(img_buffer_denoised_denormalized);
+      /* invoke the interpreter */
+      if(interpreter->Invoke() != kTfLiteOk)
+      {
+        printf("Failed to invoke tflite!\n");
+        return 1;
+      }
 
-      /* end of program */
-      return rc;
+      /* get the pointer to the tensor data */
+      float *output_tensor = interpreter->typed_output_tensor<float>(0);
+      
+      
+      /* denormalize the denoised output image's RGB values */
+      for(int i=0; i<img_buffer_denoised_denormalized_size); i++)
+      {
+        /* round to the nearest integer */
+        img_buffer_denoised_denormalized[i] = (unsigned char)(output_tensor[i] * 255 + 0.5);
+      }
+
+      /* TODO: */
+      /*  - don't write each patch of the image */
+      /*  - construct the complete denoised image patch by patch and then write the constructed image */
+      stbi_write_jpg(patch_filename, PATCH_SIZE, PATCH_SIZE, channels, (void *)img_buffer_denoised_denormalized, jpeg_write_quality);
     }
-
-    /* write the denoised image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
   }
-  
+
   /* free the image data buffer */
   stbi_image_free(img_buffer);
   stbi_image_free(img_buffer_denoised_denormalized);
+
 
 #if TARGET_BUILD_OPSSAT /* this logic is specific to the OPS-SAT spacecraft */
   /* create classification result json object (because that's what the OPS-SAT SmartCam expects) */

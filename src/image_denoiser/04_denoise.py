@@ -2,8 +2,9 @@
 
 import os
 
-# Somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
-os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
+# somehow, the Conda environment can't read the required dlls when this path is included in the environment variables.
+if True:
+  os.add_dll_directory('C:/Users/Subspace_Sig1/miniconda3/envs/denoiser/Library/bin')
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +19,8 @@ from skimage.metrics import normalized_root_mse, peak_signal_noise_ratio, struct
 # make sure constants are set as desired before executing this script
 from constants import *
 
+PREDICTION_DATA_SAMPLE_SIZE = 3
+
 # create an argument parser
 parser = argparse.ArgumentParser(description='Parse denoising parameters.')
 
@@ -25,6 +28,7 @@ parser = argparse.ArgumentParser(description='Parse denoising parameters.')
 parser.add_argument('-m', '--model', type=str, help='the base name of the model')
 parser.add_argument('-t', '--noisetype', type=int, help='the noise type')
 parser.add_argument('-f', '--noisefactor', type=int, help='the noise factor')
+parser.add_argument('-s', '--splitsize', type=int, help='the size of the split patches (e.g. 52 for 52x52')
 
 # parse the arguments
 args = parser.parse_args()
@@ -60,8 +64,16 @@ if DENOISER_TYPE < 4:
 image_data = None
 
 # the image directory paths
-original_image_dir_path = DIR_PATH_IMAGERY_VALIDATE + "/original/*.jpeg"
-noisy_image_dir_path = DIR_PATH_IMAGERY_VALIDATE + "/noisy/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+original_image_dir_path = None
+noisy_image_dir_path = None
+
+if args.splitsize is None:
+  original_image_dir_path = DIR_PATH_IMAGERY_VALIDATE  + "/unnoised/original/*.jpeg"
+  noisy_image_dir_path = DIR_PATH_IMAGERY_VALIDATE  + "/noised/original/" + noise_type_label + "/" + str(noise_factor) + "/*.jpeg"
+else:
+  original_image_dir_path = DIR_PATH_IMAGERY_VALIDATE  + f"/unnoised/split/{args.splitsize}/**/*.jpeg"
+  noisy_image_dir_path = DIR_PATH_IMAGERY_VALIDATE  + f"/noised/split/{args.splitsize}/" + noise_type_label + "/" + str(noise_factor) + "/**/*.jpeg"
+
 
 if LOAD_NOISY_IMAGES_FROM_FILE is True:
   # Some verbosity
@@ -86,6 +98,10 @@ if LOAD_NOISY_IMAGES_FROM_FILE is True:
 
   # zip the two datasets together
   paired_dataset = tf.data.Dataset.zip((original_image_files, noisy_image_files))
+
+  # take a subsample (to avoid OOM error)
+  if PREDICTION_DATA_SAMPLE_SIZE is not None:
+    paired_dataset = paired_dataset.take(PREDICTION_DATA_SAMPLE_SIZE)
 
   # get the image data
   image_data = paired_dataset.map(lambda original_path, noisy_path: load_and_preprocess_image_pair(original_path, noisy_path, resize_original=TRAINING_DATA_RESIZE_ORIGINAL_FROM_FILE, resize_noisy=TRAINING_DATA_RESIZE_NOISY_FROM_FILE))
