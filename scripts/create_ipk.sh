@@ -14,10 +14,9 @@ exp_id=253
 # The files that will be packaged into the ipk
 bin_noiser=${project_dir}/tools/noiser/build/noiser
 bin_denoiser=${project_dir}/tools/denoiser/build/denoiser
-lib_tensorflowlite_c=${project_dir}/tools/tflite/build/libtensorflowlite_c.so
 
 # Check that the required files exist
-if [ ! -f "$bin_noiser" ] || [ ! -f "$bin_denoiser" ] || [ ! -f "$lib_tensorflowlite_c" ]; then
+if [ ! -f "$bin_noiser" ] || [ ! -f "$bin_denoiser" ]; then
   echo "missing build files"
   echo "you must build the required tools first"
   echo "see instructions in tools/noiser/BUILD.md"
@@ -28,7 +27,6 @@ fi
 echo "Architectures..."
 echo "Noiser:"; file $bin_noiser
 echo "Denoiser:"; file $bin_denoiser
-echo "TensorFlow Lite C API:"; file $lib_tensorflowlite_c
 
 # Extract the package name, version, and architecture from the control file.
 PKG_NAME=$(sed -n -e '/^Package/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
@@ -70,8 +68,16 @@ fi
 # Copy files that that will be packaged into the ipk
 cp ${bin_noiser} ${deploy_exp_dir}
 cp ${bin_denoiser} ${deploy_exp_dir}
-cp ${lib_tensorflowlite_c} ${deploy_exp_dir}
-cp -R ${project_dir}/models/*.tflite ${deploy_models_dir}
+
+# copy the pre-trained models
+# Keep the ipk under 10 MB for spacecraft uplink
+if [ "$1" == "em" ]; then
+  cp -R ${project_dir}/models/*.tflite ${deploy_models_dir}
+else
+  cp -R ${project_dir}/models/denoiser_ae_fnp50.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/denoiser_ae_fnp100.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/denoiser_ae_fnp150.tflite ${deploy_models_dir}
+fi
 
 # Create the label files.
 # These are only required because the SmartCam expect's them.
@@ -83,7 +89,7 @@ cd ${deploy_dir}
 tar -czvf data.tar.gz home --numeric-owner --group=0 --owner=0
 
 # Create the control tar file.
-cd ${project_dir}/sepp_package/CONTROL && 
+cd ${project_dir}/sepp_package/CONTROL
 tar -czvf ${deploy_dir}/control.tar.gz control postinst postrm preinst prerm --numeric-owner --group=0 --owner=0
 cp debian-binary ${deploy_dir}
 
