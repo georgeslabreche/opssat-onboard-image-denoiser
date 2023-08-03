@@ -4,6 +4,6 @@
 [submodule "tools/denoiser/stb"]
 	path = tools/denoiser/stb
 	url = https://github.com/georgeslabreche/stb.git
-[submodule "tools/tflite/tensorflow"]
-	path = tools/tflite/tensorflow
+[submodule "tools/denoiser/tensorflow"]
+	path = tools/denoiser/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git

@@ -10,8 +10,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "tensorflow/lite/c/c_api.h"
-#include "tensorflow/lite/c/common.h"
+#include <cstdio>
+#include "tensorflow/lite/interpreter.h"
+#include "tensorflow/lite/kernels/register.h"
+#include "tensorflow/lite/model.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -46,12 +48,10 @@
 
 /* tensorflow error codes */
 typedef enum {
-  TF_ALLOCATE_TENSOR              = 11, /* Error allocating tensors */
-  TF_RESIZE_TENSOR                = 12, /* Error resizing tensor */
-  TF_ALLOCATE_TENSOR_AFTER_RESIZE = 13, /* Error allocating tensors after resize */
-  TF_COPY_BUFFER_TO_INPUT         = 14, /* Error copying input from buffer */
-  TF_INVOKE_INTERPRETER           = 15, /* Error invoking interpreter */
-  TF_COPY_OUTOUT_TO_BUFFER        = 16, /* Error copying output to buffer */
+  TF_LOAD_MODEL                   = 11, /* error loading model */
+  TF_BUILD_INTERPRETER            = 12, /* error building interpreter */
+  TF_ALLOCATE_TENSOR              = 13, /* error allocating tensors */
+  TF_INVOKE_INTERPRETER           = 14, /* error invoking interpreter */
 } tf_error_code_t;
 
 // --------------------------------------------------------------------------
@@ -235,6 +235,7 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 // --------------------------------------------------------------------------
 // dispose of the model and interpreter objects.
 
+#if 0
 void dispose_tflite_objects(TfLiteModel* pModel, TfLiteInterpreter* pInterpreter)
 {
   if(pModel != NULL)
@@ -247,6 +248,7 @@ void dispose_tflite_objects(TfLiteModel* pModel, TfLiteInterpreter* pInterpreter
     TfLiteInterpreterDelete(pInterpreter);
   }
 }
+#endif
 
 // --------------------------------------------------------------------------
 // the main function
@@ -375,6 +377,7 @@ int main(int argc, char **argv)
    * STEP 2:
    *  - read the input image into a data buffer
    *  - normalize the image's RGB data
+   *  - prepare the image tensor input
    */
 
   /* read the image */
@@ -413,34 +416,37 @@ int main(int argc, char **argv)
     input_height = resize_height;
   }
 
-  /* the size of the image buffer data */
-  int img_buffer_size = input_width * input_height * channels;
-
-  /* the normalized image buffer */
-  float img_buffer_normalized[img_buffer_size];
-
-  /* normalize the image's RGB values */
-  for(int i = 0; i < img_buffer_size; i++)
-  {
-    img_buffer_normalized[i] = (float)img_buffer[i] / 255.0;
-  }
-
 
   /**
    * STEP 3:
    *  - load the denoising model
    *  - prepare the image tensor input
-   *  - set the input dimension
    */
 
   /* load the model */
-  TfLiteModel* model = TfLiteModelCreateFromFile(model_filename);
+  std::unique_ptr<tflite::FlatBufferModel> model =
+    tflite::FlatBufferModel::BuildFromFile(model_filename);
+
+  /* error check */
+  if(model == nullptr)
+  {
+    return TF_LOAD_MODEL;
+  }
 
   /* create the interpreter */
-  TfLiteInterpreter* interpreter = TfLiteInterpreterCreate(model, NULL);
+  tflite::ops::builtin::BuiltinOpResolver resolver;
+  tflite::InterpreterBuilder builder(*model, resolver);
+  std::unique_ptr<tflite::Interpreter> interpreter;
+  builder(&interpreter);
+
+  /* error check */
+  if(interpreter == nullptr)
+  {
+    return TF_BUILD_INTERPRETER;
+  }
 
   /* allocate tensors */
-  tflStatus = TfLiteInterpreterAllocateTensors(interpreter);
+  tflStatus = interpreter->AllocateTensors();
 
   /* error check */
   if(tflStatus != kTfLiteOk)
@@ -448,117 +454,71 @@ int main(int argc, char **argv)
     /* there was an error */
 
     /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
+    //dispose_tflite_objects(model, interpreter);
 
     /* end of program */
     return TF_ALLOCATE_TENSOR;
   }
 
-  /* in TensorFlow, images are represented by tensors of shape [height, width, channels] */
-  int input_dimensions[4] = {1, input_height, input_width, channels};
-  tflStatus = TfLiteInterpreterResizeInputTensor(interpreter, 0, input_dimensions, 4);
-
-  /* error check */
-  if(tflStatus != kTfLiteOk)
-  {
-    /* there was an error */
-
-    /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
-
-    /* end of program */
-    return TF_RESIZE_TENSOR;
-  }
-
-  /* need to reallocate tensors after resizing */
-  tflStatus = TfLiteInterpreterAllocateTensors(interpreter);
-
-  /* error check */
-  if(tflStatus != kTfLiteOk)
-  {
-    /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
-
-    /* end of program */
-    return TF_ALLOCATE_TENSOR_AFTER_RESIZE;
-  }
 
   /**
    * STEP 4:
-   *  - invoke the TensorFlow intepreter given the input and the model
+   *  - prepare the image tensor input
+   *  - normalize the input image bufer into an input tensor
    */
 
-  /* The input tensor */
-  TfLiteTensor* input_tensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
+  /* prepare the image tensor input */
+  float *input_tensor = interpreter->typed_input_tensor<float>(0);
 
-  /* copy the image data into the input tensor */
-  tflStatus = TfLiteTensorCopyFromBuffer(input_tensor, img_buffer_normalized, img_buffer_size * sizeof(float));
-  
-  /* error check */
-  if(tflStatus != kTfLiteOk)
+  /* the size of the image buffer data */
+  int img_buffer_size = input_width * input_height * channels;
+
+  /* normalize the image's RGB values */
+  /* set the tensor input to the normalized image data */
+  for(int i = 0; i < img_buffer_size; i++)
   {
-    /* there was an error */
-
-    /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
-
-    /* end of program */
-    return TF_COPY_BUFFER_TO_INPUT;
-  }
-
-  /* invoke the interpreter */
-  tflStatus = TfLiteInterpreterInvoke(interpreter);
-
-  /* error check */
-  if(tflStatus != kTfLiteOk)
-  {
-    /* there was an error */
-
-    /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
-
-    /* end of program */
-    return TF_INVOKE_INTERPRETER;
+    input_tensor[i] = (float)img_buffer[i] / 255.0;
   }
 
 
   /**
    * STEP 5:
-   *  - feed the input image into the denoiser model
-   *  - get the denoised output image
+   *  - invoke the TensorFlow intepreter
+   *  - get the output tensor
+   *  - denormalize the output tensor into an output image buffer
    */
-
-  /* extract the output tensor data */
-  const TfLiteTensor* output_tensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
-
-  /* the model's output is a denoised image of the same size as the input image */
-  float img_buffer_denoised[img_buffer_size];
-  tflStatus = TfLiteTensorCopyToBuffer(output_tensor, img_buffer_denoised, img_buffer_size * sizeof(float));
+  /* copy the image data into the input tensor */
+  tflStatus = interpreter->Invoke();
 
   /* error check */
   if(tflStatus != kTfLiteOk)
   {
+    /* there was an error */
+
     /* deallocate the TensorFlow Lite objects */
-    dispose_tflite_objects(model, interpreter);
+    //dispose_tflite_objects(model, interpreter);
 
     /* end of program */
-    return TF_COPY_OUTOUT_TO_BUFFER;
+    return TF_INVOKE_INTERPRETER;
   }
 
-  /**
-   * STEP 6:
-   *  - denormalize the output image
-   *  - write the output into an image file
-   */
+  /* get the output tensor */
+  float *output_tensor = interpreter->typed_output_tensor<float>(0);
 
-  /* normalize the denoised output image's RGB values */
+  /* denormalize the denoised output image's RGB values */
   uint8_t img_buffer_denoised_denormalized[img_buffer_size];
   for(int i=0; i<img_buffer_size; i++)
   {
     /* round to the nearest integer */
-    img_buffer_denoised_denormalized[i] = (uint8_t)(img_buffer_denoised[i] * 255 + 0.5);
+    img_buffer_denoised_denormalized[i] = (uint8_t)(output_tensor[i] * 255 + 0.5);
   }
-  
+
+
+  /**
+   * STEP 6:
+   *  - write the denormalized image output buffer into an image file
+   */
+
   /* write the denoised image */
   if(argv_index_output != -1)
   {

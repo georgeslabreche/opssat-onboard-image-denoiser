@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Default target compiler to "dev" if not provided as a command line argument
+# Compilter target parameter
+# Default target compiler is the local gcc/g++ dev environment
 # Options are "dev" or "arm"
 TARGET=${1:-dev}
 
@@ -8,7 +9,7 @@ TARGET=${1:-dev}
 IMAGE_NAME="noiser-builder"
 
 # Build the Docker image
-# Change the TARGET to arm to build for the spacecraft
+# Set the TARGET to arm to build for the spacecraft
 docker build --build-arg TARGET=$TARGET -t $IMAGE_NAME .
 
 # Run the Docker container

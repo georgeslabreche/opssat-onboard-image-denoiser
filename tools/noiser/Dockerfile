@@ -23,5 +23,5 @@ ARG TARGET=dev
 # Compile the denoiser
 RUN make clean && make TARGET=$TARGET
 
-# Make the compiled binary executable
+# Make executable the compiled binary
 RUN chmod +x noiser
