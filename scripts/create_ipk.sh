@@ -23,10 +23,21 @@ if [ ! -f "$bin_noiser" ] || [ ! -f "$bin_denoiser" ]; then
   exit 1
 fi
 
-# Display file info so that we can visually confirm that they are compiled for the correct architecture.
-echo "Architectures..."
-echo "Noiser:"; file $bin_noiser
-echo "Denoiser:"; file $bin_denoiser
+# Check the 'noiser' executable binary
+noiser_info=$(file $bin_noiser)
+if [[ $noiser_info != *"ARM"* ]]; then
+  echo "The noiser was not compiled for the spacecraft:"
+  file $noiser_info
+  exit 1
+fi
+
+# Check the 'denoiser' executable binary
+denoiser_info=$(file $bin_denoiser)
+if [[ $denoiser_info != *"ARM"* ]]; then
+  echo "The denoiser was not compiled for the spacecraft:"
+  file $denoiser_info
+  exit 1
+fi
 
 # Extract the package name, version, and architecture from the control file.
 PKG_NAME=$(sed -n -e '/^Package/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
@@ -72,11 +83,11 @@ cp ${bin_denoiser} ${deploy_exp_dir}
 # copy the pre-trained models
 # Keep the ipk under 10 MB for spacecraft uplink
 if [ "$1" == "em" ]; then
-  cp -R ${project_dir}/models/*.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/full/*.tflite ${deploy_models_dir}
 else
-  cp -R ${project_dir}/models/denoiser_ae_fnp50.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/denoiser_ae_fnp100.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/denoiser_ae_fnp150.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/full/denoiser_ae_fnp50.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/full/denoiser_ae_fnp100.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/full/denoiser_ae_fnp150.tflite ${deploy_models_dir}
 fi
 
 # Create the label files.

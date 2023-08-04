@@ -31,7 +31,7 @@ for noise_type in [1, 2]:
     print(f"training {noise_type_label} denoiser autoencoder for noise factor {noise_factor}...")
     
     # execute the python training script for the current noise type and noise factor
-    subprocess.run(['python', training_script, '-m', 'denoiser_ae', '-t', str(noise_type), '-f', str(noise_factor)])
+    subprocess.run(['python', training_script, '-m', 'denoiser_ae', '-t', str(noise_type), '-f', str(noise_factor), '-p', '-s', '56'])
 
 # change directory back into the scripts folder
 os.chdir("scripts")

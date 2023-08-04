@@ -14,10 +14,10 @@ if [ ! -f "$noiser_bin" ]; then
 fi
 
 # directory containing the jpeg images
-dir_img="../data/opssat/earth"
+dir_img="$1/unnoised/original"
 
 # create directory that will contain the noisy images
-dir_noisy_parent="../data/opssat/earth_noisy"
+dir_noisy_parent="$1/noised/original"
 mkdir -p $dir_noisy_parent
 
 # target size

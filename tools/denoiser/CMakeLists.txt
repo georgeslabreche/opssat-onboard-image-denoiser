@@ -31,11 +31,7 @@ add_subdirectory(
 include_directories(stb)
 
 # add compile options
-if(${TARGET} STREQUAL "arm")
-  add_compile_options(-Wall -Os -march=armv7-a -mfpu=neon-vfpv4 -funsafe-math-optimizations)
-else()
-  add_compile_options(-Wall -Os)
-endif()
+add_compile_options(-Wall -Os)
 
 # add the executable
 add_executable(denoiser src/denoiser.cpp)

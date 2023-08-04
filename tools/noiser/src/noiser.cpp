@@ -22,6 +22,10 @@
 /* define the name of this program for convenience purposes when printing instructions */
 #define PROGRAM_NAME                                                                           "noiser"
 
+/* define the program version */
+#define PROGRAM_VERSION_MAJOR                                                                         1
+#define PROGRAM_VERSION_MINOR                                                                         0
+
 /* the output image label */
 #define OUTPUT_IMAGE_LABEL                                                                     "noised"
 
@@ -57,22 +61,22 @@ int parse_options(int argc, char **argv,
     if (streq (argv [argn], "--help")
     ||  streq (argv [argn], "-?"))
     {
-      printf("%s [options] ...", PROGRAM_NAME);
+      printf("%s v%d.%d [options] ...", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
       printf("\n  --input    / -i       the file path of the input image");
       printf("\n  --resize   / -r       resize the input image (optional, e.g. 224x224)");
-      printf("\n  --noise    / -n       the noise factor (e.g. 50, 100, 150...)");
       printf("\n  --type     / -t       the noise type"
               "\n\t0 - gaussian noise"
               "\n\t1 - fixed-pattern noise (FPN)"
               "\n\t2 - column fixed-pattern noise (cFPN)"
             );
+      printf("\n  --noise    / -n       the noise factor (e.g. 50, 100, 150...)");
       printf("\n  --write    / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
               "\n\t1 - write a new image as a new file"
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
-      printf("\n  --output   / -o       the output image (optional, overwrites -w)");
+      printf("\n  --output   / -o       the output image (optional, overwrites --write)");
       printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
       printf("\n  --help     / -?       this information\n");
 
@@ -89,13 +93,13 @@ int parse_options(int argc, char **argv,
     ||  streq (argv[argn], "-r"))
       *argv_index_resize = ++argn;
     else
-    if (streq (argv[argn], "--noise")
-    ||  streq (argv[argn], "-n"))
-      *argv_index_noise_factor = ++argn;
-    else
     if (streq (argv[argn], "--type")
     ||  streq (argv[argn], "-t"))
       *argv_index_noise_type = ++argn;
+    else
+    if (streq (argv[argn], "--noise")
+    ||  streq (argv[argn], "-n"))
+      *argv_index_noise_factor = ++argn;
     else
     if (streq (argv[argn], "--write")
     ||  streq (argv[argn], "-w"))
