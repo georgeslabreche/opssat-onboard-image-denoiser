@@ -28,8 +28,8 @@
 #define PROGRAM_NAME                                                                         "denoiser"
 
 /* define the program version */
-#define PROGRAM_VERSION_MAJOR                                                                         2
-#define PROGRAM_VERSION_MINOR                                                                         0
+#define PROGRAM_VERSION_MAJOR                                                                         1
+#define PROGRAM_VERSION_MINOR                                                                         1
 
 /* the output image label */
 #define OUTPUT_IMAGE_LABEL                                                                   "denoised"
@@ -47,11 +47,6 @@
 /* buffer size for the output noisy image filename */
 #define BUFFER_MAX_SIZE_FILENAME                                                                    256
 
-/* TODO: */
-/*  - make this an argument that takes width and height, e.g. 56x56 or 100x20 */
-/*  - the argument is optional, if not given then process the image without patching it */
-#define PATCH_SIZE                                                                                   56
-
 /* define convenience macros */
 #define streq(s1,s2)    (!strcmp ((s1), (s2)))
 
@@ -67,7 +62,7 @@ typedef enum {
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_resize, int *argv_index_model,
+    int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_model,
     int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
 {
   int argn;
@@ -77,18 +72,19 @@ int parse_options(int argc, char **argv,
     ||  streq (argv [argn], "-?"))
     {
       printf("%s v%d.%d [options] ...", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
-      printf("\n  --input    / -i       the file path of the input image");
-      printf("\n  --resize   / -r       resize the input image (optional, e.g. 224x224)");
-      printf("\n  --model    / -m       the file path of the model");
-      printf("\n  --write    / -w       the write mode of the output image (optional)"
+      printf("\n  --input   / -i       the file path of the input image");
+      printf("\n  --resize  / -r       resize the input image (optional, e.g. 224x224)");
+      printf("\n  --psize   / -p       slice the input image in patches (optional, e.g. 56x56)");
+      printf("\n  --model   / -m       the file path of the model");
+      printf("\n  --write   / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
               "\n\t1 - write a new image as a new file"
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
-      printf("\n  --output   / -o       the output image (optional, overwrites --write)");
-      printf("\n  --quality  / -q       the jpeg output quality (optional, from 1 to 100)");
-      printf("\n  --help     / -?       this information\n");
+      printf("\n  --output  / -o       the output image (optional, overwrites --write)");
+      printf("\n  --quality / -q       the jpeg output quality (optional, from 1 to 100)");
+      printf("\n  --help    / -?       this information\n");
 
       /* program error exit code */
       /* 11 EAGAIN try again */
@@ -102,6 +98,10 @@ int parse_options(int argc, char **argv,
     if (streq (argv[argn], "--resize")
     ||  streq (argv[argn], "-r"))
       *argv_index_resize = ++argn;
+    else
+    if (streq (argv[argn], "--psize")
+    ||  streq (argv[argn], "-p"))
+      *argv_index_patch_size = ++argn;
     else
     if (streq (argv[argn], "--model")
     ||  streq (argv[argn], "-m"))
@@ -262,6 +262,7 @@ int main(int argc, char **argv)
   /* get provider host and port from command arguments */
   int argv_index_input = -1;
   int argv_index_resize = -1;
+  int argv_index_patch_size = -1;
   int argv_index_model = -1;
   int argv_index_write_mode = -1;
   int argv_index_output = -1;
@@ -269,7 +270,7 @@ int main(int argc, char **argv)
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_resize, &argv_index_model,
+    &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_model,
     &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
 
   /* error check */
@@ -312,6 +313,26 @@ int main(int argc, char **argv)
       return EINVAL;
     }
   }
+
+
+  /* check if a patch size was given */
+  int patch_size_width, patch_size_height;
+  if(argv_index_patch_size != -1)
+  {
+    char *patch_size = argv[argv_index_patch_size];
+
+    /* extract the patch size values from the string and assign them to variables */
+    if (sscanf(patch_size, "%dx%d", &patch_size_width, &patch_size_height) != 2)
+    {
+      /* print error message */
+      printf("invalid patch value option. get help: ./%s -?\n", PROGRAM_NAME);
+
+      /* program error exit code */
+      /* 22 EINVAL invalid argument */
+      return EINVAL;
+    }
+  }
+
 
   /* the filename of the model */
   char *model_filename = argv[argv_index_model];
@@ -383,7 +404,7 @@ int main(int argc, char **argv)
     int img_buffer_resized_size = resize_width * resize_height * channels;
     unsigned char* img_buffer_resized = (unsigned char*) malloc(img_buffer_resized_size * sizeof(unsigned char));
 
-    /* downsample the image i.e., resize the image to a smaller dimension */
+    /* resize the image to the target dimension */
     rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, channels);
 
     /* error check */
@@ -422,6 +443,10 @@ int main(int argc, char **argv)
   /* error check */
   if(model == nullptr)
   {
+    /* free memory */
+    stbi_image_free(img_buffer);
+
+    /* end of program */
     return TF_LOAD_MODEL;
   }
 
@@ -434,6 +459,10 @@ int main(int argc, char **argv)
   /* error check */
   if(interpreter == nullptr)
   {
+    /* free memory */
+    stbi_image_free(img_buffer);
+
+    /* end of program */
     return TF_BUILD_INTERPRETER;
   }
 
@@ -443,7 +472,8 @@ int main(int argc, char **argv)
   /* error check */
   if(tflStatus != kTfLiteOk)
   {
-    /* there was an error */
+    /* free memory */
+    stbi_image_free(img_buffer);
 
     /* end of program */
     return TF_ALLOCATE_TENSOR;
@@ -454,41 +484,42 @@ int main(int argc, char **argv)
    * STEP 4:
    *  - prepare the image tensor input
    *  - normalize the input image bufer into an input tensor
+   *  - invoke the interpreter
+   *  - write the output image
    */
-
-  /* prepare the image tensor input */
-  float *input_tensor = interpreter->typed_input_tensor<float>(0);
 
   /* the size of the image buffer data */
   int img_buffer_size = input_width * input_height * channels;
 
-
-  char *outimg_filename = argv[argv_index_output];
-
-  /* TODO: */
-  /*  - turn this into buffer for the entire output image (with all patches sewn together) */
-  /*  - add RGB data to this buffer as we denormalize the output tensor data after each patch inference */
-  int img_buffer_denoised_denormalized_size = PATCH_SIZE * PATCH_SIZE * channels;
+  /* buffer for the entire denormalized and denoised output image (with all patches sewn together) */
+  int img_buffer_denoised_denormalized_size = input_width * input_height * channels;
   unsigned char* img_buffer_denoised_denormalized = (unsigned char*) malloc(img_buffer_denoised_denormalized_size * sizeof(unsigned char));
 
   /* figure out how many patches are in the image */
-  int pwidth_max = input_width / PATCH_SIZE;
-  int pheight_max = input_height / PATCH_SIZE;
+  int pwidth_max = 1;
+  int pheight_max = 1;
+  if(argv_index_patch_size != -1)
+  {
+    pwidth_max = input_width / patch_size_width;
+    pheight_max = input_height / patch_size_height;
+  }
 
-  /* the input tensor will contain normalized RGB data for a single patch of image at a given time */
+  /* prepare the image tensor input */
+  float *input_tensor = interpreter->typed_input_tensor<float>(0);
+
   for (int w = 0; w < pwidth_max; w++)
   {
     for (int h = 0; h < pheight_max; h++)
     {
       /* allocate the tensor input buffer */
-      for (int j = h * PATCH_SIZE; j < (h + 1) * PATCH_SIZE; j++)
+      for (int j = h * patch_size_height; j < (h + 1) * patch_size_height; j++)
       {
-        for (int i = w * PATCH_SIZE; i < (w + 1) * PATCH_SIZE; i++)
+        for (int i = w * patch_size_width; i < (w + 1) * patch_size_width; i++)
         {
-          for (int k = 0; k < 3; k++)
+          for (int k = 0; k < channels; k++)
           {
-            int offset = (((channels) * ((input_width * j) + i)) + k);
-            input_tensor[((channels) * ((PATCH_SIZE * (j - h * PATCH_SIZE)) + (i - w * PATCH_SIZE))) + k] = (float)img_buffer[offset] / 255.0;
+            int offset = (channels * (input_width * j + i)) + k;
+            input_tensor[(channels * (patch_size_width * (j - h * patch_size_height) + (i - w * patch_size_width))) + k] = (float)img_buffer[offset] / 255.0;
           }
         }
       }
@@ -502,21 +533,31 @@ int main(int argc, char **argv)
 
       /* get the pointer to the tensor data */
       float *output_tensor = interpreter->typed_output_tensor<float>(0);
-      
-      
-      /* denormalize the denoised output image's RGB values */
-      for(int i=0; i<img_buffer_denoised_denormalized_size); i++)
-      {
-        /* round to the nearest integer */
-        img_buffer_denoised_denormalized[i] = (unsigned char)(output_tensor[i] * 255 + 0.5);
-      }
 
-      /* TODO: */
-      /*  - don't write each patch of the image */
-      /*  - construct the complete denoised image patch by patch and then write the constructed image */
-      stbi_write_jpg(patch_filename, PATCH_SIZE, PATCH_SIZE, channels, (void *)img_buffer_denoised_denormalized, jpeg_write_quality);
+      /* denormalize and sew the denoised output image's RGB values into img_buffer_denoised_denormalized */
+      for (int j = 0; j < patch_size_height; j++)
+      {
+        for (int i = 0; i < patch_size_width; i++)
+        {
+          for (int k = 0; k < channels; k++)
+          {
+            int tensor_offset = (channels * (patch_size_width * j + i)) + k;
+            int global_offset = (channels * (input_width * (h * patch_size_height + j) + w * patch_size_width + i)) + k;
+
+            /* denormalize */
+            unsigned char denormalized_value = (unsigned char)(output_tensor[tensor_offset] * 255 + 0.5);
+
+            /* sew into main image buffer */
+            img_buffer_denoised_denormalized[global_offset] = denormalized_value;
+          }
+        }
+      }
     }
   }
+
+  /* after all patches have been processed, write out the entire image using img_buffer_denoised_denormalized */
+  char *outimg_filename = argv[argv_index_output];
+  stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void *)img_buffer_denoised_denormalized, jpeg_write_quality);
 
   /* free the image data buffer */
   stbi_image_free(img_buffer);
