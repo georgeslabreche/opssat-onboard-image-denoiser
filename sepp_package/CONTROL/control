@@ -3,5 +3,5 @@ Priority: optional
 Maintainer: esoc
 Architecture: sepp
 Section: Applications
-Version: 1.0
+Version: 1.1
 Description: artificial neural networks to denoise grainy images

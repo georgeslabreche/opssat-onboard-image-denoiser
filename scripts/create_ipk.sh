@@ -80,14 +80,14 @@ fi
 cp ${bin_noiser} ${deploy_exp_dir}
 cp ${bin_denoiser} ${deploy_exp_dir}
 
-# copy the pre-trained models
+# Copy the pre-trained models
 # Keep the ipk under 10 MB for spacecraft uplink
 if [ "$1" == "em" ]; then
-  cp -R ${project_dir}/models/full/*.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/autoencoders/*50_f.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/wgans/*50_p.tflite ${deploy_models_dir}
 else
-  cp -R ${project_dir}/models/full/denoiser_ae_fnp50.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/full/denoiser_ae_fnp100.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/full/denoiser_ae_fnp150.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/autoencoders/ae_cfnp200_f.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/wgans/wgan_fnp50_p.tflite ${deploy_models_dir}
 fi
 
 # Create the label files.
