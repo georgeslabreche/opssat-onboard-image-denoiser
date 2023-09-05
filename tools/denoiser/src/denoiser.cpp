@@ -3,6 +3,8 @@
 #include <dirent.h>
 #include <cstring>
 #include <string.h>
+#include <cmath>
+#include <math.h>
 #include <libgen.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -62,8 +64,8 @@ typedef enum {
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_model,
-    int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
+    int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_patch_margin,
+    int *argv_index_model, int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -75,6 +77,7 @@ int parse_options(int argc, char **argv,
       printf("\n  --input   / -i       the file path of the input image");
       printf("\n  --resize  / -r       resize the input image (optional, e.g. 224x224)");
       printf("\n  --psize   / -p       slice the input image into patches (optional, e.g. 56x56)");
+      printf("\n  --pmargin / -g       pixel margin width around the the patch content, (optional, e.g. 6)");
       printf("\n  --model   / -m       the file path of the model");
       printf("\n  --write   / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
@@ -102,6 +105,10 @@ int parse_options(int argc, char **argv,
     if (streq (argv[argn], "--psize")
     ||  streq (argv[argn], "-p"))
       *argv_index_patch_size = ++argn;
+    else
+    if (streq (argv[argn], "--pmargin")
+    ||  streq (argv[argn], "-g"))
+      *argv_index_patch_margin = ++argn;
     else
     if (streq (argv[argn], "--model")
     ||  streq (argv[argn], "-m"))
@@ -242,6 +249,21 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 
 
 // --------------------------------------------------------------------------
+// when the extraction process approaches the borders and the buffer causes it to potentially go out-of-bounds,
+// this function ensures that we're either clamping to the image boundaries or using some default value,
+// thereby preventing any out-of-bounds memory access
+
+unsigned char safe_get_pixel_value(unsigned char *img_buffer, int x, int y, int channel, int input_width, int input_height, int channels)
+{
+  if (x < 0) x = 0;
+  if (y < 0) y = 0;
+  if (x >= input_width) x = input_width - 1;
+  if (y >= input_height) y = input_height - 1;
+  return img_buffer[(y * input_width + x) * channels + channel];
+}
+
+
+// --------------------------------------------------------------------------
 // the main function
 
 int main(int argc, char **argv)
@@ -263,6 +285,7 @@ int main(int argc, char **argv)
   int argv_index_input = -1;
   int argv_index_resize = -1;
   int argv_index_patch_size = -1;
+  int argv_index_patch_margin = -1;
   int argv_index_model = -1;
   int argv_index_write_mode = -1;
   int argv_index_output = -1;
@@ -270,8 +293,8 @@ int main(int argc, char **argv)
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_model,
-    &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
+    &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_patch_margin,
+    &argv_index_model, &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
 
   /* error check */
   if(rc != 0)
@@ -315,8 +338,9 @@ int main(int argc, char **argv)
   }
 
 
-  /* check if a patch size was given */
+  /* check if a patch size and patch buffer was given */
   int patch_size_width, patch_size_height;
+  int patch_margin = 0;
   if(argv_index_patch_size != -1)
   {
     char *patch_size = argv[argv_index_patch_size];
@@ -330,6 +354,23 @@ int main(int argc, char **argv)
       /* program error exit code */
       /* 22 EINVAL invalid argument */
       return EINVAL;
+    }
+
+    if(argv_index_patch_margin != -1)
+    {
+      /* cast given patch buffer pixel option to integer */
+      patch_margin = atoi(argv[argv_index_patch_margin]);
+
+      /* check that the patch buffer pixel value is valid */
+      if(patch_margin < 0 || patch_margin >= patch_size_width || patch_margin >= patch_size_height)
+      {
+        /* print error message */
+        printf("invalid patch margin option. get help: ./%s -?\n", PROGRAM_NAME);
+
+        /* program error exit code */
+        /* 22 EINVAL invalid argument */
+        return EINVAL;
+      }
     }
   }
 
@@ -485,79 +526,108 @@ int main(int argc, char **argv)
    *  - prepare the image tensor input
    *  - normalize the input image bufer into an input tensor
    *  - invoke the interpreter
-   *  - write the output image
    */
 
-  /* the size of the image buffer data */
+  /* calculate the size of the image buffer data */
   int img_buffer_size = input_width * input_height * channels;
 
-  /* buffer for the entire denormalized and denoised output image (with all patches sewn together) */
-  int img_buffer_denoised_denormalized_size = input_width * input_height * channels;
-  unsigned char* img_buffer_denoised_denormalized = (unsigned char*) malloc(img_buffer_denoised_denormalized_size * sizeof(unsigned char));
+  /* allocate buffer for the sewn, denoised, and denormalized output image */
+  unsigned char* img_buffer_denoised_denormalized = 
+    (unsigned char*) malloc(img_buffer_size * sizeof(unsigned char));
 
-  /* figure out how many patches are in the image */
+  /* determine the number of patches, using the entire image if patching is not specified */
   if(argv_index_patch_size == -1)
   {
-    /* if patching is not enabled then use the same patching algorithm but with the dimensions of the input image */
     patch_size_width = input_width;
     patch_size_height = input_height;
   }
 
-  int pwidth_max = input_width / patch_size_width;
-  int pheight_max = input_height / patch_size_height;
+  /* calculate steps and max values, accounting for buffer-based overlaps */
+  int step_w = patch_size_width - 2 * patch_margin;
+  int step_h = patch_size_height - 2 * patch_margin;
+  
+  /* adjust the loop range to make sure we always have a patch at the edges */
+  int pwidth_max = 1 + ceil((input_width - patch_size_width) / (float)step_w);
+  int pheight_max = 1 + ceil((input_height - patch_size_height) / (float)step_h);
 
-  /* prepare the image tensor input */
+
+  /* obtain pointer to the input tensor */
   float *input_tensor = interpreter->typed_input_tensor<float>(0);
 
-  /* note that these nested loops work for both patching and non-patching */
-  for (int w = 0; w < pwidth_max; w++)
+  /* process image patches (works both with and without explicit patching) */
+  for(int w = 0; w < pwidth_max; w++)
   {
-    for (int h = 0; h < pheight_max; h++)
+    for(int h = 0; h < pheight_max; h++)
     {
-      /* allocate the tensor input buffer */
-      for (int j = h * patch_size_height; j < (h + 1) * patch_size_height; j++)
+      /* calculate starting indices considering buffer */
+      int start_i = w * step_w;
+      int start_j = h * step_h;
+
+      /* if this is the last patch in width or height, adjust starting point to make sure it goes to the edge */
+      if(w == pwidth_max - 1)
       {
-        for (int i = w * patch_size_width; i < (w + 1) * patch_size_width; i++)
+        start_i = input_width - patch_size_width;
+      }
+      if(h == pheight_max - 1)
+      {
+        start_j = input_height - patch_size_height;
+      }
+
+      /* populate tensor with centralized extraction to avoid border artifacts */
+      for(int j = start_j; j < start_j + patch_size_height; j++)
+      {
+        for(int i = start_i; i < start_i + patch_size_width; i++)
         {
-          for (int k = 0; k < channels; k++)
+          for(int k = 0; k < channels; k++)
           {
-            int offset = (channels * (input_width * j + i)) + k;
-            input_tensor[(channels * (patch_size_width * (j - h * patch_size_height) + (i - w * patch_size_width))) + k] = (float)img_buffer[offset] / 255.0;
+            /* use safe method to fetch pixel values */
+            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, channels);
+            int offset_tensor = (channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
+            input_tensor[offset_tensor] = (float)pixel_val / 255.0;
           }
         }
       }
 
-      /* invoke the interpreter */
+      /* process using TensorFlow Lite */
       if(interpreter->Invoke() != kTfLiteOk)
       {
-        printf("Failed to invoke tflite!\n");
+        printf("failed to invoke tflite!\n");
         return 1;
       }
 
-      /* get the pointer to the tensor data */
+      /* get output tensor and sew/denormalize result into main buffer */
       float *output_tensor = interpreter->typed_output_tensor<float>(0);
-
-      /* denormalize and sew the denoised output image's RGB values into img_buffer_denoised_denormalized */
-      for (int j = 0; j < patch_size_height; j++)
+      for(int j = 0; j < patch_size_height; j++)
       {
-        for (int i = 0; i < patch_size_width; i++)
+        for(int i = 0; i < patch_size_width; i++)
         {
-          for (int k = 0; k < channels; k++)
+          for(int k = 0; k < channels; k++)
           {
             int tensor_offset = (channels * (patch_size_width * j + i)) + k;
-            int global_offset = (channels * (input_width * (h * patch_size_height + j) + w * patch_size_width + i)) + k;
+            int global_j = start_j + j;
+            int global_i = start_i + i;
+            
+            if(global_j < input_height && global_i < input_width)  // Ensure within bounds
+            {
+              // Only stitch back the central part
+              int border_top = (h == 0) ? 0 : patch_margin;
+              int border_left = (w == 0) ? 0 : patch_margin;
+              int border_bottom = (h == pheight_max - 1) ? patch_size_height : patch_size_height - patch_margin;
+              int border_right = (w == pwidth_max - 1) ? patch_size_width : patch_size_width - patch_margin;
 
-            /* denormalize */
-            unsigned char denormalized_value = (unsigned char)(output_tensor[tensor_offset] * 255 + 0.5);
-
-            /* sew into main image buffer */
-            img_buffer_denoised_denormalized[global_offset] = denormalized_value;
+              if(j >= border_top && j < border_bottom && 
+                 i >= border_left && i < border_right)
+              {
+                int global_offset = (channels * (input_width * global_j + global_i)) + k;
+                unsigned char denormalized_value = (unsigned char)(output_tensor[tensor_offset] * 255 + 0.5);
+                img_buffer_denoised_denormalized[global_offset] = denormalized_value;
+              }
+            }
           }
         }
       }
     }
   }
-
 
   /**
    * STEP 5:

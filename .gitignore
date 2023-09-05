@@ -5,3 +5,5 @@ dist
 image_denoiser.egg-info
 data
 deploy
+archive
+tools/tmp
