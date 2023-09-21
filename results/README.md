@@ -1,4 +1,5 @@
 # Results
+TODO: Provide background and context on the CSV files being processed.
 
 ## Autoencoder
 ```bash
@@ -8,3 +9,4 @@ python plot_results_ae.py
 ```
 
 ## Generative (WGAN)
+TBD.
