@@ -1,0 +1,3 @@
+timestamp,label_original,label_original_confidence,label_noised,label_noised_confidence,label_denoised,label_denoised_confidence,confidence_difference,PSNR,SSIM,MSE
+1695963889066,Earth,0.946156,Bad,0.596928,Earth,0.899453,-0.046703,20.529306740299972,0.8943640529043747,575.6383064944728
+1695964476824,Earth,0.874889,Bad,0.57927,Earth,0.909169,0.03428,27.184658901484944,0.9222130364808782,124.34103289753402
