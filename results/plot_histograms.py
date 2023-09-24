@@ -6,7 +6,8 @@ import numpy as np
 # FIXME: The subplots for the original and denoised RGB histograms do not have the same x- and y- axis scale.
 # Let's just manually fix this for the figures we end up including for publication.
 
-def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig):
+def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, include_total, normalize_counts, save_fig):
+  """Histogram for the RGB pixel values"""
 
   # Load the images using PIL
   image_original = Image.open(image_path_original)
@@ -25,16 +26,23 @@ def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_pat
 
   for idx, data in enumerate([data_original, data_denoised], start=1):
     plt.subplot(1, 2, idx)
-    
+
     # Extract the RGB channels
     red_channel = data[:, :, 0]
     green_channel = data[:, :, 1]
     blue_channel = data[:, :, 2]
+    
+    # Compute grayscale image (luminance) from RGB
+    # This will be used as the histogram for the total (a.k.a. the grayscale or luminance representation)
+    grayscale_image = 0.2989 * red_channel + 0.5870 * green_channel + 0.1140 * blue_channel
 
-    # Plotting the Red, Green, and Blue histograms
+    # Plotting the histograms
     plt.hist(red_channel.ravel(), bins=256, color='red', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Red Channel')
     plt.hist(green_channel.ravel(), bins=256, color='green', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Green Channel')
     plt.hist(blue_channel.ravel(), bins=256, color='blue', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Blue Channel')
+
+    if include_total is True:
+      plt.hist(grayscale_image.ravel(), bins=256, color='gray', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Total (Grayscale)')
 
     title = 'Original RGB Histograms' if idx == 1 else 'Denoised RGB Histograms'
     plt.title(title)
@@ -56,6 +64,8 @@ def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_pat
 
 
 def plot_histograms_grayscale(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig):
+  """Histogram for the total (i.e., the grayscale or luminance representation)"""
+
   # Load the images using OpenCV
   image_original = cv2.imread(image_path_original, cv2.IMREAD_GRAYSCALE)
   image_denoised = cv2.imread(image_path_denoised, cv2.IMREAD_GRAYSCALE)
@@ -110,6 +120,9 @@ original_image_resize_target = 224
 # Save the generated plots as SVG files
 save_fig = True
 
+# Include total (grayscale) histogram in RGB histogram
+include_total = False
+
 # Normalize the pixel count
 normalize_counts = False
 
@@ -122,6 +135,8 @@ image_timestamp = 1694431981719
 image_path_original = f"images/{ml_method}/{noise_type}-{noise_factor}/Earth/{image_timestamp}.jpeg"
 image_path_denoised = f"images/{ml_method}/{noise_type}-{noise_factor}/Earth/{image_timestamp}.denoised.jpeg"
 
-# Plot histograms
-plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig)
+# Plot RGB histogram
+plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, include_total, normalize_counts, save_fig)
+
+# Plot Total histogram (i.e., the grayscale or luminance representation)
 plot_histograms_grayscale(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig)
