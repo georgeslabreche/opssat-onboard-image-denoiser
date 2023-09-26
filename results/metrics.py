@@ -58,55 +58,6 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
         ssim_list.append(ssim)
         mse_list.append(mse)
 
-        # Generate the side-by-side histogram comparison plot
-
-        # Load the images using OpenCV
-        original_image = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
-        denoised_image = cv2.imread(denoised_path, cv2.IMREAD_GRAYSCALE)
-            
-        # Resize the images to 224x224
-        original_image = cv2.resize(original_image, (224, 224))
-        denoised_image = cv2.resize(denoised_image, (224, 224))
-
-        # If the images are in color, convert them to grayscale
-        #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        #denoised_image = cv2.cvtColor(denoised_image, cv2.COLOR_BGR2GRAY)
-        
-        # Compute histograms
-        hist1 = cv2.calcHist([original_image], [0], None, [256], [0, 256])
-        hist2 = cv2.calcHist([denoised_image], [0], None, [256], [0, 256])
-
-        # Normalize histograms for better visualization
-        hist1 /= hist1.sum()
-        hist2 /= hist2.sum()
-
-        # Plot
-        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-
-        # Plot image1 histogram
-        ax[0].plot(hist1, color='black')
-        ax[0].set_title('Original')
-        ax[0].set_xlim([0, 256])
-        ax[0].set_xlabel('Pixel Value')
-        ax[0].set_ylabel('Normalized Count')
-
-        # Plot image2 histogram
-        ax[1].plot(hist2, color='black')
-        ax[1].set_title('Denoised')
-        ax[1].set_xlim([0, 256])
-        ax[1].set_xlabel('Pixel Value')
-        ax[1].set_ylabel('Normalized Count')
-
-        plt.tight_layout()
-        # plt.suptitle(f"Image Comparison - Label: Original\nPSNR: {psnr:.2f}, SSIM: {ssim:.2f}, MSE: {mse:.2f}")
-        # plt.show()
-        # Save the plot to the output folder
-        output_path = os.path.join(output_folder, f"{timestamp}.png")
-        plt.savefig(output_path)
-        plt.close()
-
-        print(f"Comparison plot saved: {output_path}")
-
     # Add the metrics to the DataFrame
     df['PSNR'] = psnr_list
     df['SSIM'] = ssim_list
@@ -132,7 +83,7 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "results_classification-AE-FNP-50-metrics.png"
+    output_path = "./csv/results_classification-AE-FNP-50-metrics.svg"
     plt.savefig(output_path)
 
 
@@ -156,15 +107,15 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "results_classification-AE-FNP-50-metrics-log-scale.png"
+    output_path = "./csv/results_classification-AE-FNP-50-metrics-log-scale.svg"
     plt.savefig(output_path)
 
 
 # Example usage
-csv_file = "results_classification-AE-FNP-50-short.csv"
-csv_output_file = "results_classification-AE-FNP-50-metrics.csv"
-original_folder = "../images/AE/FNP-50/"
-denoised_folder = "../images/AE/FNP-50/"
-output_folder = "../images/AE/FNP-50/histogram_original-vs-denoised/"
+csv_file = "./csv/results_classification-AE-FNP-50-short.csv"
+csv_output_file = "./csv/results_classification-AE-FNP-50-metrics.csv"
+original_folder = "./images/AE/FNP-50/"
+denoised_folder = "./images/AE/FNP-50/"
+output_folder = "./figures/AE/FNP-50/histogram_original-vs-denoised/"
 
 generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder)

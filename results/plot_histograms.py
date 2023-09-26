@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+@Time : 2023/09/24 19:28
+@Auth : Dr. Cesar Guzman
+"""
+import os
 import cv2
-from PIL import Image
+import pandas as pd
 import matplotlib.pyplot as plt
+from skimage import io, img_as_ubyte
+from skimage.metrics import *
+from skimage import measure
 import numpy as np
+from PIL import Image
 
-# FIXME: The subplots for the original and denoised RGB histograms do not have the same x- and y- axis scale.
-# Let's just manually fix this for the figures we end up including for publication.
+
 
 def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, include_total, normalize_counts, save_fig):
   """Histogram for the RGB pixel values"""
@@ -58,7 +67,7 @@ def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_pat
 
   # Save the figure as an SVG
   if save_fig is True:
-    plt.savefig(f"figures/image-histograms/{image_timestamp}.rgb.svg", format="svg")
+    plt.savefig(f"./figures/AE/FNP-50/histogram_original-vs-denoised/{image_timestamp}.rgb.svg", format="svg")
   else:
     plt.show()
 
@@ -107,36 +116,57 @@ def plot_histograms_grayscale(image_timestamp, original_image_resize_target, ima
 
   # Save the figure as an SVG
   if save_fig:
-    plt.savefig(f"figures/image-histograms/{image_timestamp}.grayscale.svg", format="svg")
+    plt.savefig(f"./figures/AE/FNP-50/histogram_original-vs-denoised/{image_timestamp}.grayscale.svg", format="svg")
   else:
     plt.show()
 
 
-# The original images are the default thumbnails retrieved from the spacecraft
-# This thumbnail is resized prior to onboard processing
-# We don't retrieve the resized version from the spacecraft so we have to resize it here
-original_image_resize_target = 224
 
-# Save the generated plots as SVG files
-save_fig = True
+def generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder):
+    
+    # The original images are the default thumbnails retrieved from the spacecraft
+    # This thumbnail is resized prior to onboard processing
+    # We don't retrieve the resized version from the spacecraft so we have to resize it here
+    original_image_resize_target = 224
 
-# Include total (grayscale) histogram in RGB histogram
-include_total = False
+    # Save the generated plots as SVG files
+    save_fig = True
 
-# Normalize the pixel count
-normalize_counts = False
+    # Include total (grayscale) histogram in RGB histogram
+    include_total = False
 
-ml_method = "AE"
-noise_type = "FNP"
-noise_factor = "50"
-image_timestamp = 1694431981719
+    # Normalize the pixel count
+    normalize_counts = False
+    
+    # Read the CSV file
+    df = pd.read_csv(csv_file)
 
-# Load the images
-image_path_original = f"images/{ml_method}/{noise_type}-{noise_factor}/Earth/{image_timestamp}.jpeg"
-image_path_denoised = f"images/{ml_method}/{noise_type}-{noise_factor}/Earth/{image_timestamp}.denoised.jpeg"
+    # Create the output folder if it doesn't exist
+    os.makedirs(output_folder, exist_ok=True)
 
-# Plot RGB histogram
-plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, include_total, normalize_counts, save_fig)
+    # Iterate over the rows in the CSV file
+    for index, row in df.iterrows():
+        timestamp = row['timestamp']
+        denoised_label = row['label_denoised']
 
-# Plot Total histogram (i.e., the grayscale or luminance representation)
-plot_histograms_grayscale(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig)
+        # Construct the paths for the original and denoised images
+        original_path = os.path.join(original_folder, f"{denoised_label}/{timestamp}.jpeg")
+        denoised_path = os.path.join(denoised_folder, f"{denoised_label}/{timestamp}.denoised.jpeg")
+
+        
+        # Generate the side-by-side histogram comparison plot
+        # Plot RGB histogram
+        plot_histograms_rgb(timestamp, original_image_resize_target, original_path, denoised_path, include_total, normalize_counts, save_fig)
+
+        # Plot Total histogram (i.e., the grayscale or luminance representation)
+        plot_histograms_grayscale(timestamp, original_image_resize_target, original_path, denoised_path, normalize_counts, save_fig)
+
+
+# Example usage
+csv_file = "./csv/results_classification-AE-FNP-50-short.csv"
+csv_output_file = "./csv/results_classification-AE-FNP-50-metrics.csv"
+original_folder = "./images/AE/FNP-50/"
+denoised_folder = "./images/AE/FNP-50/"
+output_folder = "./figures/AE/FNP-50/histogram_original-vs-denoised/"
+
+generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder)
