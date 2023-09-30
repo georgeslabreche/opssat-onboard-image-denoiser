@@ -6,14 +6,14 @@
 
 # check that an argument for the model type is given
 if [ "$#" -ne 1 ]; then
-  echo "Error: Exactly one argument is require: 'wgans' or 'autoencoders'."
+  echo "Error: Exactly one argument is require: 'wgan' or 'ae'."
   exit 1
 fi
 
 # check that the model type value is correct
 MODEL_TYPE="$1"
-if [ "$MODEL_TYPE" != "wgans" ] && [ "$MODEL_TYPE" != "autoencoders" ]; then
-  echo "Error: Argument must be either 'wgans' or 'autoencoders'."
+if [ "$MODEL_TYPE" != "wgan" ] && [ "$MODEL_TYPE" != "ae" ]; then
+  echo "Error: Argument must be either 'wgan' or 'ae'."
   exit 1
 fi
 
@@ -49,17 +49,17 @@ for noise_type in 1 2; do
     echo "${noise_type_label} at factor ${noise_factor}"
 
     # the file path of the denoiser model
-    if [ "$MODEL_TYPE" = "autoencoders" ]; then
-      model_filepath=${exp_dir}/models/ae_${noise_type_label}${noise_factor}_f.tflite
-    elif [ "$MODEL_TYPE" = "wgans" ]; then
-      model_filepath=${exp_dir}/models/wgan_${noise_type_label}${noise_factor}_p.tflite
+    if [ "$MODEL_TYPE" = "ae" ]; then
+      model_filepath=${exp_dir}/models/${MODEL_TYPE}_${noise_type_label}${noise_factor}_f.tflite
+    elif [ "$MODEL_TYPE" = "wgan" ]; then
+      model_filepath=${exp_dir}/models/${MODEL_TYPE}_${noise_type_label}${noise_factor}_p.tflite
     fi
 
     # the file path of the noised image
-    img_filepath_noised=${results_dir}/sample.${noise_type_label}.${noise_factor}.noised.jpeg
+    img_filepath_noised=${results_dir}/sample.${noise_type_label}${noise_factor}.noised.jpeg
 
     # the file path of the denoised image
-    img_filepath_denoised=${results_dir}/sample.${noise_type_label}.${noise_factor}.denoised.jpeg
+    img_filepath_denoised=${results_dir}/sample.${noise_type_label}${noise_factor}.denoised.jpeg
 
     # apply noise to the image
     cmd_noiser="${bin_noiser} -i ${img_filepath_original} -r 224x224 -t ${noise_type} -n ${noise_factor} -o ${img_filepath_noised} -q 100"
@@ -76,7 +76,7 @@ for noise_type in 1 2; do
     else
       # wait before denoising the image that was just noised
       # the wait time only exists to have a nice gap in the CPU and memory usage plots
-      sleep 1
+      #sleep 30
 
       # new line
       echo ""
@@ -100,7 +100,7 @@ for noise_type in 1 2; do
     else
       # wait before processing the next image
       # the wait time only exists to have a nice gap in the CPU and memory usage plots
-      sleep 2
+      sleep 300
 
       # new line
       echo ""

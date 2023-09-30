@@ -1,6 +1,46 @@
 #!/bin/sh
+
+echo "Installing experiment..."
 chown -R exp253:exp253 /home/exp253
 chmod -R 770 /home/exp253
 chmod +x /home/exp253/denoiser
 chmod +x /home/exp253/noiser
-echo "Installation finished."
+chmod +x /home/exp253/test_fm.sh
+echo "Installation completed."
+
+echo "Overwriting SmartCam config..."
+
+# Backup the SmartCam config
+if [ -e "/home/exp1000/config.ini" ] && [ ! -e "/home/exp1000/config.ini.backup" ]; then
+  mv /home/exp1000/config.ini /home/exp1000/config.ini.backup
+fi
+
+# Check if /home/exp1000 directory exists before attempting to overwrite the SmartCam config
+if [ -d "/home/exp1000" ]; then
+  cp /home/exp253/config.ini /home/exp1000/config.ini
+fi
+
+# Set the "EXP253_TEST" environment variable to run the tests after installing the IPK:
+#
+#   EXP253_TEST= opkg install /path/to/package.ipk
+#
+# Alternatively, use the "export" command prior to installing the IPK:
+#
+#   export EXP253_TEST=
+#   opkg install /path/to/package.ipk
+#
+# Use the "unset" command to remove the environment variable set via the "export" command:
+#
+#   unset EXP253_TEST
+#
+if [ -n "${EXP253_TEST+x}" ]; then
+  echo "Testing WGAN..."
+  test_cmd="/home/exp253/test_fm.sh 1 50 wgan p"
+  eval "time ${test_cmd}"
+
+  echo "Testing Autoencoder..."
+  test_cmd="/home/exp253/test_fm.sh 2 200 ae f"
+  eval "time ${test_cmd}"
+
+  echo "Test completed."
+fi
