@@ -28,13 +28,10 @@ def compare_images(original_path, denoised_path):
     mse = mean_squared_error(original_image, denoised_image)
     return psnr, ssim, mse
 
-def generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder):
+def generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder):
     
     # Read the CSV file
     df = pd.read_csv(csv_file)
-
-    # Create the output folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
 
     # Lists to store the calculated metrics
     psnr_list = []
@@ -83,7 +80,7 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-AE-FNP-50-metrics.svg"
+    output_path = "./csv/results_classification-WGAN-FNP-50-metrics.svg"
     plt.savefig(output_path)
 
 
@@ -107,15 +104,14 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-AE-FNP-50-metrics-log-scale.svg"
+    output_path = "./csv/results_classification-WGAN-FNP-50-metrics-log-scale.svg"
     plt.savefig(output_path)
 
 
 # Example usage
-csv_file = "./csv/results_classification-AE-FNP-50-short.csv"
-csv_output_file = "./csv/results_classification-AE-FNP-50-metrics.csv"
-original_folder = "./images/AE/FNP-50/"
-denoised_folder = "./images/AE/FNP-50/"
-output_folder = "./figures/AE/FNP-50/histogram_original-vs-denoised/"
+csv_file = "./csv/results_classification-WGAN-FNP-50-short.csv"
+csv_output_file = "./csv/results_classification-WGAN-FNP-50-metrics.csv"
+original_folder = "./images/WGAN/FNP-50/"
+denoised_folder = "./images/WGAN/FNP-50/"
 
-generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder)
+generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder)

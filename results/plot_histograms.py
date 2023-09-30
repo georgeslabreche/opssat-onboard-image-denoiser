@@ -67,7 +67,7 @@ def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_pat
 
   # Save the figure as an SVG
   if save_fig is True:
-    plt.savefig(f"./figures/AE/FNP-50/histogram_original-vs-denoised/{image_timestamp}.rgb.svg", format="svg")
+    plt.savefig(f"./figures/WGAN/FNP-50/histogram_original-vs-denoised/{image_timestamp}.rgb.svg", format="svg")
   else:
     plt.show()
 
@@ -116,7 +116,7 @@ def plot_histograms_grayscale(image_timestamp, original_image_resize_target, ima
 
   # Save the figure as an SVG
   if save_fig:
-    plt.savefig(f"./figures/AE/FNP-50/histogram_original-vs-denoised/{image_timestamp}.grayscale.svg", format="svg")
+    plt.savefig(f"./figures/WGAN/FNP-50/histogram_original-vs-denoised/{image_timestamp}.grayscale.svg", format="svg")
   else:
     plt.show()
 
@@ -163,10 +163,10 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
 
 
 # Example usage
-csv_file = "./csv/results_classification-AE-FNP-50-short.csv"
-csv_output_file = "./csv/results_classification-AE-FNP-50-metrics.csv"
-original_folder = "./images/AE/FNP-50/"
-denoised_folder = "./images/AE/FNP-50/"
-output_folder = "./figures/AE/FNP-50/histogram_original-vs-denoised/"
+csv_file = "./csv/results_classification-WGAN-FNP-50-short.csv"
+csv_output_file = "./csv/results_classification-WGAN-FNP-50-metrics.csv"
+original_folder = "./images/WGAN/FNP-50/"
+denoised_folder = "./images/WGAN/FNP-50/"
+output_folder = "./figures/WGAN/FNP-50/histogram_original-vs-denoised/"
 
 generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder)
