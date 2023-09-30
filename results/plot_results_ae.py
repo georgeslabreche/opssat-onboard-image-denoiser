@@ -3,15 +3,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# todo: read from csv file instead
-#       make sure that the csv file also contains the classification results (for context)
-data = [-0.169742, -0.06547, -0.04404, -0.037052, -0.050134, -0.310529, -0.159407, 0.046612, 0.044578, -0.357572, -0.024214, -0.035141, -0.167083, -0.006572, 0.023848, -0.105729, -0.10302, -0.110709, 0.004851, -0.081153, -0.009501, 0.07843, None, 0.141651, -0.232892, None, None, -0.09453, -0.009037, -0.003863, None, 0.055157]
+# Read data from the CSV file
+df = pd.read_csv('data.csv')
 
-# descriptive statistics
-data = [x for x in data if x is not None]  # Removing None values
+# Remove rows with missing values (None in Confidence Difference)
+df = df.dropna(subset=['confidence_difference'])
+
+# Extract the 'Confidence Difference' column as a Series
+data = df['confidence_difference']
+
+# Descriptive statistics
 series = pd.Series(data)
 print(series.describe())
 
+data = [x for x in data if x is not None]  # Cleans empty entries out
+series = pd.Series(data)
+print(series.describe())
 
 # histogram
 plt.hist(data, bins=10, edgecolor='black')
