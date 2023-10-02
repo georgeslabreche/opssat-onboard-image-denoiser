@@ -14,6 +14,7 @@ exp_id=253
 # The files that will be packaged into the ipk
 bin_noiser=${project_dir}/tools/noiser/build/noiser
 bin_denoiser=${project_dir}/tools/denoiser/build/denoiser
+smartcam_config=${project_dir}/smartcam/config.ini
 
 # Check that the required files exist
 if [ ! -f "$bin_noiser" ] || [ ! -f "$bin_denoiser" ]; then
@@ -60,15 +61,16 @@ mkdir -p ${deploy_models_dir}
 # The project can be packaged for the spacecraft (no bash command options) or for the EM (us the 'em' option).
 if [ "$1" == "" ]; then
   echo "Create ${IPK_FILENAME} for the spacecraft"
+
+  # The test script.
+  cp ${project_dir}/scripts/test_fm.sh ${deploy_exp_dir}
+
 elif [ "$1" == "em" ]; then
-  # If packaging for the EM then include some files needed for testing
+  # If packaging for the EM then include some files needed for testing.
   echo "Create ${IPK_FILENAME} for the EM"
 
-  # The sample image
-  cp ${project_dir}/scripts/sample.jpeg ${deploy_exp_dir}
-
-  # The test script
-  cp ${project_dir}/scripts/em_test.sh ${deploy_exp_dir}
+  # The test script.
+  cp ${project_dir}/scripts/test_em.sh ${deploy_exp_dir}
 else
   # If not deploying for spacecraft nor the EM then an invalid parameter was given.
   echo "Error: invalid option"
@@ -76,15 +78,23 @@ else
   exit 1
 fi
 
-# Copy files that that will be packaged into the ipk
+# The sample images.
+cp ${project_dir}/scripts/sample.jpeg ${deploy_exp_dir}
+cp ${project_dir}/scripts/sample.wb.jpeg ${deploy_exp_dir}
+
+# Copy files that that will be packaged into the ipk.
 cp ${bin_noiser} ${deploy_exp_dir}
 cp ${bin_denoiser} ${deploy_exp_dir}
+cp ${smartcam_config} ${deploy_exp_dir}
 
-# Copy the pre-trained models
-# Keep the ipk under 10 MB for spacecraft uplink
+# Create the toGround directory
+mkdir ${deploy_exp_dir}/toGround
+
+# Copy the pre-trained models.
+# Keep the ipk under 10 MB for spacecraft uplink.
 if [ "$1" == "em" ]; then
-  cp -R ${project_dir}/models/autoencoders/*50_f.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/wgans/*50_p.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/autoencoders/*p50_f.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/wgans/*p50_p.tflite ${deploy_models_dir}
 else
   cp -R ${project_dir}/models/autoencoders/ae_cfnp200_f.tflite ${deploy_models_dir}
   cp -R ${project_dir}/models/wgans/wgan_fnp50_p.tflite ${deploy_models_dir}
