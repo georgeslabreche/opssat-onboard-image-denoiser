@@ -21,7 +21,7 @@ fi
 exp_dir=/home/exp253
 
 # the directory for the test results
-results_parent_dir=${exp_dir}/results
+results_parent_dir=${exp_dir}/toGround
 results_dir=${results_parent_dir}/${MODEL_TYPE}
 rm -rf ${results_dir}
 mkdir -p ${results_dir}
@@ -100,7 +100,7 @@ for noise_type in 1 2; do
     else
       # wait before processing the next image
       # the wait time only exists to have a nice gap in the CPU and memory usage plots
-      sleep 300
+      sleep 240
 
       # new line
       echo ""

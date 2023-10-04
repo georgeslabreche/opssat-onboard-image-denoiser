@@ -1,15 +1,4 @@
-# Results
+## Results
+- Results from running the experiment on both the flatsat and the on-board spacecraft.
+- The "extra" directory just contains scripts to generate figures for the paper. 
 
-TODO: Provide background and context on the CSV files being processed.
-
-## Autoencoder
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-python plot_results_ae.py
-```
-
-## Generative (WGAN)
-
-TBD.
