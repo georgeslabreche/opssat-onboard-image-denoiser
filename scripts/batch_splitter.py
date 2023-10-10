@@ -88,7 +88,7 @@ def iterate_images(dir_img, dir_split_img):
       split_image(img_path, INPUT_SIZE, SPLIT_SIZE, dir_split_img)
 
 if args.noised:
-  for noise_type in ['fnp', 'cfnp']:
+  for noise_type in ['fpn', 'cfpn']:
     for noise_factor in [50, 100, 150, 200]:
 
       # redefine path of the noised images

@@ -8,7 +8,7 @@ noise_type="$1"
 noise_factor="$2"
 
 # ternary-like operation to set the noise type string
-[ ${noise_type} -eq 1 ] && noise_type_label="fnp" || noise_type_label="cfnp"
+[ ${noise_type} -eq 1 ] && noise_type_label="fpn" || noise_type_label="cfpn"
 
 # the model parameters
 model_type="$3"

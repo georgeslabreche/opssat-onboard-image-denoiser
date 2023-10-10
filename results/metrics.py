@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-@Time : 2023/09/24 19:28
-@Auth : Dr. Cesar Guzman
-"""
+
 import os
 import cv2
 import pandas as pd
@@ -11,25 +8,32 @@ from skimage import io, img_as_ubyte
 from skimage.metrics import *
 from skimage import measure
 import numpy as np
+import argparse
 
 
-def compare_images(original_path, denoised_path):
+def compare_images(original_path, denoised_path, resize_original=True, resize_denoised=False):
     # Load the original and denoised images
     original_image = cv2.imread(original_path)
     denoised_image = cv2.imread(denoised_path)
     
-    # Resize the images to 224x224
-    original_image = cv2.resize(original_image, (224, 224))
-    denoised_image = cv2.resize(denoised_image, (224, 224))
+    # Resize the original images to 224x224
+    if resize_original is True:
+      original_image = cv2.resize(original_image, (224, 224))
+
+    # Resize the denoised images to 224x224
+    if resize_denoised is True:
+      denoised_image = cv2.resize(denoised_image, (224, 224))
 
     # Calculate the metrics
     psnr = peak_signal_noise_ratio(original_image, denoised_image)
     ssim = structural_similarity(original_image, denoised_image, multichannel=True, data_range=255, win_size=3)
     mse = mean_squared_error(original_image, denoised_image)
+    
+    # Return the results
     return psnr, ssim, mse
 
-def generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder):
-    
+
+def calculate_metrics(csv_file, csv_output_file, original_folder, denoised_folder):
     # Read the CSV file
     df = pd.read_csv(csv_file)
 
@@ -66,52 +70,60 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     print(f"Metrics CSV file saved: {csv_output_file}")
 
 
-    # Plotting the metrics
-    plt.plot(psnr_list, label='PSNR')
-    plt.plot(ssim_list, label='SSIM')
-    plt.plot(mse_list, label='MSE')
+def process_results_preliminary():
+  preliminary_path = "./preliminary"
+  reference_image_path = os.path.join(preliminary_path, "sample.jpeg")
+  results_csv_path = os.path.join(preliminary_path, "results.csv")
 
-    # Adding labels and title
-    plt.xlabel('Image Index')
-    plt.ylabel('Metric Value')
-    plt.title('Comparison of PSNR, SSIM, and MSE')
+  # Initialize a DataFrame to store the results
+  df = pd.DataFrame(columns=["filename", "psnr", "ssim", "mse"])
 
-    # Adding a legend
-    plt.legend()
+  # Loop through all .jpeg files in the preliminary folder
+  for filename in os.listdir(preliminary_path):
+    if filename.endswith(".jpeg") and filename != "sample.jpeg":
+      image_path = os.path.join(preliminary_path, filename)
 
-    # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FNP-50-metrics.svg"
-    plt.savefig(output_path)
+      # Calculate the metrics
+      psnr, ssim, mse = compare_images(reference_image_path, image_path)
 
-
-    # Plotting in log scale
-    plt.close()
-
-    # Creating an array of x-axis values
-    x_values = np.arange(len(psnr_list))
-
-    # Plotting the metrics with a logarithmic y-axis
-    plt.semilogy(x_values, psnr_list, label='PSNR')
-    plt.semilogy(x_values, ssim_list, label='SSIM')
-    plt.semilogy(x_values, mse_list, label='MSE')
-
-    # Adding labels and title
-    plt.xlabel('Image Index')
-    plt.ylabel('Metric Value (log scale)')
-    plt.title('Comparison of PSNR, SSIM, and MSE')
-
-    # Adding a legend
-    plt.legend()
-
-    # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FNP-50-metrics-log-scale.svg"
-    plt.savefig(output_path)
+      # Append to 
+      df.loc[len(df)] = [filename, psnr, ssim, mse]
+  
+  # Write the df as a csv file in ./prelimiary/results.csv
+  df.to_csv(results_csv_path, index=False)
 
 
-# Example usage
-csv_file = "./csv/results_classification-WGAN-FNP-50-short.csv"
-csv_output_file = "./csv/results_classification-WGAN-FNP-50-metrics.csv"
-original_folder = "./images/WGAN/FNP-50/"
-denoised_folder = "./images/WGAN/FNP-50/"
+def process_results_flatsat():
+  print("\nFor no particular reason, the FlatSat results have their own script in ./flatsat/calculate_metrics.py\n")
 
-generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder)
+
+def process_results_spacecraft():
+  # Paths
+  csv_file = "./spacecraft/csv/results_classification-WGAN-FPN-50-short.csv"
+  csv_output_file = "./spacecraft/csv/results_classification-WGAN-FPN-50-metrics.csv"
+  original_folder = "./spacecraft/images/WGAN/FPN-50/"
+  denoised_folder = "./spacecraft/images/WGAN/FPN-50/"
+
+  # Calculate metrics
+  calculate_metrics(csv_file, csv_output_file, original_folder, denoised_folder)
+
+
+def parse_arguments():
+  parser = argparse.ArgumentParser(description='Caculate similarity metrics of denoised images.')
+  parser.add_argument('-t', '--target', choices=['p', 'f', 's'], required=True,
+                      help='Target for processing: (p)reliminary, (f)latsat, or (s)pacecraft')
+  return parser.parse_args()
+
+
+def main():
+  args = parse_arguments()
+
+  if args.target == 'p': # preliminary results
+    process_results_preliminary()
+  elif args.target == 'f': # flatsat results
+    process_results_flatsat()
+  elif args.target == 's': # spacecraft results
+    process_results_spacecraft()
+
+if __name__ == "__main__":
+    main()

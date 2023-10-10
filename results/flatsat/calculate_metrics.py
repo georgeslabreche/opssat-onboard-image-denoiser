@@ -16,13 +16,13 @@ def compute_ssim(img1, img2):
   return structural_similarity(img1, img2, multichannel=True, data_range=255, win_size=3)
 
 # Load the reference image
-reference_image_path = "wgan_fnp50_p0-8_01/images/sample.jpeg"
+reference_image_path = "wgan_fpn50_p0-8_01/images/sample.jpeg"
 reference_image = io.imread(reference_image_path)
 reference_image = transform.resize(reference_image, (224, 224), anti_aliasing=True)
 reference_image = (reference_image * 255).astype('uint8')  # Convert to uint8
 
 # Read the CSV file
-csv_path = "wgan_fnp50_p0-8_01/metrics.csv"
+csv_path = "wgan_fpn50_p0-8_01/metrics.csv"
 df = pd.read_csv(csv_path)
 
 # Calculate metrics for each image and update the CSV
@@ -30,8 +30,8 @@ for index, row in df.iterrows():
   patch_margin_pixels = int(row['patch_margin_pixels'])
 
   # Derive the denoised image name based on the patch_margin_pixels column
-  denoised_image_name = f"sample.fnp50.p{patch_margin_pixels}.denoised.jpeg"
-  denoised_image_path = os.path.join("wgan_fnp50_p0-8_01/images", denoised_image_name)
+  denoised_image_name = f"sample.fpn50.p{patch_margin_pixels}.denoised.jpeg"
+  denoised_image_path = os.path.join("wgan_fpn50_p0-8_01/images", denoised_image_name)
   
   # Read the denoised image
   denoised_image = io.imread(denoised_image_path)

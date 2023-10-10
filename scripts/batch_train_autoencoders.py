@@ -21,9 +21,9 @@ for noise_type in [1, 2]:
 
   # ternary-like operation to set the noise type string
   if noise_type == 1:
-    noise_type_label = "fnp"
+    noise_type_label = "fpn"
   else:
-    noise_type_label = "cfnp"
+    noise_type_label = "cfpn"
 
   # apply different noise factors
   for noise_factor in [50, 100, 150, 200]:

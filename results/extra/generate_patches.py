@@ -111,7 +111,7 @@ if os.path.exists("patches"):
 # Load the images
 original_img = cv2.imread("sample.wb.jpeg")
 original_img = cv2.resize(original_img, (224, 224))
-noised_img = cv2.imread("images/samples/sample.wb.cfnp100.noised.jpeg")
+noised_img = cv2.imread("images/samples/sample.wb.cfpn100.noised.jpeg")
 
 # Get training patches
 original_images = np.array([original_img])

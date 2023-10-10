@@ -96,8 +96,8 @@ if [ "$1" == "em" ]; then
   cp -R ${project_dir}/models/autoencoders/*p50_f.tflite ${deploy_models_dir}
   cp -R ${project_dir}/models/wgans/*p50_p.tflite ${deploy_models_dir}
 else
-  cp -R ${project_dir}/models/autoencoders/ae_cfnp200_f.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/wgans/wgan_fnp50_p.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/autoencoders/ae_cfpn200_f.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/wgans/wgan_fpn50_p.tflite ${deploy_models_dir}
 fi
 
 # Create the label files.

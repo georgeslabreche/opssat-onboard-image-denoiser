@@ -7,3 +7,6 @@
 [submodule "tools/denoiser/tensorflow"]
 	path = tools/denoiser/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
+[submodule "training/wgans"]
+	path = training/wgans
+	url = https://github.com/georgeslabreche/opssat-onboard-image-denoiser-wgans

@@ -269,9 +269,9 @@ double generate_gaussian_noise(double mean, double std_dev)
 
 
 // --------------------------------------------------------------------------
-// function to generate a fixed noise pattern (FNP)
+// function to generate a fixed-pattern noise (FPN)
 
-void generate_fixed_noise_pattern(unsigned char* noise_pattern, int size, double noise_factor)
+void generate_fixed_pattern_noise(unsigned char* noise_pattern, int size, double noise_factor)
 {
 
   /* use a fixed seed for deterministic random numbers */
@@ -513,7 +513,7 @@ int main(int argc, char **argv)
   if (noise_type == 1 || noise_type == 2)
   {
     int pattern_size = noise_type == 1 ? img_buffer_size : input_width * channels;
-    generate_fixed_noise_pattern(noise_pattern, pattern_size, noise_factor);
+    generate_fixed_pattern_noise(noise_pattern, pattern_size, noise_factor);
   }
 
   /* add noise to the image */

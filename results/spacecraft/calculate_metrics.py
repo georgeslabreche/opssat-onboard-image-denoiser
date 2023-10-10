@@ -80,7 +80,7 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FNP-50-metrics.svg"
+    output_path = "./csv/results_classification-WGAN-FPN-50-metrics.svg"
     plt.savefig(output_path)
 
 
@@ -104,14 +104,14 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FNP-50-metrics-log-scale.svg"
+    output_path = "./csv/results_classification-WGAN-FPN-50-metrics-log-scale.svg"
     plt.savefig(output_path)
 
 
 # Example usage
-csv_file = "./csv/results_classification-WGAN-FNP-50-short.csv"
-csv_output_file = "./csv/results_classification-WGAN-FNP-50-metrics.csv"
-original_folder = "./images/WGAN/FNP-50/"
-denoised_folder = "./images/WGAN/FNP-50/"
+csv_file = "./csv/results_classification-WGAN-FPN-50-short.csv"
+csv_output_file = "./csv/results_classification-WGAN-FPN-50-metrics.csv"
+original_folder = "./images/WGAN/FPN-50/"
+denoised_folder = "./images/WGAN/FPN-50/"
 
 generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder)
