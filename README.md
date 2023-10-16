@@ -3,7 +3,7 @@
 </p>
 
 # OPS-SAT Onboard Image Denoiser
-This experiment uses Wasserstein GANs onboard the European Space Agency's OPS-SAT-1 spacecraft to reconstruct corrupted pictures of Earth thus showcasing the very first use of Generative AI in space.
+This experiment uses Wasserstein GANs onboard the European Space Agency's OPS-SAT-1 spacecraft to reconstruct corrupted pictures of Earth thus showcasing **the very first use of Generative AI in space**.
 
 
 ## Background
@@ -17,7 +17,9 @@ The camera onboard the European Space Agency's {\sat} spacecraft has been operat
 
 
 ## Experiment
-Images downlinked from the spacecraft serve as training data to which artificial fixed-pattern noise is applied to simulate sensor degradation. The trained neural networks are uplinked to the spacecraft's edge computer payload where they are processed by the onboard TensorFlow Lite interpreter to output noise-free images. **On September 29, 2023, the OPS-SAT-1 mission achieved a significant milestone when it successfully captured, noised, and subsequently denoised two images using WGANs, marking the pioneering first application of Generative AI in space.**
+Images downlinked from the spacecraft serve as training data to which artificial fixed-pattern noise is applied to simulate sensor degradation. The trained neural networks are uplinked to the spacecraft's edge computer payload where they are processed by the onboard TensorFlow Lite interpreter to output noise-free images.
+
+**On September 29, 2023, the OPS-SAT-1 mission achieved a significant milestone when it successfully captured, noised, and subsequently denoised two images using WGANs, marking the pioneering first application of Generative AI in space.**
  
 ## Results
 The restored images have remarkably high structural similarity indices of 0.89 and 0.92---where 1 would indicate that they are identical to their original images. Interestingly, some reconstructed images are more confidently labeled by the onboard convolutional neural network image classifier when compared to their original counterparts. The counterintuitive observation challenges the conventional understanding that higher resolution always yields better results. This suggests that simplifying or modifying certain data features enhances the ability of some models to accurately interpret given inputs.
@@ -99,7 +101,7 @@ César is an interdisciplinary R&D engineer with a background in reactive planni
 ### Sam Bammens
 A distinguished graduate with an M.S. degree in electronics and computer engineering technology from Hasselt University and KU Leuven in 2021, has a compelling background. He embarked on his career journey with ESA. During his initial two years, Sam served as a Young Graduate Trainee on the mission control team of OPS-SAT, showcasing his expertise. Presently, he holds the role of Spacecraft Operations Engineer within ESA's ESOC interplanetary department. He's a vital part of the flight control team dedicated to ESA's Solar Orbiter mission, solidifying his presence in the realm of space exploration.
 
-
+<br/>
 <p align="center">
   <img src="./md/ESA_Logo.png" height="200" alt="ESA Logo">
 </p>
