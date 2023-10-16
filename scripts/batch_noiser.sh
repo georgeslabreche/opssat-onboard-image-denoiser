@@ -30,7 +30,7 @@ noise_type_label=""
 for noise_type in 1 2; do
 
   # ternary-like operation to set the noise type string
-  [[ $noise_type -eq 1 ]] && noise_type_label="fnp" || noise_type_label="cfnp"
+  [[ $noise_type -eq 1 ]] && noise_type_label="fpn" || noise_type_label="cfpn"
 
   # apply different noise factors
   for noise_factor in 50 100 150 200; do

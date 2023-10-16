@@ -1,44 +1,82 @@
-# OPS-SAT Image Denoiser
-Denoising OPS-SAT images with TensorFlow Autoencoders.
+<p align="center">
+  <img src="./md/ESA_OPS-SAT-1_Mission-Patch.png" height="200" alt="ESA OPS-SAT-1 Mission Patch">
+</p>
 
-## Motivation
-The European Space Agency's [OPS-SAT](opssat1.esoc.esa.int/) spacecraft has a BST IMS-100 camera with CCD sensor and a design life of 3 years [[1](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1159&context=smallsat)]. OPS-SAT was launched on December 18, 2019. At the time of writing this README (April 30, 2023), the camera has been in orbit for over 4 months past its design life. To prepare against the risk of CCD sensor degradation that would result in acquiring grainy images, this experiment explores using AI to train neural network models as a denoising solution.
-
-Past experiments have successfully demonstrated the use of TensorFlow models on-board the spacecraft's edge computer payload [[2](https://ieeexplore.ieee.org/document/9843402), [3](https://www.researchgate.net/publication/363599665_Augmenting_Digital_Signal_Processing_with_Machine_Learning_techniques_using_the_Software_Defined_Radio_on_the_OPS-SAT_Space_Lab), [4](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/)], notably with the [SmartCam app](https://github.com/georgeslabreche/opssat-smartcam). Training a neural networks model using TensorFlow for on-board inferences has since been common practice by the OPS-SAT mission control team, particularly for autonomous decision-making in image classification. This experiment builds on those successes to train a denoising TensorFlow Lite model that can be plugged into the [SmartCam's inference pipeline](https://github.com/georgeslabreche/opssat-smartcam#33-building-an-image-classification-pipeline) to "fix" potentially grainy images. Denoising on-board rather than on the ground allows for image-based on-board autonomous decision-making that requires high fidelity imagery with little to no loss of pixel data.
+# OPS-SAT Onboard Image Denoiser
+This experiment uses Wasserstein GANs onboard the European Space Agency's OPS-SAT-1 spacecraft to reconstruct corrupted pictures of Earth thus showcasing the very first use of Generative AI in space.
 
 
-## Implementations
+## Background
+The camera onboard the European Space Agency's {\sat} spacecraft has been operating past its design life of 3 years [[1](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1159&context=smallsat)]. As the payload ages, there is an increasing risk of sensor degradation leading to corrupted images. This paper evaluates Generative AI models derived from Wasserstein GANs (WGANs)---an enhanced type of Generative Adversarial Networks---as a noise reduction solution to reconstruct such images. Autoencoder neural networks are also trained and evaluated for comparative purposes given their common use in noise reduction.
 
-### Autoencoders
+<p align="center">
+  <img src="./md/ESA_OPS-SAT-1_Spacecraft.png" width="500" alt="ESA OPS-SAT-1 Spacecraft">
+</p>
 
-The Autoencoders implemented for this experiment are taken from TensorFlow's [Intro to Autoencoders](https://www.tensorflow.org/tutorials/generative/autoencoder) as well as from a [Keras example](https://keras.io/examples/vision/autoencoder/). The source code of the Autoencoders can be found [here](autoencoders.py). To simulate fixed-pattern noise for CCD, a normal distribution is used to artificially add noise to the training and test data. The noiser is an executable binary implemented in C and can be found [here](./tools/noiser/).
+**Figure 1: The OPS-SAT spacecraft in the clean room with deployed solar arrays (TU Graz).**
 
-![Figure 1: FPN noise for CCD (left) and CMOS (right) noise.](./figures/fig1_fixed_pattern_noise.png)
 
-**Figure 1: FPN noise for CCD (left) and CMOS (right) noise [[5](https://www.semanticscholar.org/paper/A-Novel-Fixed-Pattern-Noise-Reduction-Technique-in-Mohammadnejad-Nasiri/7b9a47d68a8da2f412466662dd9dbb10d3a23a36)].**
-
+## Experiment
+Images downlinked from the spacecraft serve as training data to which artificial fixed-pattern noise is applied to simulate sensor degradation. The trained neural networks are uplinked to the spacecraft's edge computer payload where they are processed by the onboard TensorFlow Lite interpreter to output noise-free images. **On September 29, 2023, the OPS-SAT-1 mission achieved a significant milestone when it successfully captured, noised, and subsequently denoised two images using WGANs, marking the pioneering first application of Generative AI in space.**
+ 
 ## Results
-This experiment is a naive implementation of TensorFlow Autodecoders with little training data (~500 images) so the results leave much to be desired. Regardless, the experiment is an interesting proof-of-concept that can run on-board ESA's OPS-SAT spacecraft as well as any other spacecraft equipped with edge computing.
+The restored images have remarkably high structural similarity indices of 0.89 and 0.92---where 1 would indicate that they are identical to their original images. Interestingly, some reconstructed images are more confidently labeled by the onboard convolutional neural network image classifier when compared to their original counterparts. The counterintuitive observation challenges the conventional understanding that higher resolution always yields better results. This suggests that simplifying or modifying certain data features enhances the ability of some models to accurately interpret given inputs.
 
-### Naive Denoiser
-![Result from using a naive implementaton of the denoiser autoencoder.](./figures/fig2_result_denoiser_naive.png)
-**Figure 2: Result from using a naive implementaton of the denoiser autoencoder.**
+<div style="text-align:center;">
+  <table align="center">
+    <tr>
+      <td><img src="./md/1695963889066.jpeg" alt="Original Image 1" width="224"/></td>
+      <td><img src="./md/1695963889066.noised.jpeg" alt="Noised Image 1" width="224"/></td>
+      <td><img src="./md/1695963889066.denoised.jpeg" alt="Denoised Image 1" width="224"/></td>
+    </tr>
+    <tr>
+      <td>(a) Original.</td>
+      <td>(b) Noised.</td>
+      <td>(c) Denoised.</td>
+    </tr>
+    <tr>
+      <td><img src="./md/1695964476824.jpeg" alt="Original Image 2" width="224"/></td>
+      <td><img src="./md/1695964476824.noised.jpeg" alt="Noised Image 2" width="224"/></td>
+      <td><img src="./md/1695964476824.denoised.jpeg" alt="Denoised Image 2" width="224"/></td>
+    </tr>
+    <tr>
+      <td>(d) Original.</td>
+      <td>(e) Noised.</td>
+      <td>(f) Denoised.</td>
+    </tr>
+  </table>
+</div>
 
-### Simple Denoiser
-![Result from using a simple implementaton of the denoiser autoencoder.](./figures/fig3_result_denoiser_simple.png)
-**Figure 3: Result from using a simple implementaton of the denoiser autoencoder.**
+**Figure 2: Fixed-Pattern Noise (FPN) factor 50 noising and WGANs Generative AI denoising onboard the spacecraft. Images are post-processed with color equalize.**
 
-### Generative adversarial networks (GANs)
 
-Working on
+## Details
+Links to our paper will be provided as soon as it's published. Meanwhile, enjoy browsing to the repository and reaching out via GitHub Issues!
 
-## Future Work
-Suggested future work:
-1. Improve denoising results with more training data. If not enough training images are availble from OPS-SAT then the Random Forest experiment in [[4](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/)] demonstrated that [Landsat](https://landsat.gsfc.nasa.gov/) images can also be used as training data for models that apply to OPS-SAT imagery.
-2. Re-use proven denoising models, such as the Pyramid Real Image Denoising Network (PRIDNet) [[6](https://arxiv.org/abs/1908.00273)]. These models weren't trained with satellite imagery in mind but are likely to yield good results and demonstrate the benefits of open-source reusability that edge computing allows on board a spacecraft. The disk footprint size of these models will present a challenge as they need to be reduced for spacecraft uplink (or apply only on the ground after image downlink).
-3. Train a denoising model using noise distribution that is representative of a CMOS sensor vertical scan (due to the sensor's perpendicular readout system).
-4. A comparative study and trade-off analysis against existing denoising algorithms that are not AI-driven.
-5. Explore removing noise from radiation damage on camera sensors for future missions exposed to high levels of radiation such as with interplanetary radiation belts or Io's surface radiation in the Jupiter system.
+### Citation
+We appreciate citations to our upcoming peer-reviewed IEEE publication. Thank you!
+
+#### BibTex
+```BibTex
+@inproceedings{ieee_aeroconf_labreche2024,
+  title     = {{Generative AI... in Space! Adversarial Networks to Denoise Images Onboard the OPS-SAT-1 Spacecraft}},
+  author    = {Labrèche, Georges and Guzman, Cesar and Bammens, Sam},
+  booktitle = {{2024 IEEE Aerospace Conference}},
+  year      = {2024}
+}
+```
+
+#### APA
+Labrèche, G., Guzman, C., & Bammens, S. (2024). Generative AI... in Space! Adversarial Networks to Denoise Images Onboard the OPS-SAT-1 Spacecraft. *2024 IEEE Aerospace Conference*.
+
+## Past Experiments
+The OPS-SAT-1 mission has achieved many firsts in onboard machine learning with neural networks. Past experiments have successfully executed TensorFlow Lite model interpreters on the spacecraft's edge computer payload [[2](https://ieeexplore.ieee.org/document/9843402), [3](https://www.researchgate.net/publication/363599665_Augmenting_Digital_Signal_Processing_with_Machine_Learning_techniques_using_the_Software_Defined_Radio_on_the_OPS-SAT_Space_Lab), [4](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/)]. Onboard ML has since been a common practice by the spacecraft's mission control team, particularly for image-based autonomous decision-making. The experiment presented in this paper builds on those successes to train and evaluate onboard Generative AI.
+
+Have any experiment idea? [Register to become an experimenter!](https://opssat1.esoc.esa.int/)
+
+
+## Acknowledgements
+The authors would like to thank the OPS-SAT-1 Mission Control Team at ESA's European Space Operations Centre (ESOC) for their continued support in validating the experiment, especially Vladimir Zelenevskiy, Rodrigo Laurinovics, [Marcin Jasiukowicz](https://yasiu.pl/), and Adrian Calleja. Their persistence in scheduling and running the experiment onboard the spacecraft until sufficient data was acquired and downlinked was crucial to the success of this experiment. A special thank you to [Kevin Cheng](https://kevkcheng.info/) from [Subspace Signal](https://subspacesignal.com/) for granting and facilitating remote access to the GPU computing infrastructure used to train the models presented in this work.
 
 ## References
 [1] Segert T., Engelen S., Buhl M., & Monna B. (2011). [Development of the Pico Star Tracker ST-200 – Design Challenges and Road Ahead](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1159&context=smallsat). _25th Annual Small Satellite Conference_, Logan, UT, USA.
@@ -49,62 +87,19 @@ Suggested future work:
 
 [4] Kacker S., Meredith A., Cahoy K., & Labrèche G. (2022). [Machine Learning Image Processing Algorithms Onboard OPS-SAT](https://digitalcommons.usu.edu/smallsat/2022/all2022/65/). _36th Annual Small Satellite Conference_, Logan, UT, USA.
 
-[5] Mohammadnejad, S., Nasiri, M., Roshani, S., & Roshani, S. (2012). [A Novel Fixed Pattern Noise Reduction Technique in Image Sensors for Satellite Applications](https://www.semanticscholar.org/paper/A-Novel-Fixed-Pattern-Noise-Reduction-Technique-in-Mohammadnejad-Nasiri/7b9a47d68a8da2f412466662dd9dbb10d3a23a36). _Electrical and Electronic Engineering_, 2(5): 271-276.
+## Space Cadets
+About the experimenters!
 
-[6] Zhao, Y., Jiang, Z., Men, A., & Ju, G. (2019). [Pyramid Real Image Denoising Network](https://arxiv.org/abs/1908.00273).
+### Georges Labrèche
+[Georges](https://georges.fyi) enjoys running marathons and running experiments on the OPS-SAT-1 Space Lab. Through his work, he has established himself as a leading figure in applied artificial intelligence for in-orbit machine learning in onboard spacecraft autonomy. He lives in Queens, NY, and supports the OPS-SAT-1 mission through his Estonian-based consultancy [Tanagra Space](https://tanagraspace.com/). Georges received his B.S. in Software Engineering from the University of Ottawa, Canada, M.A. in International Affairs from the New School University in New York, NY, and M.S. in Spacecraft Design from Luleå University of Technology in Kiruna, Sweden.
+
+### César Guzman
+César is an interdisciplinary R&D engineer with a background in reactive planning, plan execution and monitoring, space systems engineering, and machine learning. Cesar holds a Ph.D. in AI. He enjoys developing machine learning experiments on the OPS-SAT-1 Space Lab. In 2012, He collaborated with NASA Ames Research Center and is an R&D partner at the Estonian-based consultancy [Tanagra Space](https://tanagraspace.com/).
+
+### Sam Bammens
+A distinguished graduate with an M.S. degree in electronics and computer engineering technology from Hasselt University and KU Leuven in 2021, has a compelling background. He embarked on his career journey with ESA. During his initial two years, Sam served as a Young Graduate Trainee on the mission control team of OPS-SAT, showcasing his expertise. Presently, he holds the role of Spacecraft Operations Engineer within ESA's ESOC interplanetary department. He's a vital part of the flight control team dedicated to ESA's Solar Orbiter mission, solidifying his presence in the realm of space exploration.
 
 
-## Appendix: Getting Started
-Instructions on how to install the application to train and apply the denoiser autoencoder model. Training images are not provided.
-
-### Installation
-
-Install and create the virtual environment:
-```bash
-sudo apt install python3-venv
-pip install virtualenv
-virtualenv venv
-```
-
-Activate the virtual environment in Linux:
-```bash
-source venv/bin/activate
-```
-
-Make sure you are in the last version:
-```bash
-python3 -m pip install --upgrade build
-```
-
-Install Pytest:
-```bash
-pip install pytest
-```
-
-Compile the last version:
-```bash
-python3 -m build
-```
-
-Install using pip:
-```bash
-pip install dist/image_denoiser_cguz-0.0.1-py3-none-any.whl
-```
-
-Make sure that you pass all the test:
-```bash
-pytest
-```
-
-Deactivate the virtual environment:
-```bash
-deactivate
-```
-
-### Execution
-Activate the virtual environment and:
-1. Use `find_bad_jpegs.py` to identify corrupt images that will break the training (get rid of those images, if they exist).
-2. Edit `constants.py` with the desired training parameters.
-3. Train the model with `train_denoiser.py`.
-4. Test the model on some images with `denoise.py`.
-=======
+<p align="center">
+  <img src="./md/ESA_Logo.png" height="200" alt="ESA Logo">
+</p>
