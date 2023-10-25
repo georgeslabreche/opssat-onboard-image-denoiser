@@ -1,172 +1,113 @@
-# -*- coding: utf-8 -*-
-"""
-@Time : 2023/09/24 19:28
-@Auth : Dr. Cesar Guzman
-"""
 import os
+import argparse
 import cv2
 import pandas as pd
-import matplotlib.pyplot as plt
-from skimage import io, img_as_ubyte
-from skimage.metrics import *
-from skimage import measure
 import numpy as np
-from PIL import Image
+import matplotlib.pyplot as plt
+from palettable.colorbrewer.diverging import RdYlBu_5
+
+def plot_grayscale_histogram(image, label=None, xlim=(0, 256), color=None, fill=False):
+    hist = cv2.calcHist([image], [0], None, [256], [0, 256])
+    plt.plot(hist, label=label, color=color)
+    if fill is True:
+      plt.fill_between(np.arange(256), hist.ravel(), color=color, alpha=0.4)
+    plt.xlim(xlim)
 
 
-
-def plot_histograms_rgb(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, include_total, normalize_counts, save_fig):
-  """Histogram for the RGB pixel values"""
-
-  # Load the images using PIL
-  image_original = Image.open(image_path_original)
-  image_denoised = Image.open(image_path_denoised)
-
-  if original_image_resize_target is not None:
-    new_dimensions  = (original_image_resize_target, original_image_resize_target)
-    image_original = image_original.resize(new_dimensions)
-
-  # Convert the images into arrays
-  data_original = np.array(image_original)
-  data_denoised = np.array(image_denoised)
-
-  # Plot histograms for each image
-  plt.figure(figsize=(15, 7))
-
-  for idx, data in enumerate([data_original, data_denoised], start=1):
-    plt.subplot(1, 2, idx)
-
-    # Extract the RGB channels
-    red_channel = data[:, :, 0]
-    green_channel = data[:, :, 1]
-    blue_channel = data[:, :, 2]
+def plot_rgb_histogram(image, xlim=(0, 256), save_path=None):
+    fig, axes = plt.subplots(3, 1, figsize=(4, 9))
+    colors = ('r', 'g', 'b')
+    color_names = ('Red', 'Green', 'Blue')
     
-    # Compute grayscale image (luminance) from RGB
-    # This will be used as the histogram for the total (a.k.a. the grayscale or luminance representation)
-    grayscale_image = 0.2989 * red_channel + 0.5870 * green_channel + 0.1140 * blue_channel
+    for i, (col, color_name) in enumerate(zip(colors, color_names)):
+        hist = cv2.calcHist([image], [i], None, [256], [0, 256])
+        axes[i].plot(hist, color=col)
+        axes[i].fill_between(np.arange(256), hist.ravel(), color=col, alpha=0.4)
+        axes[i].set_xlim(xlim)
+        axes[i].set_title(f'{color_name} Channel')
+        axes[i].set_ylabel('Pixel Frequency')
+        if i == 2:
+            axes[i].set_xlabel('Pixel Intensity')
 
-    # Plotting the histograms
-    plt.hist(red_channel.ravel(), bins=256, color='red', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Red Channel')
-    plt.hist(green_channel.ravel(), bins=256, color='green', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Green Channel')
-    plt.hist(blue_channel.ravel(), bins=256, color='blue', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Blue Channel')
-
-    if include_total is True:
-      plt.hist(grayscale_image.ravel(), bins=256, color='gray', alpha=0.5, rwidth=0.8, density=normalize_counts, label='Total (Grayscale)')
-
-    title = 'Original RGB Histograms' if idx == 1 else 'Denoised RGB Histograms'
-    plt.title(title)
-    plt.xlabel('Pixel Intensity')
-    if normalize_counts:
-      plt.ylabel('Probability Density')
-    else:
-      plt.ylabel('Counts')
-    plt.grid(axis='y', alpha=0.75)
-    plt.legend(loc='upper right')
-
-  plt.tight_layout()
-
-  # Save the figure as an SVG
-  if save_fig is True:
-    plt.savefig(f"./figures/WGAN/FPN-50/histogram_original-vs-denoised/{image_timestamp}.rgb.svg", format="svg")
-  else:
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, format="svg")
     plt.show()
 
 
-def plot_histograms_grayscale(image_timestamp, original_image_resize_target, image_path_original, image_path_denoised, normalize_counts, save_fig):
-  """Histogram for the total (i.e., the grayscale or luminance representation)"""
+def plot_histogram(reference_folder_path, noise_image, output_three_channels, output_final, caption_histogram):
 
-  # Load the images using OpenCV
-  image_original = cv2.imread(image_path_original, cv2.IMREAD_GRAYSCALE)
-  image_denoised = cv2.imread(image_path_denoised, cv2.IMREAD_GRAYSCALE)
-  
-  if original_image_resize_target is not None:
-    new_dimensions  = (original_image_resize_target, original_image_resize_target)
-    image_original = cv2.resize(image_original, new_dimensions)
+  # Load and resize the reference image
+  reference_image_path = f"{reference_folder_path}/images/sample.jpeg"
+  reference_image = cv2.imread(reference_image_path)
+  reference_image = cv2.resize(reference_image, (224, 224))
 
-  # Compute histograms
-  hist_original = cv2.calcHist([image_original], [0], None, [256], [0, 256])
-  hist_denoised = cv2.calcHist([image_denoised], [0], None, [256], [0, 256])
+  # Plot RGB histograms for the original image
+  plot_rgb_histogram(reference_image, xlim=(20, 120), save_path=f"{reference_folder_path}/figures/histogram_rgb_original.svg")
 
-  # Normalize histograms for better visualization
-  if normalize_counts is True:
-    hist_original /= hist_original.sum()
-    hist_denoised /= hist_denoised.sum()
 
-  # Get non-zero ranges
-  nz_original = np.where(hist_original > 0)
-  nz_denoised = np.where(hist_denoised > 0)
+  # Create another figure for the histograms of the WGAN p6 denoised image
+  plt.figure(figsize=(10, 9))
+  denoised_image_name = f"sample.{noise_image}.denoised.jpeg"
+  denoised_image_path = os.path.join(f"{reference_folder_path}/images/", denoised_image_name)
+  denoised_image = cv2.imread(denoised_image_path)
 
-  min_x = min(nz_original[0][0], nz_denoised[0][0])
-  max_x = max(nz_original[0][-1], nz_denoised[0][-1])
+  # PLot RGB histograms
+  temp = f"{reference_folder_path}/figures/{output_three_channels}"
+  print (temp)
+  plot_rgb_histogram(denoised_image, xlim=(20, 120), save_path=temp)
 
-  # Plot
-  plt.figure(figsize=(10, 5))
 
-  # Plot original image histogram
-  plt.plot(hist_original, color='gray', label='Original Image')
 
-  # Plot denoised image histogram
-  plt.plot(hist_denoised, color='black', linestyle='--', label='Denoised Image')
 
-  plt.title('Histograms of Original and Denoised Images')
-  plt.xlim([min_x, max_x])  # Setting the x-axis limits
-  plt.xlabel('Pixel Value')
-  plt.ylabel('Normalized Count')
+  # Plot the grayscale historgrams of original image + denoised
+  plt.figure(figsize=(10, 4))
+
+  # Define colors using the RdYlBu palette from palettable
+  # FIXME: Use line types instead + legend
+
+  # Plot grayscale histogram for the original image
+  reference_image_gray = cv2.imread(reference_image_path, cv2.IMREAD_GRAYSCALE)
+  reference_image_gray = cv2.resize(reference_image_gray, (224, 224))
+  plot_grayscale_histogram(reference_image_gray, "Original image", xlim=(20, 120), fill=False)
+
+  denoised_image_name = f"sample.{noise_image}.denoised.jpeg"
+  denoised_image_path = os.path.join(f"{reference_folder_path}/images", denoised_image_name)
+  denoised_image = cv2.imread(denoised_image_path, cv2.IMREAD_GRAYSCALE)
+  denoised_image = cv2.resize(denoised_image, (224, 224))
+  plot_grayscale_histogram(denoised_image, f'{caption_histogram} Denoised (margin is 6 pixels)', xlim=(20, 120), fill=False)
+
+
+
+  '''
+  # Create another figure with grayscale histograms of all denoised images
+  # Read the CSV file
+  csv_path = f"{reference_folder_path}/metrics.csv"
+  df = pd.read_csv(csv_path)
+
+  # For each patch_margin_pixels value in the CSV, plot the grayscale histogram for the corresponding denoised image
+  for index, patch_margin_pixels in enumerate(df['patch_margin_pixels']):
+    denoised_image_name = f"sample.fpn50.p{int(patch_margin_pixels)}.denoised.jpeg"
+    denoised_image_path = os.path.join(f"{reference_folder_path}/images", denoised_image_name)
+    denoised_image = cv2.imread(denoised_i
+    plot_grayscale_histogram(denoised_image, f'p{int(patch_margin_pixels)}', xlim=(20, 120), fill=False)mage_path, cv2.IMREAD_GRAYSCALE)
+    denoised_image = cv2.resize(denoised_image, (224, 224))
+  '''
+
+  plt.xlabel('Pixel Intensity')
+  plt.ylabel('Frequency')
   plt.legend()
-
-  # Save the figure as an SVG
-  if save_fig:
-    plt.savefig(f"./figures/WGAN/FPN-50/histogram_original-vs-denoised/{image_timestamp}.grayscale.svg", format="svg")
-  else:
-    plt.show()
+  plt.savefig(f"{reference_folder_path}/figures/{output_final}", format="svg")
+  plt.show()
 
 
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--reference_folder_path', required=True, type=str, help='Path to the reference folder')
+  parser.add_argument('--noise_image', required=True, type=str, help='The type of noise and image of the results')
+  parser.add_argument('--output_three_channels', required=True, type=str, help='The name of the output for three channels')
+  parser.add_argument('--output_final', required=True, type=str, help='The final name of the file')
+  parser.add_argument('--caption_histogram', required=True, type=str, help='The caption of the histogra')
+  args = parser.parse_args()
 
-def generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder):
-    
-    # The original images are the default thumbnails retrieved from the spacecraft
-    # This thumbnail is resized prior to onboard processing
-    # We don't retrieve the resized version from the spacecraft so we have to resize it here
-    original_image_resize_target = 224
-
-    # Save the generated plots as SVG files
-    save_fig = True
-
-    # Include total (grayscale) histogram in RGB histogram
-    include_total = False
-
-    # Normalize the pixel count
-    normalize_counts = False
-    
-    # Read the CSV file
-    df = pd.read_csv(csv_file)
-
-    # Create the output folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
-
-    # Iterate over the rows in the CSV file
-    for index, row in df.iterrows():
-        timestamp = row['timestamp']
-        denoised_label = row['label_denoised']
-
-        # Construct the paths for the original and denoised images
-        original_path = os.path.join(original_folder, f"{denoised_label}/{timestamp}.jpeg")
-        denoised_path = os.path.join(denoised_folder, f"{denoised_label}/{timestamp}.denoised.jpeg")
-
-        
-        # Generate the side-by-side histogram comparison plot
-        # Plot RGB histogram
-        plot_histograms_rgb(timestamp, original_image_resize_target, original_path, denoised_path, include_total, normalize_counts, save_fig)
-
-        # Plot Total histogram (i.e., the grayscale or luminance representation)
-        plot_histograms_grayscale(timestamp, original_image_resize_target, original_path, denoised_path, normalize_counts, save_fig)
-
-
-# Example usage
-csv_file = "./csv/results_classification-WGAN-FPN-50-short.csv"
-csv_output_file = "./csv/results_classification-WGAN-FPN-50-metrics.csv"
-original_folder = "./images/WGAN/FPN-50/"
-denoised_folder = "./images/WGAN/FPN-50/"
-output_folder = "./figures/WGAN/FPN-50/histogram_original-vs-denoised/"
-
-generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder, output_folder)
+  reference_image = plot_histogram(args.reference_folder_path, args.noise_image, args.output_three_channels, args.output_final, args.caption_histogram)

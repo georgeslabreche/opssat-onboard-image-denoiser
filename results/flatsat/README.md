@@ -11,17 +11,6 @@ Execution times in the `metrics.csv` files were measured using the `time` comman
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 python3 calculate_metrics.py --reference_folder_path wgan_fpn50_p0-8_01 --noise fpn50
-python3 plot_histograms.py --reference_folder_path wgan_fpn50_p0-8_01 --noise_image fpn50.p6 --output_three_channels histogram_rgb_denoised_wgan_p6.svg --output_final histogram_grayscale_original_and_denoised_wgan_p0-8.svg
-```
-
-Where:
-- --noise_image is related to the files in the `images` folder 
-- --output_three_channels and --output_final will be stored in the folder `figures`
-
-The `opencv-python` package is used to plot the grayscale histograms. The libGL.so library is required by OpenCV. To install it in Ubuntu/Debian:
-```bash
-sudo apt-get update
-sudo apt-get install -y libgl1-mesa-glx
 ```
