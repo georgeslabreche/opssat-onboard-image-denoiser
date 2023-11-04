@@ -24,7 +24,7 @@ def plot_rgb_histogram(image, xlim=(0, 256), save_path=None):
         axes[i].plot(hist, color=col)
         axes[i].fill_between(np.arange(256), hist.ravel(), color=col, alpha=0.4)
         axes[i].set_xlim(xlim)
-        axes[i].set_title(f'{color_name} Channel')
+        axes[i].set_title(f'{color_name} Channel ', y=1.0, pad=-14, loc='right')
         axes[i].set_ylabel('Pixel Frequency')
         if i == 2:
             axes[i].set_xlabel('Pixel Intensity')
@@ -35,10 +35,10 @@ def plot_rgb_histogram(image, xlim=(0, 256), save_path=None):
     plt.show()
 
 
-def plot_histogram(reference_folder_path, noise_image, output_three_channels, output_final, caption_histogram):
+def plot_histogram(image_folder_path, reference_folder_path, noise_image, output_three_channels, output_final, caption_histogram):
 
   # Load and resize the reference image
-  reference_image_path = f"{reference_folder_path}/images/sample.jpeg"
+  reference_image_path = f"{image_folder_path}/images/sample.jpeg"
   reference_image = cv2.imread(reference_image_path)
   reference_image = cv2.resize(reference_image, (224, 224))
 
@@ -49,7 +49,7 @@ def plot_histogram(reference_folder_path, noise_image, output_three_channels, ou
   # Create another figure for the histograms of the WGAN p6 denoised image
   plt.figure(figsize=(10, 9))
   denoised_image_name = f"sample.{noise_image}.denoised.jpeg"
-  denoised_image_path = os.path.join(f"{reference_folder_path}/images/", denoised_image_name)
+  denoised_image_path = os.path.join(f"{image_folder_path}/images/", denoised_image_name)
   denoised_image = cv2.imread(denoised_image_path)
 
   # PLot RGB histograms
@@ -72,10 +72,10 @@ def plot_histogram(reference_folder_path, noise_image, output_three_channels, ou
   plot_grayscale_histogram(reference_image_gray, "Original image", xlim=(20, 120), fill=False)
 
   denoised_image_name = f"sample.{noise_image}.denoised.jpeg"
-  denoised_image_path = os.path.join(f"{reference_folder_path}/images", denoised_image_name)
+  denoised_image_path = os.path.join(f"{image_folder_path}/images", denoised_image_name)
   denoised_image = cv2.imread(denoised_image_path, cv2.IMREAD_GRAYSCALE)
   denoised_image = cv2.resize(denoised_image, (224, 224))
-  plot_grayscale_histogram(denoised_image, f'{caption_histogram} Denoised (margin is 6 pixels)', xlim=(20, 120), fill=False)
+  plot_grayscale_histogram(denoised_image, f'{caption_histogram}', xlim=(20, 120), fill=False)
 
 
 
@@ -103,6 +103,7 @@ def plot_histogram(reference_folder_path, noise_image, output_three_channels, ou
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
+  parser.add_argument('--image_folder_path', required=True, type=str, help='Path to the image folder')
   parser.add_argument('--reference_folder_path', required=True, type=str, help='Path to the reference folder')
   parser.add_argument('--noise_image', required=True, type=str, help='The type of noise and image of the results')
   parser.add_argument('--output_three_channels', required=True, type=str, help='The name of the output for three channels')
@@ -110,4 +111,4 @@ if __name__ == '__main__':
   parser.add_argument('--caption_histogram', required=True, type=str, help='The caption of the histogra')
   args = parser.parse_args()
 
-  reference_image = plot_histogram(args.reference_folder_path, args.noise_image, args.output_three_channels, args.output_final, args.caption_histogram)
+  reference_image = plot_histogram(args.image_folder_path, args.reference_folder_path, args.noise_image, args.output_three_channels, args.output_final, args.caption_histogram)

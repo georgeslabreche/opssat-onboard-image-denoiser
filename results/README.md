@@ -10,9 +10,9 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-python3 plot_histograms.py --reference_folder_path flatsat/wgan_fpn50_p0-8_01 --noise_image fpn50.p6 --output_three_channels histogram_rgb_denoised_wgan_p6.svg --output_final histogram_grayscale_original_and_denoised_wgan_p0-8.svg --caption_histogram WGAN
+python3 plot_histograms.py --image_folder_path . --reference_folder_path flatsat/wgan_fpn50_p0-8_01 --noise_image fpn50.p6 --output_three_channels histogram_rgb_denoised_wgan_p6.svg --output_final histogram_grayscale_original_and_denoised_wgan_p0-8.svg --caption_histogram "WGAN Denoised (margin is 6 pixels)"
 
-python3 plot_histograms.py --reference_folder_path spacecraft/images/AE/FPN-50/Earth --noise_image fpn50 --output_three_channels histogram_rgb_denoised_AE.svg --output_final histogram_grayscale_original_and_denoised_AE.svg --caption_histogram Autoencoder
+python3 plot_histograms.py --image_folder_path . --reference_folder_path spacecraft/images/AE/FPN-50/Earth --noise_image fpn50.p6 --output_three_channels histogram_rgb_denoised_AE.svg --output_final histogram_grayscale_original_and_denoised_AE.svg --caption_histogram "Autoencoder Denoised"
 ```
 
 Where:
@@ -21,6 +21,7 @@ Where:
 
 The `opencv-python` package is used to plot the grayscale histograms. The libGL.so library is required by OpenCV. To install it in Ubuntu/Debian:
 ```bash
-sudo apt-get update
-sudo apt-get install -y libgl1-mesa-glx
+sudo apt update
+sudo apt install -y libgl1-mesa-glx
+sudo apt install -y libglib2.0-0 libsm6 libxrender1 libxext6
 ```
