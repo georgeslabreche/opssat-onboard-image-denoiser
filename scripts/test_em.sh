@@ -66,7 +66,7 @@ for noise_type in 1 2; do
     echo "${cmd_noiser}"
     eval "time ${cmd_noiser}"
 
-    # cache the exit code
+    # catch the exit code
     exit_code=$?
 
     # check the exit code of the noiser command
@@ -90,7 +90,7 @@ for noise_type in 1 2; do
     echo "${cmd_denoiser}"
     eval "time ${cmd_denoiser}"
 
-    # cache the exit code immediately
+    # catch the exit code
     exit_code=$?
 
     # check the exit code of the denoiser command

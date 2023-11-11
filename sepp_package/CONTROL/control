@@ -3,5 +3,5 @@ Priority: optional
 Maintainer: esoc
 Architecture: sepp
 Section: Applications
-Version: 1.2
-Description: artificial neural networks to denoise grainy images
+Version: 1.3
+Description: Onboard Generative AI to denoise grainy images

@@ -1,0 +1,10 @@
+/home/exp253/denoiser -i /home/exp253/a_pale_blue_dot.jpeg -m /home/exp253/models/wgan_fpn50_p.tflite -o /home/exp253/toGround/a_pale_blue_dot.wgan.fpn50.denoised.jpeg -q 100 -p 56x56 -g 6
+{"denoised": 1}real	49m 2.11s
+user	45m 35.02s
+sys	0m 1.26s
+total 136
+drwxrwx---    4 exp253   exp253       320 Nov 11 20:24 ..
+-rw-r--r--    1 root     root         248 Nov 11 22:02 log.txt
+-rw-r--r--    1 root     root      128.7K Nov 11 22:02 a_pale_blue_dot.wgan.fpn50.denoised.jpeg
+drwxrwx---    2 exp253   exp253        80 Nov 11 22:02 .
+Qapla'

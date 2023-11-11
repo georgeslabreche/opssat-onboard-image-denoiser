@@ -1,0 +1,10 @@
+/home/exp253/denoiser -i /home/exp253/a_pale_blue_dot.jpeg -m /home/exp253/models/ae_fpn50_p.tflite -o /home/exp253/toGround/a_pale_blue_dot.ae.fpn50.denoised.jpeg -q 100 -p 56x56 -g 6
+{"denoised": 1}real	5m 16.91s
+user	4m 55.85s
+sys	0m 0.25s
+total 84
+drwxrwx---    4 exp253   exp253       320 Nov 11 20:24 ..
+-rw-r--r--    1 root     root         243 Nov 11 23:14 a_pale_blue_dot.ae.fpn50.denoised.log
+-rw-r--r--    1 root     root       79.4K Nov 11 23:14 a_pale_blue_dot.ae.fpn50.denoised.jpeg
+drwxrwx---    2 exp253   exp253        80 Nov 11 23:14 .
+Qapla'
