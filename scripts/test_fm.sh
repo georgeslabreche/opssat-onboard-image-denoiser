@@ -36,7 +36,7 @@ cmd_noiser="${bin_noiser} -i ${img_filepath_original} -r 224x224 -t ${noise_type
 echo "${cmd_noiser}"
 eval "time ${cmd_noiser}"
 
-# cache the exit code
+# catch the exit code
 exit_code=$?
 
 # check the exit code of the noiser command
@@ -53,7 +53,7 @@ fi
 echo "${cmd_denoiser}"
 eval "time ${cmd_denoiser}"
 
-# cache the exit code immediately
+# catch the exit code
 exit_code=$?
 
 # check the exit code of the denoiser command

@@ -8,9 +8,6 @@
 project_dir=$(pwd)
 project_dir=${project_dir/scripts/""}
 
-# The experiment id.
-exp_id=253
-
 # The files that will be packaged into the ipk
 bin_noiser=${project_dir}/tools/noiser/build/noiser
 bin_denoiser=${project_dir}/tools/denoiser/build/denoiser
@@ -45,13 +42,14 @@ PKG_NAME=$(sed -n -e '/^Package/p' ${project_dir}/sepp_package/CONTROL/control |
 PKG_VER=$(sed -n -e '/^Version/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
 PKG_ARCH=$(sed -n -e '/^Architecture/p' ${project_dir}/sepp_package/CONTROL/control | cut -d ' ' -f2)
 
-# Build the ipk filename.
-IPK_FILENAME=${PKG_NAME}_${PKG_VER}_${PKG_ARCH}.ipk
+# The ipk filename will depend on the target environment: EM (flatsat) or FM (spacecraft).
+# For the EM, just affix the filename with "em".
+IPK_FILENAME=""
 
 # Deployment directory paths.
 deploy_dir=${project_dir}/deploy
 deploy_home_dir=${deploy_dir}/home
-deploy_exp_dir=${deploy_home_dir}/exp${exp_id}
+deploy_exp_dir=${deploy_home_dir}/${PKG_NAME}
 deploy_models_dir=${deploy_exp_dir}/models
 
 # Clean and initialize the deploy folder.
@@ -60,6 +58,7 @@ mkdir -p ${deploy_models_dir}
 
 # The project can be packaged for the spacecraft (no bash command options) or for the EM (us the 'em' option).
 if [ "$1" == "" ]; then
+  IPK_FILENAME=${PKG_NAME}_${PKG_VER}_${PKG_ARCH}.ipk
   echo "Create ${IPK_FILENAME} for the spacecraft"
 
   # The test script.
@@ -67,6 +66,7 @@ if [ "$1" == "" ]; then
 
 elif [ "$1" == "em" ]; then
   # If packaging for the EM then include some files needed for testing.
+  IPK_FILENAME=${PKG_NAME}_${PKG_VER}_${PKG_ARCH}_em.ipk
   echo "Create ${IPK_FILENAME} for the EM"
 
   # The test script.
@@ -82,6 +82,10 @@ fi
 cp ${project_dir}/scripts/sample.jpeg ${deploy_exp_dir}
 cp ${project_dir}/scripts/sample.wb.jpeg ${deploy_exp_dir}
 
+# A test script that denoises the pale blue dot.
+cp ${project_dir}/scripts/a_pale_blue_dot.jpeg ${deploy_exp_dir}
+cp ${project_dir}/scripts/test_bd.sh ${deploy_exp_dir}
+
 # Copy files that that will be packaged into the ipk.
 cp ${bin_noiser} ${deploy_exp_dir}
 cp ${bin_denoiser} ${deploy_exp_dir}
@@ -93,15 +97,15 @@ mkdir ${deploy_exp_dir}/toGround
 # Copy the pre-trained models.
 # Keep the ipk under 10 MB for spacecraft uplink.
 if [ "$1" == "em" ]; then
-  cp -R ${project_dir}/models/autoencoders/*p50_f.tflite ${deploy_models_dir}
-  cp -R ${project_dir}/models/wgans/*p50_p.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/autoencoders/*_fpn50_*.tflite ${deploy_models_dir}
+  cp -R ${project_dir}/models/wgans/*_fpn50_*.tflite ${deploy_models_dir}
 else
   cp -R ${project_dir}/models/autoencoders/ae_cfpn200_f.tflite ${deploy_models_dir}
   cp -R ${project_dir}/models/wgans/wgan_fpn50_p.tflite ${deploy_models_dir}
 fi
 
 # Create the label files.
-# These are only required because the SmartCam expect's them.
+# These are only required because the SmartCam expects them.
 echo "noised" > ${deploy_exp_dir}/noiser.txt
 echo "denoised" > ${deploy_exp_dir}/denoiser.txt
 

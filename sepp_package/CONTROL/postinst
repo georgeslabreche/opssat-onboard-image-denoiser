@@ -5,7 +5,9 @@ chown -R exp253:exp253 /home/exp253
 chmod -R 770 /home/exp253
 chmod +x /home/exp253/denoiser
 chmod +x /home/exp253/noiser
-chmod +x /home/exp253/test_fm.sh
+[ -f /home/exp253/test_fm.sh ] && chmod +x /home/exp253/test_fm.sh
+[ -f /home/exp253/test_bd.sh ] && chmod +x /home/exp253/test_bd.sh
+[ -f /home/exp253/test_em.sh ] && chmod +x /home/exp253/test_em.sh
 echo "Installation completed."
 
 echo "Overwriting SmartCam config..."
@@ -40,6 +42,10 @@ if [ -n "${EXP253_TEST+x}" ]; then
 
   echo "Testing Autoencoder..."
   test_cmd="/home/exp253/test_fm.sh 2 200 ae f"
+  eval "time ${test_cmd}"
+
+  echo "Testing Pale Blue Dot..."
+  test_cmd="/home/exp253/test_bd.sh"
   eval "time ${test_cmd}"
 
   echo "Test completed."
