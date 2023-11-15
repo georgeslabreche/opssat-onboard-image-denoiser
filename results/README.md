@@ -15,6 +15,8 @@ python3 plot_histograms.py --image_folder_path ./flatsat/wgan_fpn50_p0-8_01 --re
 python3 plot_histograms.py --image_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1695963889066 --reference_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1695963889066 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1695963889066.svg --output_final histogram_grayscale_original_and_denoised_wgan_1695963889066.svg --caption_histogram "WGAN Denoised"
 
 python3 plot_histograms.py --image_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1695964476824 --reference_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1695964476824 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1695964476824.svg --output_final histogram_grayscale_original_and_denoised_wgan_1695964476824.svg --caption_histogram "WGAN Denoised"
+
+python3 plot_histograms.py --image_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1697455926224 --reference_folder_path ./spacecraft/images/WGAN_FPN50/Earth/1697455926224 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1697455926224.svg --output_final histogram_grayscale_original_and_denoised_wgan_1697455926224.svg --caption_histogram "WGAN Denoised"
 ```
 
 Where:
