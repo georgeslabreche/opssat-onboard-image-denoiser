@@ -111,7 +111,7 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
 # Example usage
 csv_file = "./csv/results_classification-WGAN-FPN-50-short.csv"
 csv_output_file = "./csv/results_classification-WGAN-FPN-50-metrics.csv"
-original_folder = "./images/WGAN/FPN-50/"
-denoised_folder = "./images/WGAN/FPN-50/"
+original_folder = "./images/WGAN_FPN50/"
+denoised_folder = "./images/WGAN_FPN50/"
 
 generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder)
