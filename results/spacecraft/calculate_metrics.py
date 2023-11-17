@@ -4,6 +4,7 @@
 @Auth : Dr. Cesar Guzman
 """
 import os
+import argparse
 import cv2
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -80,7 +81,7 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FPN-50-metrics.svg"
+    output_path = csv_output_file + ".svg"
     plt.savefig(output_path)
 
 
@@ -104,14 +105,16 @@ def generate_comparison_plots(csv_file, csv_output_file, original_folder, denois
     plt.legend()
 
     # Save the plot to the output folder
-    output_path = "./csv/results_classification-WGAN-FPN-50-metrics-log-scale.svg"
+    output_path = csv_output_file + ".log-scale.svg"
     plt.savefig(output_path)
 
 
-# Example usage
-csv_file = "./csv/results_classification-WGAN-FPN-50-short.csv"
-csv_output_file = "./csv/results_classification-WGAN-FPN-50-metrics.csv"
-original_folder = "./images/WGAN/FPN-50/"
-denoised_folder = "./images/WGAN/FPN-50/"
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--csv_input_file', required=True, type=str, help='Path to the reference folder')
+  parser.add_argument('--csv_output_file', required=True, type=str, help='The type of noise of the results')
+  parser.add_argument('--original_folder', required=True, type=str, help='The type of noise of the results')
+  parser.add_argument('--denoised_folder', required=True, type=str, help='The type of noise of the results')
+  args = parser.parse_args()
 
-generate_comparison_plots(csv_file, csv_output_file, original_folder, denoised_folder)
+  reference_image = generate_comparison_plots(args.csv_input_file, args.csv_output_file, args.original_folder, args.denoised_folder)

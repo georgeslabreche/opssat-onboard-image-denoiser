@@ -1,3 +1,5 @@
 timestamp,label_original,label_original_confidence,label_noised,label_noised_confidence,label_denoised,label_denoised_confidence,confidence_difference
 1695963889066,Earth,0.946156,Bad,0.596928,Earth,0.899453,-0.046703
 1695964476824,Earth,0.874889,Bad,0.57927,Earth,0.909169,0.03428
+1697367013830,Earth,0.683461,Bad,0.76712,Earth,0.726715,0.043254
+1697455926224,Earth,0.565866,Bad,0.914423,Earth,0.541508,-0.024358

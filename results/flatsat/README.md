@@ -11,13 +11,6 @@ Execution times in the `metrics.csv` files were measured using the `time` comman
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
-python calculate_metrics.py
-python plot_histograms.py
-```
-
-The `opencv-python` package is used to plot the grayscale histograms. The libGL.so library is required by OpenCV. To install it in Ubuntu/Debian:
-```bash
-sudo apt-get update
-sudo apt-get install -y libgl1-mesa-glx
+pip install -r ../requirements.txt
+python3 calculate_metrics.py --reference_folder_path wgan_fpn50_p0-8_01 --noise fpn50
 ```
