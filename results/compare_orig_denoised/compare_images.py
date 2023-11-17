@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-PATH="./test-images/"
+PATH="./"
 
 def compare_images(original_image, denoised_image):
   # Normalize the pixel values
