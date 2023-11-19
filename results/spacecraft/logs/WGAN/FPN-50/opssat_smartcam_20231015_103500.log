@@ -1,0 +1,1665 @@
+2023-10-15 10:39:47,031 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:39:56,186 INFO Acquired image: /home/exp1000/img_msec_1697366389988_2.png
+2023-10-15 10:39:56,189 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366389988_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366389988_2_thumbnail.jpeg
+2023-10-15 10:39:58,049 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:39:58,052 INFO Resize execution time:
+real	0m 1.83s
+user	0m 1.59s
+sys	0m 0.15s
+2023-10-15 10:39:58,057 INFO Labeling the image using the 'default' model.
+2023-10-15 10:39:58,059 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366389988_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366389988_2_input.jpeg
+2023-10-15 10:39:58,174 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:39:58,176 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:39:58,179 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366389988_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:40:00,477 INFO Inference execution time:
+real	0m 2.27s
+user	0m 1.98s
+sys	0m 0.22s
+2023-10-15 10:40:00,479 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:40:00,481 INFO Labeling the image as 'bad'.
+2023-10-15 10:40:00,491 INFO Ditching the image.
+2023-10-15 10:40:00,506 INFO Removed file: /home/exp1000/img_msec_1697366389988_2.ims_rgb
+2023-10-15 10:40:00,510 INFO Removed file: /home/exp1000/img_msec_1697366389988_2.png
+2023-10-15 10:40:00,513 INFO Removed file: /home/exp1000/img_msec_1697366389988_2_input.jpeg
+2023-10-15 10:40:00,515 INFO Removed file: /home/exp1000/img_msec_1697366389988_2_thumbnail.jpeg
+2023-10-15 10:40:01,398 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:40:10,357 INFO Acquired image: /home/exp1000/img_msec_1697366404308_2.png
+2023-10-15 10:40:10,360 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366404308_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366404308_2_thumbnail.jpeg
+2023-10-15 10:40:12,193 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:40:12,195 INFO Resize execution time:
+real	0m 1.80s
+user	0m 1.62s
+sys	0m 0.13s
+2023-10-15 10:40:12,200 INFO Labeling the image using the 'default' model.
+2023-10-15 10:40:12,201 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366404308_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366404308_2_input.jpeg
+2023-10-15 10:40:12,315 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:40:12,318 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:40:12,320 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366404308_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:40:14,586 INFO Inference execution time:
+real	0m 2.23s
+user	0m 1.87s
+sys	0m 0.30s
+2023-10-15 10:40:14,589 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:40:14,590 INFO Labeling the image as 'bad'.
+2023-10-15 10:40:14,596 INFO Ditching the image.
+2023-10-15 10:40:14,610 INFO Removed file: /home/exp1000/img_msec_1697366404308_2.ims_rgb
+2023-10-15 10:40:14,614 INFO Removed file: /home/exp1000/img_msec_1697366404308_2.png
+2023-10-15 10:40:14,617 INFO Removed file: /home/exp1000/img_msec_1697366404308_2_input.jpeg
+2023-10-15 10:40:14,618 INFO Removed file: /home/exp1000/img_msec_1697366404308_2_thumbnail.jpeg
+2023-10-15 10:40:15,506 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:40:24,406 INFO Acquired image: /home/exp1000/img_msec_1697366418468_2.png
+2023-10-15 10:40:24,408 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366418468_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366418468_2_thumbnail.jpeg
+2023-10-15 10:40:26,229 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:40:26,231 INFO Resize execution time:
+real	0m 1.79s
+user	0m 1.59s
+sys	0m 0.16s
+2023-10-15 10:40:26,236 INFO Labeling the image using the 'default' model.
+2023-10-15 10:40:26,238 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366418468_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366418468_2_input.jpeg
+2023-10-15 10:40:26,362 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:40:26,364 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:40:26,367 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366418468_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:40:28,662 INFO Inference execution time:
+real	0m 2.26s
+user	0m 1.86s
+sys	0m 0.29s
+2023-10-15 10:40:28,665 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:40:28,667 INFO Labeling the image as 'bad'.
+2023-10-15 10:40:28,672 INFO Ditching the image.
+2023-10-15 10:40:28,686 INFO Removed file: /home/exp1000/img_msec_1697366418468_2.ims_rgb
+2023-10-15 10:40:28,690 INFO Removed file: /home/exp1000/img_msec_1697366418468_2.png
+2023-10-15 10:40:28,693 INFO Removed file: /home/exp1000/img_msec_1697366418468_2_input.jpeg
+2023-10-15 10:40:28,695 INFO Removed file: /home/exp1000/img_msec_1697366418468_2_thumbnail.jpeg
+2023-10-15 10:40:29,575 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:40:38,382 INFO Acquired image: /home/exp1000/img_msec_1697366432468_2.png
+2023-10-15 10:40:38,385 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366432468_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366432468_2_thumbnail.jpeg
+2023-10-15 10:40:40,202 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:40:40,205 INFO Resize execution time:
+real	0m 1.79s
+user	0m 1.62s
+sys	0m 0.13s
+2023-10-15 10:40:40,210 INFO Labeling the image using the 'default' model.
+2023-10-15 10:40:40,211 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366432468_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366432468_2_input.jpeg
+2023-10-15 10:40:40,326 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:40:40,328 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:40:40,331 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366432468_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:40:42,611 INFO Inference execution time:
+real	0m 2.25s
+user	0m 1.87s
+sys	0m 0.29s
+2023-10-15 10:40:42,613 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:40:42,615 INFO Labeling the image as 'bad'.
+2023-10-15 10:40:42,622 INFO Ditching the image.
+2023-10-15 10:40:42,636 INFO Removed file: /home/exp1000/img_msec_1697366432468_2.ims_rgb
+2023-10-15 10:40:42,640 INFO Removed file: /home/exp1000/img_msec_1697366432468_2.png
+2023-10-15 10:40:42,642 INFO Removed file: /home/exp1000/img_msec_1697366432468_2_input.jpeg
+2023-10-15 10:40:42,644 INFO Removed file: /home/exp1000/img_msec_1697366432468_2_thumbnail.jpeg
+2023-10-15 10:40:43,527 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:40:52,478 INFO Acquired image: /home/exp1000/img_msec_1697366446468_2.png
+2023-10-15 10:40:52,480 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366446468_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366446468_2_thumbnail.jpeg
+2023-10-15 10:40:54,299 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:40:54,301 INFO Resize execution time:
+real	0m 1.79s
+user	0m 1.59s
+sys	0m 0.16s
+2023-10-15 10:40:54,306 INFO Labeling the image using the 'default' model.
+2023-10-15 10:40:54,307 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366446468_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366446468_2_input.jpeg
+2023-10-15 10:40:54,422 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:40:54,424 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:40:54,427 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366446468_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:40:56,711 INFO Inference execution time:
+real	0m 2.25s
+user	0m 1.90s
+sys	0m 0.27s
+2023-10-15 10:40:56,714 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:40:56,716 INFO Labeling the image as 'bad'.
+2023-10-15 10:40:56,721 INFO Ditching the image.
+2023-10-15 10:40:56,736 INFO Removed file: /home/exp1000/img_msec_1697366446468_2.ims_rgb
+2023-10-15 10:40:56,739 INFO Removed file: /home/exp1000/img_msec_1697366446468_2.png
+2023-10-15 10:40:56,742 INFO Removed file: /home/exp1000/img_msec_1697366446468_2_input.jpeg
+2023-10-15 10:40:56,743 INFO Removed file: /home/exp1000/img_msec_1697366446468_2_thumbnail.jpeg
+2023-10-15 10:40:57,662 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:41:06,616 INFO Acquired image: /home/exp1000/img_msec_1697366460631_2.png
+2023-10-15 10:41:06,619 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366460631_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366460631_2_thumbnail.jpeg
+2023-10-15 10:41:08,451 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:41:08,453 INFO Resize execution time:
+real	0m 1.80s
+user	0m 1.62s
+sys	0m 0.14s
+2023-10-15 10:41:08,458 INFO Labeling the image using the 'default' model.
+2023-10-15 10:41:08,460 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366460631_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366460631_2_input.jpeg
+2023-10-15 10:41:08,576 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:41:08,578 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:41:08,580 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366460631_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:41:10,834 INFO Inference execution time:
+real	0m 2.22s
+user	0m 1.93s
+sys	0m 0.23s
+2023-10-15 10:41:10,837 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:41:10,838 INFO Labeling the image as 'bad'.
+2023-10-15 10:41:10,843 INFO Ditching the image.
+2023-10-15 10:41:10,858 INFO Removed file: /home/exp1000/img_msec_1697366460631_2.ims_rgb
+2023-10-15 10:41:10,861 INFO Removed file: /home/exp1000/img_msec_1697366460631_2.png
+2023-10-15 10:41:10,864 INFO Removed file: /home/exp1000/img_msec_1697366460631_2_input.jpeg
+2023-10-15 10:41:10,866 INFO Removed file: /home/exp1000/img_msec_1697366460631_2_thumbnail.jpeg
+2023-10-15 10:41:11,760 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:41:20,716 INFO Acquired image: /home/exp1000/img_msec_1697366474710_2.png
+2023-10-15 10:41:20,718 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366474710_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366474710_2_thumbnail.jpeg
+2023-10-15 10:41:22,562 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:41:22,564 INFO Resize execution time:
+real	0m 1.81s
+user	0m 1.64s
+sys	0m 0.12s
+2023-10-15 10:41:22,569 INFO Labeling the image using the 'default' model.
+2023-10-15 10:41:22,570 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366474710_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366474710_2_input.jpeg
+2023-10-15 10:41:22,684 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:41:22,686 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:41:22,689 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366474710_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:41:24,929 INFO Inference execution time:
+real	0m 2.21s
+user	0m 1.97s
+sys	0m 0.18s
+2023-10-15 10:41:24,931 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:41:24,933 INFO Labeling the image as 'bad'.
+2023-10-15 10:41:24,939 INFO Ditching the image.
+2023-10-15 10:41:24,952 INFO Removed file: /home/exp1000/img_msec_1697366474710_2.ims_rgb
+2023-10-15 10:41:24,957 INFO Removed file: /home/exp1000/img_msec_1697366474710_2.png
+2023-10-15 10:41:24,960 INFO Removed file: /home/exp1000/img_msec_1697366474710_2_input.jpeg
+2023-10-15 10:41:24,961 INFO Removed file: /home/exp1000/img_msec_1697366474710_2_thumbnail.jpeg
+2023-10-15 10:41:25,845 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:41:34,953 INFO Acquired image: /home/exp1000/img_msec_1697366488790_2.png
+2023-10-15 10:41:34,956 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366488790_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366488790_2_thumbnail.jpeg
+2023-10-15 10:41:36,810 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:41:36,812 INFO Resize execution time:
+real	0m 1.82s
+user	0m 1.63s
+sys	0m 0.14s
+2023-10-15 10:41:36,817 INFO Labeling the image using the 'default' model.
+2023-10-15 10:41:36,819 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366488790_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366488790_2_input.jpeg
+2023-10-15 10:41:36,935 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:41:36,937 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:41:36,939 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366488790_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:41:39,174 INFO Inference execution time:
+real	0m 2.20s
+user	0m 1.87s
+sys	0m 0.27s
+2023-10-15 10:41:39,176 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:41:39,178 INFO Labeling the image as 'bad'.
+2023-10-15 10:41:39,184 INFO Ditching the image.
+2023-10-15 10:41:39,198 INFO Removed file: /home/exp1000/img_msec_1697366488790_2.ims_rgb
+2023-10-15 10:41:39,202 INFO Removed file: /home/exp1000/img_msec_1697366488790_2.png
+2023-10-15 10:41:39,206 INFO Removed file: /home/exp1000/img_msec_1697366488790_2_input.jpeg
+2023-10-15 10:41:39,208 INFO Removed file: /home/exp1000/img_msec_1697366488790_2_thumbnail.jpeg
+2023-10-15 10:41:40,087 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:41:49,859 INFO Acquired image: /home/exp1000/img_msec_1697366503030_2.png
+2023-10-15 10:41:49,862 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366503030_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366503030_2_thumbnail.jpeg
+2023-10-15 10:41:51,732 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:41:51,735 INFO Resize execution time:
+real	0m 1.84s
+user	0m 1.65s
+sys	0m 0.13s
+2023-10-15 10:41:51,739 INFO Labeling the image using the 'default' model.
+2023-10-15 10:41:51,741 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366503030_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366503030_2_input.jpeg
+2023-10-15 10:41:51,855 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:41:51,858 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:41:51,860 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366503030_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:41:54,113 INFO Inference execution time:
+real	0m 2.22s
+user	0m 1.86s
+sys	0m 0.30s
+2023-10-15 10:41:54,115 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:41:54,117 INFO Labeling the image as 'bad'.
+2023-10-15 10:41:54,122 INFO Ditching the image.
+2023-10-15 10:41:54,136 INFO Removed file: /home/exp1000/img_msec_1697366503030_2.ims_rgb
+2023-10-15 10:41:54,141 INFO Removed file: /home/exp1000/img_msec_1697366503030_2.png
+2023-10-15 10:41:54,145 INFO Removed file: /home/exp1000/img_msec_1697366503030_2_input.jpeg
+2023-10-15 10:41:54,146 INFO Removed file: /home/exp1000/img_msec_1697366503030_2_thumbnail.jpeg
+2023-10-15 10:41:55,026 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:42:06,406 INFO Acquired image: /home/exp1000/img_msec_1697366517990_2.png
+2023-10-15 10:42:06,408 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366517990_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366517990_2_thumbnail.jpeg
+2023-10-15 10:42:08,302 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:42:08,305 INFO Resize execution time:
+real	0m 1.86s
+user	0m 1.71s
+sys	0m 0.11s
+2023-10-15 10:42:08,309 INFO Labeling the image using the 'default' model.
+2023-10-15 10:42:08,310 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366517990_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366517990_2_input.jpeg
+2023-10-15 10:42:08,426 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:42:08,428 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:42:08,430 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366517990_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:42:10,666 INFO Inference execution time:
+real	0m 2.20s
+user	0m 1.86s
+sys	0m 0.28s
+2023-10-15 10:42:10,668 INFO Model prediction results: {"bad": 0.849718, "earth": 0.065466, "edge": 0.084815}
+2023-10-15 10:42:10,670 INFO Labeling the image as 'bad'.
+2023-10-15 10:42:10,675 INFO Ditching the image.
+2023-10-15 10:42:10,689 INFO Removed file: /home/exp1000/img_msec_1697366517990_2.ims_rgb
+2023-10-15 10:42:10,693 INFO Removed file: /home/exp1000/img_msec_1697366517990_2.png
+2023-10-15 10:42:10,696 INFO Removed file: /home/exp1000/img_msec_1697366517990_2_input.jpeg
+2023-10-15 10:42:10,698 INFO Removed file: /home/exp1000/img_msec_1697366517990_2_thumbnail.jpeg
+2023-10-15 10:42:11,591 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:42:25,610 INFO Acquired image: /home/exp1000/img_msec_1697366534549_2.png
+2023-10-15 10:42:25,612 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366534549_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366534549_2_thumbnail.jpeg
+2023-10-15 10:42:27,572 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:42:27,575 INFO Resize execution time:
+real	0m 1.93s
+user	0m 1.75s
+sys	0m 0.12s
+2023-10-15 10:42:27,579 INFO Labeling the image using the 'default' model.
+2023-10-15 10:42:27,580 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366534549_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366534549_2_input.jpeg
+2023-10-15 10:42:27,696 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:42:27,699 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:42:27,701 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366534549_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:42:30,036 INFO Inference execution time:
+real	0m 2.30s
+user	0m 1.93s
+sys	0m 0.28s
+2023-10-15 10:42:30,038 INFO Model prediction results: {"bad": 0.851301, "earth": 0.064488, "edge": 0.084211}
+2023-10-15 10:42:30,040 INFO Labeling the image as 'bad'.
+2023-10-15 10:42:30,046 INFO Ditching the image.
+2023-10-15 10:42:30,059 INFO Removed file: /home/exp1000/img_msec_1697366534549_2.ims_rgb
+2023-10-15 10:42:30,065 INFO Removed file: /home/exp1000/img_msec_1697366534549_2.png
+2023-10-15 10:42:30,067 INFO Removed file: /home/exp1000/img_msec_1697366534549_2_input.jpeg
+2023-10-15 10:42:30,069 INFO Removed file: /home/exp1000/img_msec_1697366534549_2_thumbnail.jpeg
+2023-10-15 10:42:30,956 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:42:48,656 INFO Acquired image: /home/exp1000/img_msec_1697366553910_2.png
+2023-10-15 10:42:48,658 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366553910_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366553910_2_thumbnail.jpeg
+2023-10-15 10:42:50,655 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:42:50,657 INFO Resize execution time:
+real	0m 1.96s
+user	0m 1.80s
+sys	0m 0.13s
+2023-10-15 10:42:50,662 INFO Labeling the image using the 'default' model.
+2023-10-15 10:42:50,663 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366553910_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366553910_2_input.jpeg
+2023-10-15 10:42:50,779 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:42:50,781 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:42:50,784 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366553910_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:42:53,123 INFO Inference execution time:
+real	0m 2.31s
+user	0m 1.89s
+sys	0m 0.33s
+2023-10-15 10:42:53,125 INFO Model prediction results: {"bad": 0.856329, "earth": 0.057035, "edge": 0.086635}
+2023-10-15 10:42:53,127 INFO Labeling the image as 'bad'.
+2023-10-15 10:42:53,132 INFO Ditching the image.
+2023-10-15 10:42:53,146 INFO Removed file: /home/exp1000/img_msec_1697366553910_2.ims_rgb
+2023-10-15 10:42:53,152 INFO Removed file: /home/exp1000/img_msec_1697366553910_2.png
+2023-10-15 10:42:53,155 INFO Removed file: /home/exp1000/img_msec_1697366553910_2_input.jpeg
+2023-10-15 10:42:53,156 INFO Removed file: /home/exp1000/img_msec_1697366553910_2_thumbnail.jpeg
+2023-10-15 10:42:54,039 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:43:13,250 INFO Acquired image: /home/exp1000/img_msec_1697366576950_2.png
+2023-10-15 10:43:13,252 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366576950_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366576950_2_thumbnail.jpeg
+2023-10-15 10:43:15,288 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:43:15,290 INFO Resize execution time:
+real	0m 2.00s
+user	0m 1.80s
+sys	0m 0.16s
+2023-10-15 10:43:15,295 INFO Labeling the image using the 'default' model.
+2023-10-15 10:43:15,297 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366576950_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366576950_2_input.jpeg
+2023-10-15 10:43:15,412 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:43:15,415 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:43:15,417 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366576950_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:43:17,748 INFO Inference execution time:
+real	0m 2.30s
+user	0m 1.91s
+sys	0m 0.30s
+2023-10-15 10:43:17,750 INFO Model prediction results: {"bad": 0.870831, "earth": 0.056109, "edge": 0.073060}
+2023-10-15 10:43:17,752 INFO Labeling the image as 'bad'.
+2023-10-15 10:43:17,758 INFO Ditching the image.
+2023-10-15 10:43:17,772 INFO Removed file: /home/exp1000/img_msec_1697366576950_2.ims_rgb
+2023-10-15 10:43:17,779 INFO Removed file: /home/exp1000/img_msec_1697366576950_2.png
+2023-10-15 10:43:17,781 INFO Removed file: /home/exp1000/img_msec_1697366576950_2_input.jpeg
+2023-10-15 10:43:17,783 INFO Removed file: /home/exp1000/img_msec_1697366576950_2_thumbnail.jpeg
+2023-10-15 10:43:18,663 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:43:34,250 INFO Acquired image: /home/exp1000/img_msec_1697366601592_2.png
+2023-10-15 10:43:34,252 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366601592_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366601592_2_thumbnail.jpeg
+2023-10-15 10:43:36,196 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:43:36,199 INFO Resize execution time:
+real	0m 1.91s
+user	0m 1.69s
+sys	0m 0.18s
+2023-10-15 10:43:36,203 INFO Labeling the image using the 'default' model.
+2023-10-15 10:43:36,205 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366601592_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366601592_2_input.jpeg
+2023-10-15 10:43:36,331 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:43:36,333 INFO Resize execution time:
+real	0m 0.10s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:43:36,336 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366601592_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:43:38,643 INFO Inference execution time:
+real	0m 2.28s
+user	0m 1.85s
+sys	0m 0.35s
+2023-10-15 10:43:38,645 INFO Model prediction results: {"bad": 0.845163, "earth": 0.072280, "edge": 0.082557}
+2023-10-15 10:43:38,647 INFO Labeling the image as 'bad'.
+2023-10-15 10:43:38,653 INFO Ditching the image.
+2023-10-15 10:43:38,667 INFO Removed file: /home/exp1000/img_msec_1697366601592_2.ims_rgb
+2023-10-15 10:43:38,673 INFO Removed file: /home/exp1000/img_msec_1697366601592_2.png
+2023-10-15 10:43:38,676 INFO Removed file: /home/exp1000/img_msec_1697366601592_2_input.jpeg
+2023-10-15 10:43:38,678 INFO Removed file: /home/exp1000/img_msec_1697366601592_2_thumbnail.jpeg
+2023-10-15 10:43:39,556 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:43:58,987 INFO Acquired image: /home/exp1000/img_msec_1697366622469_2.png
+2023-10-15 10:43:58,990 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366622469_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366622469_2_thumbnail.jpeg
+2023-10-15 10:44:01,046 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:44:01,049 INFO Resize execution time:
+real	0m 2.02s
+user	0m 1.78s
+sys	0m 0.17s
+2023-10-15 10:44:01,053 INFO Labeling the image using the 'default' model.
+2023-10-15 10:44:01,056 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366622469_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366622469_2_input.jpeg
+2023-10-15 10:44:01,175 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:44:01,177 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:44:01,179 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366622469_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:44:03,491 INFO Inference execution time:
+real	0m 2.28s
+user	0m 1.96s
+sys	0m 0.24s
+2023-10-15 10:44:03,493 INFO Model prediction results: {"bad": 0.881648, "earth": 0.064196, "edge": 0.054156}
+2023-10-15 10:44:03,496 INFO Labeling the image as 'bad'.
+2023-10-15 10:44:03,501 INFO Ditching the image.
+2023-10-15 10:44:03,515 INFO Removed file: /home/exp1000/img_msec_1697366622469_2.ims_rgb
+2023-10-15 10:44:03,522 INFO Removed file: /home/exp1000/img_msec_1697366622469_2.png
+2023-10-15 10:44:03,525 INFO Removed file: /home/exp1000/img_msec_1697366622469_2_input.jpeg
+2023-10-15 10:44:03,527 INFO Removed file: /home/exp1000/img_msec_1697366622469_2_thumbnail.jpeg
+2023-10-15 10:44:04,411 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:44:27,534 INFO Acquired image: /home/exp1000/img_msec_1697366647349_2.png
+2023-10-15 10:44:27,537 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366647349_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366647349_2_thumbnail.jpeg
+2023-10-15 10:44:29,651 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:44:29,653 INFO Resize execution time:
+real	0m 2.08s
+user	0m 1.86s
+sys	0m 0.15s
+2023-10-15 10:44:29,658 INFO Labeling the image using the 'default' model.
+2023-10-15 10:44:29,659 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366647349_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366647349_2_input.jpeg
+2023-10-15 10:44:29,776 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:44:29,778 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.06s
+sys	0m 0.02s
+2023-10-15 10:44:29,780 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366647349_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:44:32,090 INFO Inference execution time:
+real	0m 2.28s
+user	0m 2.00s
+sys	0m 0.20s
+2023-10-15 10:44:32,092 INFO Model prediction results: {"bad": 0.937641, "earth": 0.029003, "edge": 0.033356}
+2023-10-15 10:44:32,095 INFO Labeling the image as 'bad'.
+2023-10-15 10:44:32,100 INFO Ditching the image.
+2023-10-15 10:44:32,114 INFO Removed file: /home/exp1000/img_msec_1697366647349_2.ims_rgb
+2023-10-15 10:44:32,121 INFO Removed file: /home/exp1000/img_msec_1697366647349_2.png
+2023-10-15 10:44:32,124 INFO Removed file: /home/exp1000/img_msec_1697366647349_2_input.jpeg
+2023-10-15 10:44:32,126 INFO Removed file: /home/exp1000/img_msec_1697366647349_2_thumbnail.jpeg
+2023-10-15 10:44:33,007 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:44:58,920 INFO Acquired image: /home/exp1000/img_msec_1697366675911_2.png
+2023-10-15 10:44:58,922 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366675911_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366675911_2_thumbnail.jpeg
+2023-10-15 10:45:01,057 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:45:01,060 INFO Resize execution time:
+real	0m 2.10s
+user	0m 1.91s
+sys	0m 0.12s
+2023-10-15 10:45:01,064 INFO Labeling the image using the 'default' model.
+2023-10-15 10:45:01,066 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366675911_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366675911_2_input.jpeg
+2023-10-15 10:45:01,181 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:45:01,183 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:45:01,186 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366675911_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:45:03,501 INFO Inference execution time:
+real	0m 2.28s
+user	0m 1.89s
+sys	0m 0.31s
+2023-10-15 10:45:03,505 INFO Model prediction results: {"bad": 0.835001, "earth": 0.117698, "edge": 0.047301}
+2023-10-15 10:45:03,507 INFO Labeling the image as 'bad'.
+2023-10-15 10:45:03,512 INFO Ditching the image.
+2023-10-15 10:45:03,528 INFO Removed file: /home/exp1000/img_msec_1697366675911_2.ims_rgb
+2023-10-15 10:45:03,535 INFO Removed file: /home/exp1000/img_msec_1697366675911_2.png
+2023-10-15 10:45:03,538 INFO Removed file: /home/exp1000/img_msec_1697366675911_2_input.jpeg
+2023-10-15 10:45:03,539 INFO Removed file: /home/exp1000/img_msec_1697366675911_2_thumbnail.jpeg
+2023-10-15 10:45:04,421 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:45:37,435 INFO Acquired image: /home/exp1000/img_msec_1697366707348_2.png
+2023-10-15 10:45:37,437 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366707348_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366707348_2_thumbnail.jpeg
+2023-10-15 10:45:39,566 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:45:39,568 INFO Resize execution time:
+real	0m 2.10s
+user	0m 1.92s
+sys	0m 0.13s
+2023-10-15 10:45:39,572 INFO Labeling the image using the 'default' model.
+2023-10-15 10:45:39,573 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366707348_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366707348_2_input.jpeg
+2023-10-15 10:45:39,690 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:45:39,692 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:45:39,695 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366707348_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:45:42,026 INFO Inference execution time:
+real	0m 2.30s
+user	0m 1.97s
+sys	0m 0.26s
+2023-10-15 10:45:42,028 INFO Model prediction results: {"bad": 0.801669, "earth": 0.127401, "edge": 0.070931}
+2023-10-15 10:45:42,030 INFO Labeling the image as 'bad'.
+2023-10-15 10:45:42,036 INFO Ditching the image.
+2023-10-15 10:45:42,049 INFO Removed file: /home/exp1000/img_msec_1697366707348_2.ims_rgb
+2023-10-15 10:45:42,058 INFO Removed file: /home/exp1000/img_msec_1697366707348_2.png
+2023-10-15 10:45:42,061 INFO Removed file: /home/exp1000/img_msec_1697366707348_2_input.jpeg
+2023-10-15 10:45:42,062 INFO Removed file: /home/exp1000/img_msec_1697366707348_2_thumbnail.jpeg
+2023-10-15 10:45:42,945 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:45:52,906 INFO Acquired image: /home/exp1000/img_msec_1697366745909_2.png
+2023-10-15 10:45:52,909 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366745909_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366745909_2_thumbnail.jpeg
+2023-10-15 10:45:54,839 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:45:54,841 INFO Resize execution time:
+real	0m 1.90s
+user	0m 1.64s
+sys	0m 0.20s
+2023-10-15 10:45:54,846 INFO Labeling the image using the 'default' model.
+2023-10-15 10:45:54,847 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366745909_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366745909_2_input.jpeg
+2023-10-15 10:45:54,967 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:45:54,969 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:45:54,972 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366745909_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:45:57,313 INFO Inference execution time:
+real	0m 2.31s
+user	0m 1.98s
+sys	0m 0.27s
+2023-10-15 10:45:57,316 INFO Model prediction results: {"bad": 0.902766, "earth": 0.063734, "edge": 0.033500}
+2023-10-15 10:45:57,318 INFO Labeling the image as 'bad'.
+2023-10-15 10:45:57,323 INFO Ditching the image.
+2023-10-15 10:45:57,338 INFO Removed file: /home/exp1000/img_msec_1697366745909_2.ims_rgb
+2023-10-15 10:45:57,342 INFO Removed file: /home/exp1000/img_msec_1697366745909_2.png
+2023-10-15 10:45:57,345 INFO Removed file: /home/exp1000/img_msec_1697366745909_2_input.jpeg
+2023-10-15 10:45:57,347 INFO Removed file: /home/exp1000/img_msec_1697366745909_2_thumbnail.jpeg
+2023-10-15 10:45:58,227 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:46:05,676 INFO Acquired image: /home/exp1000/img_msec_1697366761189_2.png
+2023-10-15 10:46:05,678 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366761189_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366761189_2_thumbnail.jpeg
+2023-10-15 10:46:07,468 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:46:07,471 INFO Resize execution time:
+real	0m 1.76s
+user	0m 1.59s
+sys	0m 0.13s
+2023-10-15 10:46:07,475 INFO Labeling the image using the 'default' model.
+2023-10-15 10:46:07,477 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366761189_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366761189_2_input.jpeg
+2023-10-15 10:46:07,592 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:46:07,594 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:46:07,597 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366761189_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:46:09,932 INFO Inference execution time:
+real	0m 2.30s
+user	0m 2.00s
+sys	0m 0.22s
+2023-10-15 10:46:09,934 INFO Model prediction results: {"bad": 0.902422, "earth": 0.064183, "edge": 0.033395}
+2023-10-15 10:46:09,936 INFO Labeling the image as 'bad'.
+2023-10-15 10:46:09,941 INFO Ditching the image.
+2023-10-15 10:46:09,956 INFO Removed file: /home/exp1000/img_msec_1697366761189_2.ims_rgb
+2023-10-15 10:46:09,960 INFO Removed file: /home/exp1000/img_msec_1697366761189_2.png
+2023-10-15 10:46:09,962 INFO Removed file: /home/exp1000/img_msec_1697366761189_2_input.jpeg
+2023-10-15 10:46:09,964 INFO Removed file: /home/exp1000/img_msec_1697366761189_2_thumbnail.jpeg
+2023-10-15 10:46:10,846 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:46:28,509 INFO Acquired image: /home/exp1000/img_msec_1697366773748_2.png
+2023-10-15 10:46:28,511 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366773748_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366773748_2_thumbnail.jpeg
+2023-10-15 10:46:30,682 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:46:30,685 INFO Resize execution time:
+real	0m 2.14s
+user	0m 1.90s
+sys	0m 0.16s
+2023-10-15 10:46:30,689 INFO Labeling the image using the 'default' model.
+2023-10-15 10:46:30,690 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366773748_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366773748_2_input.jpeg
+2023-10-15 10:46:30,808 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:46:30,810 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:46:30,813 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366773748_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:46:33,135 INFO Inference execution time:
+real	0m 2.29s
+user	0m 1.98s
+sys	0m 0.24s
+2023-10-15 10:46:33,137 INFO Model prediction results: {"bad": 0.889851, "earth": 0.077082, "edge": 0.033066}
+2023-10-15 10:46:33,139 INFO Labeling the image as 'bad'.
+2023-10-15 10:46:33,145 INFO Ditching the image.
+2023-10-15 10:46:33,158 INFO Removed file: /home/exp1000/img_msec_1697366773748_2.ims_rgb
+2023-10-15 10:46:33,165 INFO Removed file: /home/exp1000/img_msec_1697366773748_2.png
+2023-10-15 10:46:33,169 INFO Removed file: /home/exp1000/img_msec_1697366773748_2_input.jpeg
+2023-10-15 10:46:33,170 INFO Removed file: /home/exp1000/img_msec_1697366773748_2_thumbnail.jpeg
+2023-10-15 10:46:34,073 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:46:41,705 INFO Acquired image: /home/exp1000/img_msec_1697366797030_2.png
+2023-10-15 10:46:41,707 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366797030_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366797030_2_thumbnail.jpeg
+2023-10-15 10:46:43,486 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:46:43,488 INFO Resize execution time:
+real	0m 1.75s
+user	0m 1.53s
+sys	0m 0.18s
+2023-10-15 10:46:43,492 INFO Labeling the image using the 'default' model.
+2023-10-15 10:46:43,494 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366797030_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366797030_2_input.jpeg
+2023-10-15 10:46:43,609 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:46:43,612 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.06s
+sys	0m 0.02s
+2023-10-15 10:46:43,615 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366797030_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:46:45,938 INFO Inference execution time:
+real	0m 2.29s
+user	0m 1.91s
+sys	0m 0.29s
+2023-10-15 10:46:45,940 INFO Model prediction results: {"bad": 0.901240, "earth": 0.065028, "edge": 0.033732}
+2023-10-15 10:46:45,942 INFO Labeling the image as 'bad'.
+2023-10-15 10:46:45,948 INFO Ditching the image.
+2023-10-15 10:46:45,961 INFO Removed file: /home/exp1000/img_msec_1697366797030_2.ims_rgb
+2023-10-15 10:46:45,965 INFO Removed file: /home/exp1000/img_msec_1697366797030_2.png
+2023-10-15 10:46:45,968 INFO Removed file: /home/exp1000/img_msec_1697366797030_2_input.jpeg
+2023-10-15 10:46:45,970 INFO Removed file: /home/exp1000/img_msec_1697366797030_2_thumbnail.jpeg
+2023-10-15 10:46:46,858 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:46:54,322 INFO Acquired image: /home/exp1000/img_msec_1697366809828_2.png
+2023-10-15 10:46:54,325 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366809828_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366809828_2_thumbnail.jpeg
+2023-10-15 10:46:56,133 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:46:56,136 INFO Resize execution time:
+real	0m 1.78s
+user	0m 1.59s
+sys	0m 0.14s
+2023-10-15 10:46:56,140 INFO Labeling the image using the 'default' model.
+2023-10-15 10:46:56,141 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366809828_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366809828_2_input.jpeg
+2023-10-15 10:46:56,256 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:46:56,258 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:46:56,261 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366809828_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:46:58,589 INFO Inference execution time:
+real	0m 2.30s
+user	0m 1.92s
+sys	0m 0.31s
+2023-10-15 10:46:58,591 INFO Model prediction results: {"bad": 0.902584, "earth": 0.064091, "edge": 0.033326}
+2023-10-15 10:46:58,593 INFO Labeling the image as 'bad'.
+2023-10-15 10:46:58,598 INFO Ditching the image.
+2023-10-15 10:46:58,612 INFO Removed file: /home/exp1000/img_msec_1697366809828_2.ims_rgb
+2023-10-15 10:46:58,616 INFO Removed file: /home/exp1000/img_msec_1697366809828_2.png
+2023-10-15 10:46:58,619 INFO Removed file: /home/exp1000/img_msec_1697366809828_2_input.jpeg
+2023-10-15 10:46:58,620 INFO Removed file: /home/exp1000/img_msec_1697366809828_2_thumbnail.jpeg
+2023-10-15 10:46:59,527 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:47:14,630 INFO Acquired image: /home/exp1000/img_msec_1697366822468_2.png
+2023-10-15 10:47:14,633 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366822468_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366822468_2_thumbnail.jpeg
+2023-10-15 10:47:16,952 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:47:16,954 INFO Resize execution time:
+real	0m 2.29s
+user	0m 1.93s
+sys	0m 0.30s
+2023-10-15 10:47:16,959 INFO Labeling the image using the 'default' model.
+2023-10-15 10:47:16,960 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366822468_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366822468_2_input.jpeg
+2023-10-15 10:47:17,085 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:47:17,087 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.09s
+sys	0m 0.00s
+2023-10-15 10:47:17,090 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366822468_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:47:19,382 INFO Inference execution time:
+real	0m 2.26s
+user	0m 1.88s
+sys	0m 0.32s
+2023-10-15 10:47:19,385 INFO Model prediction results: {"bad": 0.854703, "earth": 0.112735, "edge": 0.032561}
+2023-10-15 10:47:19,387 INFO Labeling the image as 'bad'.
+2023-10-15 10:47:19,392 INFO Ditching the image.
+2023-10-15 10:47:19,406 INFO Removed file: /home/exp1000/img_msec_1697366822468_2.ims_rgb
+2023-10-15 10:47:19,419 INFO Removed file: /home/exp1000/img_msec_1697366822468_2.png
+2023-10-15 10:47:19,423 INFO Removed file: /home/exp1000/img_msec_1697366822468_2_input.jpeg
+2023-10-15 10:47:19,425 INFO Removed file: /home/exp1000/img_msec_1697366822468_2_thumbnail.jpeg
+2023-10-15 10:47:20,309 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:47:30,672 INFO Acquired image: /home/exp1000/img_msec_1697366843269_2.png
+2023-10-15 10:47:30,675 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366843269_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366843269_2_thumbnail.jpeg
+2023-10-15 10:47:32,618 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:47:32,620 INFO Resize execution time:
+real	0m 1.91s
+user	0m 1.71s
+sys	0m 0.12s
+2023-10-15 10:47:32,624 INFO Labeling the image using the 'default' model.
+2023-10-15 10:47:32,626 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366843269_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366843269_2_input.jpeg
+2023-10-15 10:47:32,744 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:47:32,746 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:47:32,749 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366843269_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:47:35,082 INFO Inference execution time:
+real	0m 2.30s
+user	0m 1.93s
+sys	0m 0.29s
+2023-10-15 10:47:35,085 INFO Model prediction results: {"bad": 0.898631, "earth": 0.066165, "edge": 0.035204}
+2023-10-15 10:47:35,087 INFO Labeling the image as 'bad'.
+2023-10-15 10:47:35,092 INFO Ditching the image.
+2023-10-15 10:47:35,106 INFO Removed file: /home/exp1000/img_msec_1697366843269_2.ims_rgb
+2023-10-15 10:47:35,110 INFO Removed file: /home/exp1000/img_msec_1697366843269_2.png
+2023-10-15 10:47:35,113 INFO Removed file: /home/exp1000/img_msec_1697366843269_2_input.jpeg
+2023-10-15 10:47:35,115 INFO Removed file: /home/exp1000/img_msec_1697366843269_2_thumbnail.jpeg
+2023-10-15 10:47:35,996 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:47:43,496 INFO Acquired image: /home/exp1000/img_msec_1697366858949_2.png
+2023-10-15 10:47:43,498 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366858949_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366858949_2_thumbnail.jpeg
+2023-10-15 10:47:45,307 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:47:45,309 INFO Resize execution time:
+real	0m 1.78s
+user	0m 1.63s
+sys	0m 0.10s
+2023-10-15 10:47:45,313 INFO Labeling the image using the 'default' model.
+2023-10-15 10:47:45,316 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366858949_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366858949_2_input.jpeg
+2023-10-15 10:47:45,430 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:47:45,432 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:47:45,435 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366858949_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:47:47,726 INFO Inference execution time:
+real	0m 2.26s
+user	0m 1.89s
+sys	0m 0.30s
+2023-10-15 10:47:47,728 INFO Model prediction results: {"bad": 0.902137, "earth": 0.064086, "edge": 0.033777}
+2023-10-15 10:47:47,730 INFO Labeling the image as 'bad'.
+2023-10-15 10:47:47,736 INFO Ditching the image.
+2023-10-15 10:47:47,749 INFO Removed file: /home/exp1000/img_msec_1697366858949_2.ims_rgb
+2023-10-15 10:47:47,755 INFO Removed file: /home/exp1000/img_msec_1697366858949_2.png
+2023-10-15 10:47:47,758 INFO Removed file: /home/exp1000/img_msec_1697366858949_2_input.jpeg
+2023-10-15 10:47:47,759 INFO Removed file: /home/exp1000/img_msec_1697366858949_2_thumbnail.jpeg
+2023-10-15 10:47:48,642 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:48:04,233 INFO Acquired image: /home/exp1000/img_msec_1697366871591_2.png
+2023-10-15 10:48:04,236 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366871591_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366871591_2_thumbnail.jpeg
+2023-10-15 10:48:06,249 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:48:06,251 INFO Resize execution time:
+real	0m 1.98s
+user	0m 1.77s
+sys	0m 0.16s
+2023-10-15 10:48:06,256 INFO Labeling the image using the 'default' model.
+2023-10-15 10:48:06,258 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366871591_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366871591_2_input.jpeg
+2023-10-15 10:48:06,374 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:48:06,377 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:48:06,379 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366871591_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:48:08,677 INFO Inference execution time:
+real	0m 2.27s
+user	0m 1.90s
+sys	0m 0.30s
+2023-10-15 10:48:08,679 INFO Model prediction results: {"bad": 0.901658, "earth": 0.065754, "edge": 0.032588}
+2023-10-15 10:48:08,681 INFO Labeling the image as 'bad'.
+2023-10-15 10:48:08,687 INFO Ditching the image.
+2023-10-15 10:48:08,701 INFO Removed file: /home/exp1000/img_msec_1697366871591_2.ims_rgb
+2023-10-15 10:48:08,707 INFO Removed file: /home/exp1000/img_msec_1697366871591_2.png
+2023-10-15 10:48:08,709 INFO Removed file: /home/exp1000/img_msec_1697366871591_2_input.jpeg
+2023-10-15 10:48:08,711 INFO Removed file: /home/exp1000/img_msec_1697366871591_2_thumbnail.jpeg
+2023-10-15 10:48:09,604 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:48:49,487 INFO Acquired image: /home/exp1000/img_msec_1697366892550_2.png
+2023-10-15 10:48:49,491 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366892550_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366892550_2_thumbnail.jpeg
+2023-10-15 10:48:51,660 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:48:51,662 INFO Resize execution time:
+real	0m 2.14s
+user	0m 1.94s
+sys	0m 0.15s
+2023-10-15 10:48:51,667 INFO Labeling the image using the 'default' model.
+2023-10-15 10:48:51,669 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366892550_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366892550_2_input.jpeg
+2023-10-15 10:48:51,785 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:48:51,787 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:48:51,790 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366892550_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:48:54,079 INFO Inference execution time:
+real	0m 2.26s
+user	0m 1.94s
+sys	0m 0.26s
+2023-10-15 10:48:54,081 INFO Model prediction results: {"bad": 0.896114, "earth": 0.055521, "edge": 0.048365}
+2023-10-15 10:48:54,083 INFO Labeling the image as 'bad'.
+2023-10-15 10:48:54,089 INFO Ditching the image.
+2023-10-15 10:48:54,103 INFO Removed file: /home/exp1000/img_msec_1697366892550_2.ims_rgb
+2023-10-15 10:48:54,112 INFO Removed file: /home/exp1000/img_msec_1697366892550_2.png
+2023-10-15 10:48:54,115 INFO Removed file: /home/exp1000/img_msec_1697366892550_2_input.jpeg
+2023-10-15 10:48:54,117 INFO Removed file: /home/exp1000/img_msec_1697366892550_2_thumbnail.jpeg
+2023-10-15 10:48:55,012 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:49:09,775 INFO Acquired image: /home/exp1000/img_msec_1697366937908_2.png
+2023-10-15 10:49:09,777 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366937908_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366937908_2_thumbnail.jpeg
+2023-10-15 10:49:11,803 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:49:11,806 INFO Resize execution time:
+real	0m 1.98s
+user	0m 1.76s
+sys	0m 0.17s
+2023-10-15 10:49:11,810 INFO Labeling the image using the 'default' model.
+2023-10-15 10:49:11,812 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366937908_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366937908_2_input.jpeg
+2023-10-15 10:49:11,929 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:49:11,931 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.07s
+sys	0m 0.01s
+2023-10-15 10:49:11,935 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366937908_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:49:14,241 INFO Inference execution time:
+real	0m 2.28s
+user	0m 1.91s
+sys	0m 0.30s
+2023-10-15 10:49:14,243 INFO Model prediction results: {"bad": 0.872245, "earth": 0.076271, "edge": 0.051484}
+2023-10-15 10:49:14,245 INFO Labeling the image as 'bad'.
+2023-10-15 10:49:14,250 INFO Ditching the image.
+2023-10-15 10:49:14,263 INFO Removed file: /home/exp1000/img_msec_1697366937908_2.ims_rgb
+2023-10-15 10:49:14,270 INFO Removed file: /home/exp1000/img_msec_1697366937908_2.png
+2023-10-15 10:49:14,276 INFO Removed file: /home/exp1000/img_msec_1697366937908_2_input.jpeg
+2023-10-15 10:49:14,279 INFO Removed file: /home/exp1000/img_msec_1697366937908_2_thumbnail.jpeg
+2023-10-15 10:49:15,175 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:49:22,412 INFO Acquired image: /home/exp1000/img_msec_1697366958069_2.png
+2023-10-15 10:49:22,415 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366958069_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366958069_2_thumbnail.jpeg
+2023-10-15 10:49:24,229 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:49:24,231 INFO Resize execution time:
+real	0m 1.78s
+user	0m 1.63s
+sys	0m 0.12s
+2023-10-15 10:49:24,236 INFO Labeling the image using the 'default' model.
+2023-10-15 10:49:24,238 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366958069_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366958069_2_input.jpeg
+2023-10-15 10:49:24,355 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:49:24,357 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:49:24,360 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366958069_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:49:26,713 INFO Inference execution time:
+real	0m 2.32s
+user	0m 1.97s
+sys	0m 0.27s
+2023-10-15 10:49:26,716 INFO Model prediction results: {"bad": 0.886493, "earth": 0.075063, "edge": 0.038444}
+2023-10-15 10:49:26,718 INFO Labeling the image as 'bad'.
+2023-10-15 10:49:26,723 INFO Ditching the image.
+2023-10-15 10:49:26,737 INFO Removed file: /home/exp1000/img_msec_1697366958069_2.ims_rgb
+2023-10-15 10:49:26,740 INFO Removed file: /home/exp1000/img_msec_1697366958069_2.png
+2023-10-15 10:49:26,743 INFO Removed file: /home/exp1000/img_msec_1697366958069_2_input.jpeg
+2023-10-15 10:49:26,745 INFO Removed file: /home/exp1000/img_msec_1697366958069_2_thumbnail.jpeg
+2023-10-15 10:49:27,626 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:49:35,000 INFO Acquired image: /home/exp1000/img_msec_1697366970549_2.png
+2023-10-15 10:49:35,002 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366970549_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366970549_2_thumbnail.jpeg
+2023-10-15 10:49:36,808 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:49:36,810 INFO Resize execution time:
+real	0m 1.77s
+user	0m 1.57s
+sys	0m 0.17s
+2023-10-15 10:49:36,815 INFO Labeling the image using the 'default' model.
+2023-10-15 10:49:36,817 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366970549_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366970549_2_input.jpeg
+2023-10-15 10:49:36,933 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:49:36,937 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.00s
+2023-10-15 10:49:36,939 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366970549_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:49:39,264 INFO Inference execution time:
+real	0m 2.29s
+user	0m 1.91s
+sys	0m 0.31s
+2023-10-15 10:49:39,266 INFO Model prediction results: {"bad": 0.903375, "earth": 0.065776, "edge": 0.030848}
+2023-10-15 10:49:39,268 INFO Labeling the image as 'bad'.
+2023-10-15 10:49:39,273 INFO Ditching the image.
+2023-10-15 10:49:39,287 INFO Removed file: /home/exp1000/img_msec_1697366970549_2.ims_rgb
+2023-10-15 10:49:39,291 INFO Removed file: /home/exp1000/img_msec_1697366970549_2.png
+2023-10-15 10:49:39,293 INFO Removed file: /home/exp1000/img_msec_1697366970549_2_input.jpeg
+2023-10-15 10:49:39,295 INFO Removed file: /home/exp1000/img_msec_1697366970549_2_thumbnail.jpeg
+2023-10-15 10:49:40,195 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:49:48,347 INFO Acquired image: /home/exp1000/img_msec_1697366983108_2.png
+2023-10-15 10:49:48,349 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366983108_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366983108_2_thumbnail.jpeg
+2023-10-15 10:49:50,226 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:49:50,228 INFO Resize execution time:
+real	0m 1.84s
+user	0m 1.64s
+sys	0m 0.15s
+2023-10-15 10:49:50,232 INFO Labeling the image using the 'default' model.
+2023-10-15 10:49:50,233 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366983108_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366983108_2_input.jpeg
+2023-10-15 10:49:50,349 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:49:50,351 INFO Resize execution time:
+real	0m 0.08s
+user	0m 0.06s
+sys	0m 0.02s
+2023-10-15 10:49:50,354 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366983108_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:49:52,696 INFO Inference execution time:
+real	0m 2.31s
+user	0m 2.01s
+sys	0m 0.23s
+2023-10-15 10:49:52,698 INFO Model prediction results: {"bad": 0.893739, "earth": 0.075377, "edge": 0.030884}
+2023-10-15 10:49:52,700 INFO Labeling the image as 'bad'.
+2023-10-15 10:49:52,705 INFO Ditching the image.
+2023-10-15 10:49:52,719 INFO Removed file: /home/exp1000/img_msec_1697366983108_2.ims_rgb
+2023-10-15 10:49:52,723 INFO Removed file: /home/exp1000/img_msec_1697366983108_2.png
+2023-10-15 10:49:52,726 INFO Removed file: /home/exp1000/img_msec_1697366983108_2_input.jpeg
+2023-10-15 10:49:52,728 INFO Removed file: /home/exp1000/img_msec_1697366983108_2_thumbnail.jpeg
+2023-10-15 10:49:53,607 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:50:05,523 INFO Acquired image: /home/exp1000/img_msec_1697366996549_2.png
+2023-10-15 10:50:05,526 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366996549_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697366996549_2_thumbnail.jpeg
+2023-10-15 10:50:07,552 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:50:07,555 INFO Resize execution time:
+real	0m 1.99s
+user	0m 1.79s
+sys	0m 0.16s
+2023-10-15 10:50:07,559 INFO Labeling the image using the 'default' model.
+2023-10-15 10:50:07,560 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697366996549_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697366996549_2_input.jpeg
+2023-10-15 10:50:07,680 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:50:07,682 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.05s
+sys	0m 0.03s
+2023-10-15 10:50:07,685 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697366996549_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:50:09,996 INFO Inference execution time:
+real	0m 2.28s
+user	0m 1.99s
+sys	0m 0.22s
+2023-10-15 10:50:09,998 INFO Model prediction results: {"bad": 0.785436, "earth": 0.160634, "edge": 0.053930}
+2023-10-15 10:50:10,000 INFO Labeling the image as 'bad'.
+2023-10-15 10:50:10,006 INFO Ditching the image.
+2023-10-15 10:50:10,019 INFO Removed file: /home/exp1000/img_msec_1697366996549_2.ims_rgb
+2023-10-15 10:50:10,025 INFO Removed file: /home/exp1000/img_msec_1697366996549_2.png
+2023-10-15 10:50:10,027 INFO Removed file: /home/exp1000/img_msec_1697366996549_2_input.jpeg
+2023-10-15 10:50:10,029 INFO Removed file: /home/exp1000/img_msec_1697366996549_2_thumbnail.jpeg
+2023-10-15 10:50:10,925 INFO Running command to acquire an image: ims100_testapp -R 8 -G 8 -B 8 -c /dev/cam_tty -m /dev/cam_sd -v 0 -n 1 -p -e 2 >> /home/exp1000/logs/opssat_smartcam_20231015_103500.log 2>&1
+
+ctrl port                    : /dev/cam_tty
+data port                    : /dev/cam_sd
+exposure time                : 2
+number of images             : 1
+milliseconds between images  : 0
+bw img sensor                : 0
+default conf                 : 1
+video duration               : 0
+gain (RGB)                   : 8 8 8
+-------------------------
+
+
+BST IMS100 Telemetry:
+    version : 
+    status  : 00
+    temp[°C]: 0
+
+Set config, Starting picture taking 
+exit success
+2023-10-15 10:50:33,478 INFO Acquired image: /home/exp1000/img_msec_1697367013830_2.png
+2023-10-15 10:50:33,481 INFO Running command to create thumbnail: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697367013830_2.png -x 614 -y 583 -c 3 -q 90 -o /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg
+2023-10-15 10:50:35,731 INFO Resized: 2048 x 1944 --> 614 x 583
+2023-10-15 10:50:35,733 INFO Resize execution time:
+real	0m 2.22s
+user	0m 1.98s
+sys	0m 0.18s
+2023-10-15 10:50:35,738 INFO Labeling the image using the 'default' model.
+2023-10-15 10:50:35,740 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697367013830_2_input.jpeg
+2023-10-15 10:50:35,865 INFO Resized: 614 x 583 --> 224 x 224
+2023-10-15 10:50:35,867 INFO Resize execution time:
+real	0m 0.09s
+user	0m 0.08s
+sys	0m 0.01s
+2023-10-15 10:50:35,869 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697367013830_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:50:38,169 INFO Inference execution time:
+real	0m 2.27s
+user	0m 1.88s
+sys	0m 0.32s
+2023-10-15 10:50:38,171 INFO Model prediction results: {"bad": 0.265665, "earth": 0.683461, "edge": 0.050873}
+2023-10-15 10:50:38,173 INFO Labeling the image as 'earth'.
+2023-10-15 10:50:38,176 INFO Labeling the image using the 'noiser' model.
+2023-10-15 10:50:38,177 INFO Running command for executable binary: /home/exp253/noiser -i /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg -w 3 -r 224x224 -t 1 -n 50 -q 100
+2023-10-15 10:50:38,479 INFO Binary execution time:
+real	0m 0.27s
+user	0m 0.24s
+sys	0m 0.02s
+2023-10-15 10:50:38,481 INFO Classification results: {"noised": 10000, "_noise_factor": 50, "_noise_type": 1}
+2023-10-15 10:50:38,483 INFO Labeling the image as 'noised'.
+2023-10-15 10:50:38,487 INFO Labeling the image using the 'default2' model.
+2023-10-15 10:50:38,488 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697367013830_2_input.jpeg
+2023-10-15 10:50:38,556 INFO Resized: 224 x 224 --> 224 x 224
+2023-10-15 10:50:38,559 INFO Resize execution time:
+real	0m 0.04s
+user	0m 0.03s
+sys	0m 0.00s
+2023-10-15 10:50:38,561 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697367013830_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:50:40,920 INFO Inference execution time:
+real	0m 2.33s
+user	0m 1.99s
+sys	0m 0.25s
+2023-10-15 10:50:40,923 INFO Model prediction results: {"bad": 0.767120, "earth": 0.204385, "edge": 0.028494}
+2023-10-15 10:50:40,925 INFO Labeling the image as 'bad'.
+2023-10-15 10:50:40,928 INFO Labeling the image using the 'denoiser' model.
+2023-10-15 10:50:40,929 INFO Running command for executable binary: /home/exp253/denoiser -i /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg -w 3 -q 100 -p 56x56 -g 6 -m /home/exp253/models/wgan_fnp50_p.tflite
+2023-10-15 10:58:27,032 INFO Binary execution time:
+real	7m 46.07s
+user	7m 34.76s
+sys	0m 0.56s
+2023-10-15 10:58:27,035 INFO Classification results: {"denoised": 1}
+2023-10-15 10:58:27,037 INFO Labeling the image as 'denoised'.
+2023-10-15 10:58:27,040 INFO Labeling the image using the 'default3' model.
+2023-10-15 10:58:27,041 INFO Running command to create input: /home/exp1000/bin/armhf/resizer/resize -i /home/exp1000/img_msec_1697367013830_2_thumbnail.jpeg -x 224 -y 224 -c 1 -q 90 -o /home/exp1000/img_msec_1697367013830_2_input.jpeg
+2023-10-15 10:58:27,123 INFO Resized: 224 x 224 --> 224 x 224
+2023-10-15 10:58:27,125 INFO Resize execution time:
+real	0m 0.05s
+user	0m 0.05s
+sys	0m 0.00s
+2023-10-15 10:58:27,128 INFO Running command to label the image: /home/exp1000/bin/armhf/tensorflow/lite/c/image_classifier /home/exp1000/img_msec_1697367013830_2_input.jpeg models/default/model.tflite models/default/labels.txt 224 224 0 255
+2023-10-15 10:58:29,434 INFO Inference execution time:
+real	0m 2.27s
+user	0m 1.98s
+sys	0m 0.22s
+2023-10-15 10:58:29,436 INFO Model prediction results: {"bad": 0.264232, "earth": 0.726715, "edge": 0.009053}
+2023-10-15 10:58:29,438 INFO Labeling the image as 'earth'.
+2023-10-15 10:58:29,444 INFO Keeping the image.
+2023-10-15 11:19:59,840 INFO Stop experiment triggered: exiting the image acquisition loop and shutting down the app.
+2023-10-15 11:19:59,909 INFO Disk usage:
+Filesystem                Size      Used Available Use% Mounted on
+/dev/root               975.9M    779.2M    129.5M  86% /
+devtmpfs                239.2M         0    239.2M   0% /dev
+tmpfs                   247.7M         0    247.7M   0% /dev/shm
+tmpfs                   247.7M     15.8M    231.8M   6% /run
+tmpfs                   247.7M         0    247.7M   0% /sys/fs/cgroup
+tmpfs                   247.7M      1.9M    245.8M   1% /var/volatile
+tmpfs                   247.7M     42.0M    205.7M  17% /esoc-apps-flash/fms/filestore
+tmpfs                   247.7M      1.9M    245.8M   1% /tmp
+tmpfs                   247.7M      1.9M    245.8M   1% /var/cache
+tmpfs                   247.7M      1.9M    245.8M   1% /var/spool
+tmpfs                    49.5M         0     49.5M   0% /run/user/0
+tmpfs                   247.7M     69.5M    178.2M  28% /overlay
+overlay                 247.7M     69.5M    178.2M  28% /home
+overlay                 247.7M      1.9M    245.8M   1% /etc
+overlay                 247.7M      1.9M    245.8M   1% /var
+overlay                 247.7M      1.9M    245.8M   1% /usr
+overlay                 247.7M      1.9M    245.8M   1% /lib
+overlay                 247.7M      1.9M    245.8M   1% /esoc-apps-flash/space_shell
+/dev/mmcblk0p3            3.9G      1.6G      2.1G  43% /tmp/mmc3
+tmpfs                   247.7M      4.8M    242.9M   2% /home/exp156
+tmpfs                   247.7M      4.8M    242.9M   2% /home/exp156
+/dev/mmcblk0p6          975.9M    779.2M    129.5M  86% /tmp/mmc6
+
+2023-10-15 11:19:59,919 INFO Tarring 3 file(s) for downlink.
