@@ -1,31 +1,61 @@
 # Results
 
 - Results from running the experiment on both the flatsat and the on-board spacecraft.
-- The "extra" directory just contains scripts to generate figures for the paper. 
+- The "preliminary" folder contains FlatSat results for denoising tests on a sample image.
+- The "extra" directory just contains scripts to generate figures for the paper.
+- The "blue_dot" folder contains denoising results of "a pale blue dot" executed onboard both the FlatSat and the Spacecraft.
 
-## Plot the results
+## Image Hisograms
+How to produce the grayscale and RGB histograms.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-python3 plot_histograms.py --image_folder_path ./flatsat/wgan_fpn50_p0-8_01 --reference_folder_path flatsat/wgan_fpn50_p0-8_01 --noise_image fpn50.p6 --output_three_channels histogram_rgb_denoised_wgan_p6.svg --output_final histogram_grayscale_original_and_denoised_wgan_p0-8.svg --caption_histogram "WGAN Denoised (margin is 6 pixels)"
-
-python3 plot_histograms.py --image_folder_path ./spacecraft/plot/wgan_fpn50_1695963889066 --reference_folder_path ./spacecraft/plot/wgan_fpn50_1695963889066 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1695963889066.svg --output_final histogram_grayscale_original_and_denoised_wgan_1695963889066.svg --caption_histogram "WGAN Denoised"
-
-python3 plot_histograms.py --image_folder_path ./spacecraft/plot/wgan_fpn50_1695964476824 --reference_folder_path ./spacecraft/plot/wgan_fpn50_1695964476824 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1695964476824.svg --output_final histogram_grayscale_original_and_denoised_wgan_1695964476824.svg --caption_histogram "WGAN Denoised"
-
-python3 plot_histograms.py --image_folder_path ./spacecraft/plot/wgan_fpn50_1697455926224 --reference_folder_path ./spacecraft/plot/wgan_fpn50_1697455926224 --noise_image fpn50 --output_three_channels histogram_rgb_denoised_wgan_1697455926224.svg --output_final histogram_grayscale_original_and_denoised_wgan_1697455926224.svg --caption_histogram "WGAN Denoised"
-```
-
-Where:
-- --noise_image is related to the files in the `images` folder 
-- --output_three_channels and --output_final will be stored in the folder `figures`
-
+### Install Dependencies
 The `opencv-python` package is used to plot the grayscale histograms. The libGL.so library is required by OpenCV. To install it in Ubuntu/Debian:
 ```bash
 sudo apt update
 sudo apt install -y libgl1-mesa-glx
 sudo apt install -y libglib2.0-0 libsm6 libxrender1 libxext6
+```
+
+Set up the Python virtual environment and install dependencies:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+
+### Generate Histograms
+Generate grayscale and RGB histograms for the Autoencoder results from the FlatSat:
+
+#### FlatSat
+##### WGANs
+```bash
+cp flatsat/wgan_fpn50_p0-8_01/images/sample.fpn50.p6.denoised.jpeg flatsat/wgan_fpn50_p0-8_01/images/sample.denoised.jpeg
+python plot_histograms.py -i flatsat/wgan_fpn50_p0-8_01/images/sample.jpeg -d flatsat/histograms
+rm -f flatsat/wgan_fpn50_p0-8_01/images/sample.denoised.jpeg
+```
+
+Crop the x-axis for the figure that will be included in the publication:
+```bash
+cp flatsat/wgan_fpn50_p0-8_01/images/sample.fpn50.p6.denoised.jpeg flatsat/wgan_fpn50_p0-8_01/images/sample.denoised.jpeg
+python plot_histograms.py -i flatsat/wgan_fpn50_p0-8_01/images/sample.jpeg -d flatsat/histograms/publication/ -x0 20 -x1 150
+rm -f flatsat/wgan_fpn50_p0-8_01/images/sample.denoised.jpeg
+```
+
+#### Spacecraft
+##### Autoencoder
+```bash
+python plot_histograms.py -i spacecraft/images/AE/FPN-50/Earth/ -d spacecraft/histograms/AE/FPN-50/Earth/
+python plot_histograms.py -i spacecraft/images/AE/FPN-50/Bad/ -d spacecraft/histograms/AE/FPN-50/Bad/
+```
+
+
+##### WGANs
+```bash
+python plot_histograms.py -i spacecraft/images/WGAN/FPN-50/Earth/ -d spacecraft/histograms/WGAN/FPN-50/Earth/
+```
+
+Crop the x-axis for the figure that will be included in the publication:
+```bash
+python plot_histograms.py -i spacecraft/images/WGAN/FPN-50/Earth/1697455926224.jpeg -d spacecraft/histograms/publication/ -x0 20 -x1 150
 ```
