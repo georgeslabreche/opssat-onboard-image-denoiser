@@ -2,6 +2,9 @@
 Experiment results on the engineering model of the spacecraft, i.e. the flatsat.
 
 - **[ae_and_wgan_fpn50_cfpn50_p6_01](./ae_and_wgan_fpn50_cfpn50_p6_01):** Autoencoder and WGAN runs \#1 for fixed-pattern noise (FPN) and column fixed-pattern noise (cFPN) noising-denoising at noise factor 50. The WGAN runs used a denoising patched margin of 6 pixels.
+- **[ae_and_wgan-p6_fpn50_stress_01](./ae_and_wgan-p6_fpn50_stress_01):** Stress testing. Ten consecutive Autoencoder runs followed by four consecutive WGAN runs (with a patch margin value of six pixels).
+- **[mem_overview](./mem_overview1):** SEPP Memory utilization during Autoencoder
+and WGAN denoising tests. Four denoising tests were conducted (each model ran twice). Noise factor 50. WGAN with a patch margin value of six pixels.
 - **[wgan_fpn50_p0-8_01](./wgan_fpn50_p0-8_01):** WGAN runs \#1 for FPN noising-denoising at noise factor 50 for denoising patched margin increments of 2 pixels from 0 to 8 pixels.
 - **[wgan_fpn50_p6_01](./wgan_fpn50_p6_01):** WGAN runs \#1 for FPN noising-denoising at noise factor 50 with denoising patched margin of 6 pixels.
 - **[wgan_fpn50_p6_02](./wgan_fpn50_p6_02):** WGAN runs \#2 for FPN noising-denoising at noise factor 50 with denoising patched margin of 6 pixels.

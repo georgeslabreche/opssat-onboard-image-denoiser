@@ -1,5 +1,9 @@
 timestamp,label_original,label_original_confidence,label_noised,label_noised_confidence,label_denoised,label_denoised_confidence,confidence_difference
-1695963889066,Earth,0.946156,Bad,0.596928,Earth,0.899453,-0.046703
-1695964476824,Earth,0.874889,Bad,0.57927,Earth,0.909169,0.03428
-1697367013830,Earth,0.683461,Bad,0.76712,Earth,0.726715,0.043254
-1697455926224,Earth,0.565866,Bad,0.914423,Earth,0.541508,-0.024358
+1695963889066,Earth, 0.946,Bad, 0.597,Earth, 0.899, -0.047
+1695964476824,Earth, 0.875,Bad, 0.579,Earth, 0.909, 0.034
+1697367013830,Earth, 0.683,Bad, 0.767,Earth, 0.727, 0.043
+1697455926224,Earth, 0.566,Bad, 0.914,Earth, 0.542, -0.024
+1697456588945,Earth, 0.955,Earth, 0.826,Earth, 0.844, -0.111
+1697282170304,Earth, 0.933,Earth, 0.522,Earth, 0.854, -0.079
+1697282677102,Earth, 0.707,Earth, 0.631,Earth, 0.781, 0.074
+1695970127700,Earth, 0.911,Earth, 0.898,Earth, 0.887, -0.024
