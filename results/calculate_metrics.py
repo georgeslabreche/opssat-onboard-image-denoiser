@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -88,7 +89,10 @@ def process_results_preliminary_sample():
 
       # Append to the dataframe
       df.loc[len(df)] = [filename, psnr, ssim, mse]
-  
+
+  # Sort the dataframe by filename
+  df = df.sort_values(by="filename")
+
   # Write the df as a csv file in ./prelimiary/results.csv
   df.to_csv(results_csv_path, index=False)
 
@@ -123,6 +127,9 @@ def process_results_preliminary_testset():
           # Append to the dataframe
           df.loc[len(df)] = [image_filename, psnr, ssim, mse]
 
+      # Sort the dataframe by filename
+      df = df.sort_values(by="filename")
+
       # Write the df as a csv file
       df.to_csv(results_csv_filepath, index=False)
 
@@ -132,12 +139,43 @@ def process_results_flatsat():
   #       Delete ./flatsat/calculate_metrics.py
   #       Make sure that CSVs in ./flatsat/wgan_fpn50_p0-8_01 are calculated from this function and not from ./flatsat/calculate_metrics.py
   print("\nFor no particular reason, the FlatSat results have their own script in ./flatsat/calculate_metrics.py\n")
+  
+
+def process_results_flatsat2():
+  original_dir_path = "./spacecraft/images/WGAN/FPN-50/Earth"
+  denoised_dir_path = "./flatsat/fm-wgans_to_em-ae/images"
+  results_csv_filepath ="./flatsat/fm-wgans_to_em-ae/results.csv"
+  
+  # Initialize a DataFrame to store the results
+  df = pd.DataFrame(columns=["filename", "psnr", "ssim", "mse"])
+  
+  # Loop through all .jpeg files
+  for denoised_image_filename in os.listdir(denoised_dir_path):
+    if denoised_image_filename.endswith(".jpeg"):
+      original_image_filename = denoised_image_filename.replace(".denoised.", ".")
+
+      original_image_filepath = os.path.join(original_dir_path, original_image_filename)
+      denoised_image_filepath = os.path.join(denoised_dir_path, denoised_image_filename)
+
+      # Calculate the metrics
+      psnr, ssim, mse = compare_images(original_image_filepath, denoised_image_filepath)
+
+      # Append to the dataframe
+      df.loc[len(df)] = [original_image_filename, psnr, ssim, mse]
+
+  # Sort the dataframe by filename
+  df = df.sort_values(by="filename")
+    
+  # Write the df as a csv file
+  df.to_csv(results_csv_filepath, index=False)
 
 
 def process_results_spacecraft():
   # FIXME: Delete ./spacecraft/calculate_metrics.py
   #       Make sure that metrics in ./spacecraft/csv are calculated from this function and not from ./spacecraft/calculate_metrics.py
 
+  # FIXME: Sort by filename before saving
+  
   # Paths
   csv_file = "./spacecraft/csv/results_classification-WGAN-FPN-50-short.csv"
   csv_output_file = "./spacecraft/csv/results_classification-WGAN-FPN-50-metrics.csv"
@@ -150,7 +188,7 @@ def process_results_spacecraft():
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Caculate similarity metrics of denoised images.')
-  parser.add_argument('-t', '--target', choices=['p', 't', 'f', 's'], required=True,
+  parser.add_argument('-t', '--target', choices=['p', 't', 'f', 'f2', 's'], required=True,
                       help='Target for processing: (p)reliminary, (t)estset, (f)latsat, or (s)pacecraft')
   return parser.parse_args()
 
@@ -164,8 +202,11 @@ def main():
     process_results_preliminary_testset()
   elif args.target == 'f': # flatsat results
     process_results_flatsat()
+  elif args.target == 'f2': # downlink wgans spacecraft results but process on the flatsat and with autoencoder
+    process_results_flatsat2()
   elif args.target == 's': # spacecraft results
     process_results_spacecraft()
+  
 
 if __name__ == "__main__":
   main()

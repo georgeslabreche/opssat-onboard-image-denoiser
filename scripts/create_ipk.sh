@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Creates the ipk file to install this project into the SEPP onboard the OPS-SAT spacecraft.
+# There's also an option to create the ipk file for the Engineering Model (EM), i.e. the FlatSat.
 
 # The project directory path.
 # Remove the scripts folder in case this bash script is being executed from the scripts folder
@@ -97,6 +98,12 @@ mkdir ${deploy_exp_dir}/toGround
 # Copy the pre-trained models.
 # Keep the ipk under 10 MB for spacecraft uplink.
 if [ "$1" == "em" ]; then
+  # This is to use Autoencoder to denoise images that were processed on the spacecraft with WGANs.
+  # We do this so that we can compare WGANs vs Autoencoder.
+  #mkdir ${deploy_exp_dir}/noised
+  #cp -R ${project_dir}/results/spacecraft/images/WGAN/FPN-50/Earth/*.noised.jpeg ${deploy_exp_dir}/noised
+  #cp -R ${project_dir}/models/autoencoders/ae_fpn50_f.tflite ${deploy_models_dir}
+  
   cp -R ${project_dir}/models/autoencoders/*_fpn50_*.tflite ${deploy_models_dir}
   cp -R ${project_dir}/models/wgans/*_fpn50_*.tflite ${deploy_models_dir}
 else
