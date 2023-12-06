@@ -65,7 +65,7 @@ typedef enum {
 
 int parse_options(int argc, char **argv,
     int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_patch_margin,
-    int *argv_index_model, int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
+    int *argv_index_model, int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality, int *argv_input_channels)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -87,6 +87,7 @@ int parse_options(int argc, char **argv,
             );
       printf("\n  --output  / -o       the output image (optional, overwrites --write)");
       printf("\n  --quality / -q       the jpeg output quality (optional, from 1 to 100)");
+      printf("\n  --channels   / -c       amount of color channels passed to the model");
       printf("\n  --help    / -?       this information\n");
 
       /* program error exit code */
@@ -125,6 +126,10 @@ int parse_options(int argc, char **argv,
     if (streq (argv [argn], "--quality")
     ||  streq (argv [argn], "-q"))
       *argv_index_write_quality = ++argn;
+    else
+    if (streq (argv [argn], "--channels")
+    ||  streq (argv [argn], "-c"))
+      *argv_input_channels = ++argn;
     else
     {
       /* print error message */
@@ -290,11 +295,12 @@ int main(int argc, char **argv)
   int argv_index_write_mode = -1;
   int argv_index_output = -1;
   int argv_index_write_quality = -1;
+  int argv_input_channels = -1;
 
   /* parse the program options */
   rc = parse_options(argc, argv,
     &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_patch_margin,
-    &argv_index_model, &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
+    &argv_index_model, &argv_index_write_mode, &argv_index_output, &argv_index_write_quality, &argv_input_channels);
 
   /* error check */
   if(rc != 0)
@@ -426,6 +432,22 @@ int main(int argc, char **argv)
     }
   }
 
+  /* get the desired channel count. distinguish between color or grayscale images */
+  uint8_t desired_channels = 0;
+  if(argv_input_channels != -1){
+
+    /* cast given given input channel buffer to uint_8 */
+    desired_channels = (uint8_t) atoi(argv[argv_input_channels]);
+    
+    /* check that desired channel count is valid */
+    if(desired_channels > 4 || desired_channels <= 0){
+      printf("invalid desired channel count. Value expected between 1-4. Value given: %i\n", desired_channels);
+      
+      /* program error exit code */
+      /* 22 EINVAL invalid argument */
+      return EINVAL;
+    }
+  }
 
   /**
    * STEP 2:
@@ -436,17 +458,21 @@ int main(int argc, char **argv)
 
   /* read the image */
   int input_width, input_height, channels;
-  unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, 0);
+  unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, desired_channels);
+
+  if(desired_channels == 0){
+    desired_channels = channels;
+  }
 
   /* resize the image */
   if(argv_index_resize != -1)
   {
     /* dynamically allocate the resized image buffer so that it can later overwrite the original image buffer */
-    int img_buffer_resized_size = resize_width * resize_height * channels;
+    int img_buffer_resized_size = resize_width * resize_height * desired_channels;
     unsigned char* img_buffer_resized = (unsigned char*) malloc(img_buffer_resized_size * sizeof(unsigned char));
 
     /* resize the image to the target dimension */
-    rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, channels);
+    rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, desired_channels);
 
     /* error check */
     /* confusingly, stb result is 1 for success and 0 in case of an error */
@@ -529,7 +555,7 @@ int main(int argc, char **argv)
    */
 
   /* calculate the size of the image buffer data */
-  int img_buffer_size = input_width * input_height * channels;
+  int img_buffer_size = input_width * input_height * desired_channels;
 
   /* allocate buffer for the sewn, denoised, and denormalized output image */
   unsigned char* img_buffer_denoised_denormalized = 
@@ -578,11 +604,11 @@ int main(int argc, char **argv)
       {
         for(int i = start_i; i < start_i + patch_size_width; i++)
         {
-          for(int k = 0; k < channels; k++)
+          for(int k = 0; k < desired_channels; k++)
           {
             /* use safe method to fetch pixel values */
-            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, channels);
-            int offset_tensor = (channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
+            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, desired_channels);
+            int offset_tensor = (desired_channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
             input_tensor[offset_tensor] = (float)pixel_val / 255.0;
           }
         }
@@ -601,9 +627,9 @@ int main(int argc, char **argv)
       {
         for(int i = 0; i < patch_size_width; i++)
         {
-          for(int k = 0; k < channels; k++)
+          for(int k = 0; k < desired_channels; k++)
           {
-            int tensor_offset = (channels * (patch_size_width * j + i)) + k;
+            int tensor_offset = (desired_channels * (patch_size_width * j + i)) + k;
             int global_j = start_j + j;
             int global_i = start_i + i;
             
@@ -641,7 +667,7 @@ int main(int argc, char **argv)
     char *outimg_filename = argv[argv_index_output];
 
     /* write the noisy image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
+    stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
   }
   else if(write_mode >= 1)
   {
@@ -663,7 +689,7 @@ int main(int argc, char **argv)
     }
 
     /* write the denoised image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
+    stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
   }
 
   /* free the image data buffer */
