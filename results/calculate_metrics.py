@@ -113,7 +113,7 @@ def process_results_preliminary_testset():
       results_csv_filepath = f"./preliminary/testset/results_{mt.lower()}_{it}.csv"
 
       # Initialize a DataFrame to store the results
-      df = pd.DataFrame(columns=["filename", "psnr", "ssim", "mse"])
+      df = pd.DataFrame(columns=["filename", "timestamp", "psnr", "ssim", "mse"])
 
       # Loop through all .jpeg files
       for image_filename in os.listdir(original_dir_path):
@@ -125,10 +125,11 @@ def process_results_preliminary_testset():
           psnr, ssim, mse = compare_images(original_image_filepath, denoised_image_filepath)
 
           # Append to the dataframe
-          df.loc[len(df)] = [image_filename, psnr, ssim, mse]
+          image_timestamp = image_filename.replace("img_msec_", "").replace("_1_", "").replace("_2_", "").replace("thumbnail.jpeg", "")
+          df.loc[len(df)] = [image_filename, image_timestamp, psnr, ssim, mse]
 
-      # Sort the dataframe by filename
-      df = df.sort_values(by="filename")
+      # Sort the dataframe by timestamp
+      df = df.sort_values(by="timestamp")
 
       # Write the df as a csv file
       df.to_csv(results_csv_filepath, index=False)
@@ -147,7 +148,7 @@ def process_results_flatsat2():
   results_csv_filepath ="./flatsat/fm-wgans_to_em-ae/results.csv"
   
   # Initialize a DataFrame to store the results
-  df = pd.DataFrame(columns=["filename", "psnr", "ssim", "mse"])
+  df = pd.DataFrame(columns=["filename", "timestamp", "psnr", "ssim", "mse"])
   
   # Loop through all .jpeg files
   for denoised_image_filename in os.listdir(denoised_dir_path):
@@ -161,10 +162,10 @@ def process_results_flatsat2():
       psnr, ssim, mse = compare_images(original_image_filepath, denoised_image_filepath)
 
       # Append to the dataframe
-      df.loc[len(df)] = [original_image_filename, psnr, ssim, mse]
+      df.loc[len(df)] = [original_image_filename, original_image_filename.replace(".jpeg", ""), psnr, ssim, mse]
 
-  # Sort the dataframe by filename
-  df = df.sort_values(by="filename")
+  # Sort the dataframe by timestamp
+  df = df.sort_values(by="timestamp")
     
   # Write the df as a csv file
   df.to_csv(results_csv_filepath, index=False)
