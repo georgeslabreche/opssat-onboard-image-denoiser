@@ -3,8 +3,6 @@
 #include <dirent.h>
 #include <cstring>
 #include <string.h>
-#include <cmath>
-#include <math.h>
 #include <libgen.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -31,7 +29,7 @@
 
 /* define the program version */
 #define PROGRAM_VERSION_MAJOR                                                                         1
-#define PROGRAM_VERSION_MINOR                                                                         1
+#define PROGRAM_VERSION_MINOR                                                                         0
 
 /* the output image label */
 #define OUTPUT_IMAGE_LABEL                                                                   "denoised"
@@ -64,8 +62,8 @@ typedef enum {
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_patch_margin,
-    int *argv_index_model, int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality, int *argv_input_channels)
+    int *argv_index_input, int *argv_index_resize, int *argv_index_model,
+    int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality, int *argv_normalize_input, int *argv_input_channels)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -74,22 +72,21 @@ int parse_options(int argc, char **argv,
     ||  streq (argv [argn], "-?"))
     {
       printf("%s v%d.%d [options] ...", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
-      printf("\n  --input   / -i       the file path of the input image");
-      printf("\n  --resize  / -r       resize the input image (optional, e.g. 224x224)");
-      printf("\n  --psize   / -p       slice the input image into patches (optional, e.g. 56x56)");
-      printf("\n  --pmargin / -g       pixel margin width around the the patch content, (optional, e.g. 6)");
-      printf("\n  --model   / -m       the file path of the model");
-      printf("\n  --write   / -w       the write mode of the output image (optional)"
+      printf("\n  --input      / -i       the file path of the input image");
+      printf("\n  --resize     / -r       resize the input image (optional, e.g. 224x224)");
+      printf("\n  --model      / -m       the file path of the model");
+      printf("\n  --write      / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
               "\n\t1 - write a new image as a new file"
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
-      printf("\n  --output  / -o       the output image (optional, overwrites --write)");
-      printf("\n  --quality / -q       the jpeg output quality (optional, from 1 to 100)");
+      printf("\n  --output     / -o       the output image (optional, overwrites -w)");
+      printf("\n  --quality    / -q       the jpeg output quality (optional, from 1 to 100)");
+      printf("\n  --normalize  / -n       flag to normalize the input image");
       printf("\n  --channels   / -c       amount of color channels passed to the model");
-      printf("\n  --help    / -?       this information\n");
-
+      printf("\n  --help       / -?       this information\n");
+      
       /* program error exit code */
       /* 11 EAGAIN try again */
       return EAGAIN;
@@ -102,14 +99,6 @@ int parse_options(int argc, char **argv,
     if (streq (argv[argn], "--resize")
     ||  streq (argv[argn], "-r"))
       *argv_index_resize = ++argn;
-    else
-    if (streq (argv[argn], "--psize")
-    ||  streq (argv[argn], "-p"))
-      *argv_index_patch_size = ++argn;
-    else
-    if (streq (argv[argn], "--pmargin")
-    ||  streq (argv[argn], "-g"))
-      *argv_index_patch_margin = ++argn;
     else
     if (streq (argv[argn], "--model")
     ||  streq (argv[argn], "-m"))
@@ -126,6 +115,10 @@ int parse_options(int argc, char **argv,
     if (streq (argv [argn], "--quality")
     ||  streq (argv [argn], "-q"))
       *argv_index_write_quality = ++argn;
+    else
+    if (streq (argv [argn], "--normalize")
+    ||  streq (argv [argn], "-n"))
+      *argv_normalize_input = ++argn;
     else
     if (streq (argv [argn], "--channels")
     ||  streq (argv [argn], "-c"))
@@ -179,17 +172,17 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 {
   /* the return code */
   int rc = 0;
-
+  
   /* duplicate the inimg_filename before passing to basename() and dirname() */
   char *tmp1 = strdup(inimg_filename);
   char *tmp2 = strdup(inimg_filename);
 
   /* get base filename */
   char* base = basename(tmp1);
-
+  
   /* get directory name */
   char* dir = dirname(tmp2);
-
+  
   /* duplicate base filename to separate it from the extension */
   char *base_copy = strdup(base);
 
@@ -205,7 +198,7 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
     /* move past the period */
     ext++;
   }
-
+  
   /* build output filename based on write mode */
   switch(write_mode)
   {
@@ -215,12 +208,12 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
       break;
 
     case 2: /* write a new image that overwrites the input image file */
-      /* use existing input image file name as the output image file name */
+      /* use existing input image file name as the output image file name */   
       snprintf(outimg_filename, BUFFER_MAX_SIZE_FILENAME, "%s/%s.%s", dir, base_copy, ext);
       break;
 
     case 3: /* write a new image that overwrites the input image file but back up the original input image */
-
+      
       /* construct the new filename for the original file backup */
       char inimg_filename_new[BUFFER_MAX_SIZE_FILENAME] = {0};
       snprintf(inimg_filename_new, BUFFER_MAX_SIZE_FILENAME, "%s/%s.%s.%s", dir, base_copy, INPUT_IMAGE_LABEL, ext);
@@ -254,21 +247,6 @@ int build_image_output_filename(int write_mode, char* inimg_filename, char *outi
 
 
 // --------------------------------------------------------------------------
-// when the extraction process approaches the borders and the buffer causes it to potentially go out-of-bounds,
-// this function ensures that we're either clamping to the image boundaries or using some default value,
-// thereby preventing any out-of-bounds memory access
-
-unsigned char safe_get_pixel_value(unsigned char *img_buffer, int x, int y, int channel, int input_width, int input_height, int channels)
-{
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (x >= input_width) x = input_width - 1;
-  if (y >= input_height) y = input_height - 1;
-  return img_buffer[(y * input_width + x) * channels + channel];
-}
-
-
-// --------------------------------------------------------------------------
 // the main function
 
 int main(int argc, char **argv)
@@ -278,6 +256,8 @@ int main(int argc, char **argv)
 
   /* TensorFlow Lite operation execution status for error handling */
   TfLiteStatus tflStatus;
+
+  printf("STEP 1: parse program option, init vars, check invalid values\n");
 
   /**
    * STEP 1:
@@ -289,18 +269,17 @@ int main(int argc, char **argv)
   /* get provider host and port from command arguments */
   int argv_index_input = -1;
   int argv_index_resize = -1;
-  int argv_index_patch_size = -1;
-  int argv_index_patch_margin = -1;
   int argv_index_model = -1;
   int argv_index_write_mode = -1;
   int argv_index_output = -1;
   int argv_index_write_quality = -1;
+  int argv_normalize_input = -1;
   int argv_input_channels = -1;
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_patch_margin,
-    &argv_index_model, &argv_index_write_mode, &argv_index_output, &argv_index_write_quality, &argv_input_channels);
+    &argv_index_input, &argv_index_resize, &argv_index_model,
+    &argv_index_write_mode, &argv_index_output, &argv_index_write_quality, &argv_normalize_input, &argv_input_channels);
 
   /* error check */
   if(rc != 0)
@@ -342,44 +321,6 @@ int main(int argc, char **argv)
       return EINVAL;
     }
   }
-
-
-  /* check if a patch size and patch buffer was given */
-  int patch_size_width, patch_size_height;
-  int patch_margin = 0;
-  if(argv_index_patch_size != -1)
-  {
-    char *patch_size = argv[argv_index_patch_size];
-
-    /* extract the patch size values from the string and assign them to variables */
-    if (sscanf(patch_size, "%dx%d", &patch_size_width, &patch_size_height) != 2)
-    {
-      /* print error message */
-      printf("invalid patch value option. get help: ./%s -?\n", PROGRAM_NAME);
-
-      /* program error exit code */
-      /* 22 EINVAL invalid argument */
-      return EINVAL;
-    }
-
-    if(argv_index_patch_margin != -1)
-    {
-      /* cast given patch buffer pixel option to integer */
-      patch_margin = atoi(argv[argv_index_patch_margin]);
-
-      /* check that the patch buffer pixel value is valid */
-      if(patch_margin < 0 || patch_margin >= patch_size_width || patch_margin >= patch_size_height)
-      {
-        /* print error message */
-        printf("invalid patch margin option. get help: ./%s -?\n", PROGRAM_NAME);
-
-        /* program error exit code */
-        /* 22 EINVAL invalid argument */
-        return EINVAL;
-      }
-    }
-  }
-
 
   /* the filename of the model */
   char *model_filename = argv[argv_index_model];
@@ -432,22 +373,7 @@ int main(int argc, char **argv)
     }
   }
 
-  /* get the desired channel count. distinguish between color or grayscale images */
-  uint8_t desired_channels = 0;
-  if(argv_input_channels != -1){
-
-    /* cast given given input channel buffer to uint_8 */
-    desired_channels = (uint8_t) atoi(argv[argv_input_channels]);
-    
-    /* check that desired channel count is valid */
-    if(desired_channels > 4 || desired_channels <= 0){
-      printf("invalid desired channel count. Value expected between 1-4. Value given: %i\n", desired_channels);
-      
-      /* program error exit code */
-      /* 22 EINVAL invalid argument */
-      return EINVAL;
-    }
-  }
+  printf("STEP 2: read input, normalize images RGB, prepare the image tensor input\n");
 
   /**
    * STEP 2:
@@ -458,20 +384,41 @@ int main(int argc, char **argv)
 
   /* read the image */
   int input_width, input_height, channels;
+  printf("STEP 2: before input channels\n");
+  printf("STEP 2: argv_input_channels = %i\n", argv_input_channels);
+  uint8_t desired_channels = 3;
+  if(argv_input_channels != -1){
+    printf("STEP 2: Before desired_channels input\n");
+
+    desired_channels = (uint8_t) atoi(argv[argv_input_channels]);
+
+    printf("STEP 2: after input channels\n");
+
+    if(desired_channels > 4 || desired_channels <= 0){
+      printf("STEP 2: Desired channels incorrect. Value expected between 1-4. Value given: %i\n", desired_channels);
+      return EINVAL;
+    }
+  }
+
+  printf("STEP 2: Before img_buffer\n");
+
   unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, desired_channels);
 
-  if(desired_channels == 0){
-    desired_channels = channels;
-  }
+  printf("STEP 2: file_path = %s\n", inimg_filename);
+  printf("STEP 2: input_width = %i\n", input_width);
+  printf("STEP 2: input_height = %i\n", input_height);
+  printf("STEP 2: desired_channels = %i\n", desired_channels);
 
   /* resize the image */
   if(argv_index_resize != -1)
   {
+    printf("STEP 2: in resize mode\n");
+
     /* dynamically allocate the resized image buffer so that it can later overwrite the original image buffer */
     int img_buffer_resized_size = resize_width * resize_height * desired_channels;
     unsigned char* img_buffer_resized = (unsigned char*) malloc(img_buffer_resized_size * sizeof(unsigned char));
 
-    /* resize the image to the target dimension */
+    /* downsample the image i.e., resize the image to a smaller dimension */
     rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, desired_channels);
 
     /* error check */
@@ -496,6 +443,7 @@ int main(int argc, char **argv)
     input_height = resize_height;
   }
 
+  printf("STEP 3: load denoising model, prepare img tensor input\n");
 
   /**
    * STEP 3:
@@ -510,10 +458,6 @@ int main(int argc, char **argv)
   /* error check */
   if(model == nullptr)
   {
-    /* free memory */
-    stbi_image_free(img_buffer);
-
-    /* end of program */
     return TF_LOAD_MODEL;
   }
 
@@ -526,10 +470,6 @@ int main(int argc, char **argv)
   /* error check */
   if(interpreter == nullptr)
   {
-    /* free memory */
-    stbi_image_free(img_buffer);
-
-    /* end of program */
     return TF_BUILD_INTERPRETER;
   }
 
@@ -539,138 +479,155 @@ int main(int argc, char **argv)
   /* error check */
   if(tflStatus != kTfLiteOk)
   {
-    /* free memory */
-    stbi_image_free(img_buffer);
+    /* there was an error */
 
     /* end of program */
     return TF_ALLOCATE_TENSOR;
   }
 
+  printf("STEP 4: prep img input tensor, normalize input img buffer as tensor\n");
 
   /**
    * STEP 4:
    *  - prepare the image tensor input
    *  - normalize the input image bufer into an input tensor
-   *  - invoke the interpreter
    */
 
-  /* calculate the size of the image buffer data */
+  /* the size of the image buffer data */
   int img_buffer_size = input_width * input_height * desired_channels;
+  printf("STEP 4: img_buffer_size = %i\n", img_buffer_size);
+  printf("STEP 4: input_width = %i\n", input_width);
+  printf("STEP 4: input_height = %i\n", input_height);
+  printf("STEP 4: desired_channels = %i\n", desired_channels);
 
-  /* allocate buffer for the sewn, denoised, and denormalized output image */
-  unsigned char* img_buffer_denoised_denormalized = 
-    (unsigned char*) malloc(img_buffer_size * sizeof(unsigned char));
-
-  /* determine the number of patches, using the entire image if patching is not specified */
-  if(argv_index_patch_size == -1)
-  {
-    patch_size_width = input_width;
-    patch_size_height = input_height;
-  }
-
-  /* calculate steps and max values, accounting for buffer-based overlaps */
-  int step_w = patch_size_width - 2 * patch_margin;
-  int step_h = patch_size_height - 2 * patch_margin;
-  
-  /* adjust the loop range to make sure we always have a patch at the edges */
-  int pwidth_max = 1 + ceil((input_width - patch_size_width) / (float)step_w);
-  int pheight_max = 1 + ceil((input_height - patch_size_height) / (float)step_h);
-
-
-  /* obtain pointer to the input tensor */
-  float *input_tensor = interpreter->typed_input_tensor<float>(0);
-
-  /* process image patches (works both with and without explicit patching) */
-  for(int w = 0; w < pwidth_max; w++)
-  {
-    for(int h = 0; h < pheight_max; h++)
+  /* normalize the image's RGB values */
+  /* set the tensor input to the normalized image data */
+  if(argv_normalize_input != -1){
+    /* prepare the image tensor input */
+    printf("STEP 4: Normalize input\n");
+    float *input_tensor = interpreter->typed_input_tensor<float>(0);
+    printf("STEP 4: input_tensor ready\n");
+    for(int i = 0; i < img_buffer_size; i++)
     {
-      /* calculate starting indices considering buffer */
-      int start_i = w * step_w;
-      int start_j = h * step_h;
-
-      /* if this is the last patch in width or height, adjust starting point to make sure it goes to the edge */
-      if(w == pwidth_max - 1)
-      {
-        start_i = input_width - patch_size_width;
-      }
-      if(h == pheight_max - 1)
-      {
-        start_j = input_height - patch_size_height;
-      }
-
-      /* populate tensor with centralized extraction to avoid border artifacts */
-      for(int j = start_j; j < start_j + patch_size_height; j++)
-      {
-        for(int i = start_i; i < start_i + patch_size_width; i++)
-        {
-          for(int k = 0; k < desired_channels; k++)
-          {
-            /* use safe method to fetch pixel values */
-            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, desired_channels);
-            int offset_tensor = (desired_channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
-            input_tensor[offset_tensor] = (float)pixel_val / 255.0;
-          }
-        }
-      }
-
-      /* process using TensorFlow Lite */
-      if(interpreter->Invoke() != kTfLiteOk)
-      {
-        printf("failed to invoke tflite!\n");
-        return 1;
-      }
-
-      /* get output tensor and sew/denormalize result into main buffer */
-      float *output_tensor = interpreter->typed_output_tensor<float>(0);
-      for(int j = 0; j < patch_size_height; j++)
-      {
-        for(int i = 0; i < patch_size_width; i++)
-        {
-          for(int k = 0; k < desired_channels; k++)
-          {
-            int tensor_offset = (desired_channels * (patch_size_width * j + i)) + k;
-            int global_j = start_j + j;
-            int global_i = start_i + i;
-            
-            if(global_j < input_height && global_i < input_width)  // Ensure within bounds
-            {
-              // Only stitch back the central part
-              int border_top = (h == 0) ? 0 : patch_margin;
-              int border_left = (w == 0) ? 0 : patch_margin;
-              int border_bottom = (h == pheight_max - 1) ? patch_size_height : patch_size_height - patch_margin;
-              int border_right = (w == pwidth_max - 1) ? patch_size_width : patch_size_width - patch_margin;
-
-              if(j >= border_top && j < border_bottom && 
-                 i >= border_left && i < border_right)
-              {
-                int global_offset = (channels * (input_width * global_j + global_i)) + k;
-                unsigned char denormalized_value = (unsigned char)(output_tensor[tensor_offset] * 255 + 0.5);
-                img_buffer_denoised_denormalized[global_offset] = denormalized_value;
-              }
-            }
-          }
-        }
-      }
+      input_tensor[i] = (float)img_buffer[i] / 255.0;
     }
+    printf("STEP 4: input_tensor filled\n");
+  }else{
+
+    printf("STEP 4: Non Normazed input\n");
+    unsigned char *input_tensor = interpreter->typed_input_tensor<unsigned char>(0);
+    printf("STEP 4: input_tensor ready\n");
+    for(int i = 0; i < img_buffer_size; i++)
+    {
+      input_tensor[i] = (unsigned char)img_buffer[i];
+    }
+    printf("STEP 4: input_tensor filled\n");
   }
+
+  // printf("STEP 4.5: Test write input image to out");
+ 
+  // /* the data buffer for the denormalized image output */
+  // float* img_buffer_denoised_denormalized = (float*) malloc(img_buffer_size * sizeof(float));
+
+  // printf("STEP 4.5: Malloced\n");
+
+  // /* denormalize the denoised output image's RGB values */
+  // for(int i=0; i<img_buffer_size; i++)
+  // {
+  //   /* round to the nearest integer */
+  //   img_buffer_denoised_denormalized[i] = (uint8_t)(output_tensor[i] * 255 + 0.5); // TODO error: 'output_tensor' was not declared in this scope
+  // }
+
+  // printf("STEP 4.5: write denormalized image\n");
+
+  // /**
+  //  * STEP 6:
+  //  *  - write the denormalized image output buffer into an image file
+  //  */
+
+  // /* write the denoised image */
+  // if(argv_index_output != -1)
+  // {
+  //   /* the filename of the input image */
+  //   char outimg_filename[] = "test_out.jpeg";
+
+  //   /* write the noisy image */
+  //   stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
+  // }
+  // printf("STEP 4.5: End test");
+
+  printf("STEP 5: invoke Tensorflow interpreter, get output tensor, denorm output tensor\n");
 
   /**
    * STEP 5:
+   *  - invoke the TensorFlow intepreter
+   *  - get the output tensor
+   *  - denormalize the output tensor into an output image buffer
+   */
+  /* copy the image data into the input tensor */
+  tflStatus = interpreter->Invoke();
+
+  printf("STEP 5: Invoked the interpreter\n");
+
+  /* error check */
+  if(tflStatus != kTfLiteOk)
+  {
+    /* there was an error */
+
+    /* end of program */
+    return TF_INVOKE_INTERPRETER;
+  }
+
+  /* get the output tensor */
+  float *output_tensor = interpreter->typed_output_tensor<float>(0);
+  printf("STEP 5: typed output tensor\n");
+
+  /* the data buffer for the denormalized image output */
+  uint8_t* img_buffer_denoised_denormalized = (uint8_t*) malloc(img_buffer_size * sizeof(uint8_t)); // Potentially change floats for uints8
+
+  printf("STEP 5: Malloced\n");
+
+  /* denormalize the denoised output image's RGB values */
+  for(int i=0; i<img_buffer_size; i++)
+  {
+    
+    img_buffer_denoised_denormalized[i] = (uint8_t)(output_tensor[i] * 255 + 0.5);
+
+    /* round to the nearest integer */
+    if(i<input_width){
+      //printf("STEP 5: output tensor val in float for %d = %f\n", i, output_tensor[i]);
+      printf("STEP 5: output tensor val in int for %d = %d\n", i, img_buffer_denoised_denormalized[i]);
+    }
+    
+  }
+  
+  // Calculate the actual allocated buffer size in bytes
+  size_t buffer_bytes = img_buffer_size * sizeof(uint8_t);
+  printf("STEP 5: Final img_buffer_denoised_denormalized length = %zu bytes\n", buffer_bytes);
+
+  /**
+   * STEP 6:
    *  - write the denormalized image output buffer into an image file
    */
 
   /* write the denoised image */
   if(argv_index_output != -1)
   {
+    printf("STEP 6: write denormalized image argv not -1\n");
+
     /* the filename of the input image */
     char *outimg_filename = argv[argv_index_output];
 
     /* write the noisy image */
+    printf("STEP 6: img_buffer_size = %i\n", img_buffer_size);
+    printf("STEP 6: input_width = %i\n", input_width);
+    printf("STEP 6: input_height = %i\n", input_height);
+    printf("STEP 6: desired_channels = %i\n", desired_channels);
     stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
   }
   else if(write_mode >= 1)
   {
+    printf("STEP 6: write denormalized image write mode >= 1\n");
     /* build file name output string (the file name of the output image that will be written) */
     char outimg_filename[BUFFER_MAX_SIZE_FILENAME] = {0};
     rc = build_image_output_filename(write_mode, inimg_filename, outimg_filename);
@@ -691,16 +648,15 @@ int main(int argc, char **argv)
     /* write the denoised image */
     stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
   }
-
+  
   /* free the image data buffer */
   stbi_image_free(img_buffer);
   stbi_image_free(img_buffer_denoised_denormalized);
 
-
 #if TARGET_BUILD_OPSSAT /* this logic is specific to the OPS-SAT spacecraft */
   /* create classification result json object (because that's what the OPS-SAT SmartCam expects) */
   /* in this case we aren't classifying anything so just apply a constant "denoised" classifier label all the time */
-  printf("{\"%s\": 1}", OUTPUT_IMAGE_LABEL);
+  printf("{\"%s\": 1}\n", OUTPUT_IMAGE_LABEL);
 #endif
 
   /* end program */
