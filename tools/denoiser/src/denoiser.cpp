@@ -1,3 +1,15 @@
+/* RELEASE NOTES
+
+ denoiser v1.2 / ipk v1.4:
+   - the normalize flag option:
+     - must explicitely be set for the WGANs and Autoencoder models
+     - must not be set for the DnCNN model
+     - note that the flag won't be present in smartcam logs for all prior WGANs and Autoencoder runs onboard the spacecraft
+   - the channels option:
+     - used to set the target channels, e.g. 1 for grayscale when using the DnCNN model
+     - defaults to 3 for RGB so needn't be set for the WGANs and Autoencoder models
+*/
+
 #include <iostream>
 #include <vector>
 #include <dirent.h>
@@ -26,12 +38,13 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+
 /* define the name of this program for convenience purposes when printing instructions */
 #define PROGRAM_NAME                                                                         "denoiser"
 
 /* define the program version */
 #define PROGRAM_VERSION_MAJOR                                                                         1
-#define PROGRAM_VERSION_MINOR                                                                         1
+#define PROGRAM_VERSION_MINOR                                                                         2
 
 /* the output image label */
 #define OUTPUT_IMAGE_LABEL                                                                   "denoised"
@@ -64,8 +77,11 @@ typedef enum {
 // parse the program options
 
 int parse_options(int argc, char **argv,
-    int *argv_index_input, int *argv_index_resize, int *argv_index_patch_size, int *argv_index_patch_margin,
-    int *argv_index_model, int *argv_index_write_mode, int *argv_index_output, int *argv_index_write_quality)
+    int *argv_index_input, int *argv_index_channels,
+    int *argv_index_resize,  int *argv_flag_normalize,
+    int *argv_index_patch_size, int *argv_index_patch_margin,
+    int *argv_index_model, int *argv_index_write_mode,
+    int *argv_index_output, int *argv_index_write_quality)
 {
   int argn;
   for (argn = 1; argn < argc; argn++)
@@ -74,20 +90,22 @@ int parse_options(int argc, char **argv,
     ||  streq (argv [argn], "-?"))
     {
       printf("%s v%d.%d [options] ...", PROGRAM_NAME, PROGRAM_VERSION_MAJOR, PROGRAM_VERSION_MINOR);
-      printf("\n  --input   / -i       the file path of the input image");
-      printf("\n  --resize  / -r       resize the input image (optional, e.g. 224x224)");
-      printf("\n  --psize   / -p       slice the input image into patches (optional, e.g. 56x56)");
-      printf("\n  --pmargin / -g       pixel margin width around the the patch content, (optional, e.g. 6)");
-      printf("\n  --model   / -m       the file path of the model");
-      printf("\n  --write   / -w       the write mode of the output image (optional)"
+      printf("\n  --input     / -i       the file path of the input image");
+      printf("\n  --channels  / -c       the number channels for the input image (optional, from 1 to 4)");
+      printf("\n  --resize    / -r       resize the input image (optional, e.g. 224x224)");
+      printf("\n  --normalize / -n       normalize the input image");
+      printf("\n  --psize     / -p       slice the input image into patches (optional, e.g. 56x56)");
+      printf("\n  --pmargin   / -g       pixel margin width around the the patch content, (optional, e.g. 6)");
+      printf("\n  --model     / -m       the file path of the model");
+      printf("\n  --write     / -w       the write mode of the output image (optional)"
               "\n\t0 - do not write a new image (equivalent to not specifying --write)"
               "\n\t1 - write a new image as a new file"
               "\n\t2 - write a new image that overwrites the input image file"
               "\n\t3 - same as option 2 but backs up the original input image"
             );
-      printf("\n  --output  / -o       the output image (optional, overwrites --write)");
-      printf("\n  --quality / -q       the jpeg output quality (optional, from 1 to 100)");
-      printf("\n  --help    / -?       this information\n");
+      printf("\n  --output    / -o       the output image (optional, overwrites --write)");
+      printf("\n  --quality   / -q       the jpeg output quality (optional, from 1 to 100)");
+      printf("\n  --help      / -?       this information\n");
 
       /* program error exit code */
       /* 11 EAGAIN try again */
@@ -98,9 +116,17 @@ int parse_options(int argc, char **argv,
     ||  streq (argv[argn], "-i"))
       *argv_index_input = ++argn;
     else
+    if (streq (argv [argn], "--channels")
+    ||  streq (argv [argn], "-c"))
+      *argv_index_channels = ++argn;
+    else
     if (streq (argv[argn], "--resize")
     ||  streq (argv[argn], "-r"))
       *argv_index_resize = ++argn;
+    else
+    if (streq (argv[argn], "--normalize")
+    ||  streq (argv[argn], "-n"))
+      *argv_flag_normalize = 1;
     else
     if (streq (argv[argn], "--psize")
     ||  streq (argv[argn], "-p"))
@@ -281,9 +307,10 @@ int main(int argc, char **argv)
    *  - check for invalid values
    */
 
-  /* get provider host and port from command arguments */
   int argv_index_input = -1;
+  int argv_index_channels = -1;
   int argv_index_resize = -1;
+  int argv_flag_normalize = 0; /* this not an option index: it's a flag, default to false */
   int argv_index_patch_size = -1;
   int argv_index_patch_margin = -1;
   int argv_index_model = -1;
@@ -293,8 +320,11 @@ int main(int argc, char **argv)
 
   /* parse the program options */
   rc = parse_options(argc, argv,
-    &argv_index_input, &argv_index_resize, &argv_index_patch_size, &argv_index_patch_margin,
-    &argv_index_model, &argv_index_write_mode, &argv_index_output, &argv_index_write_quality);
+    &argv_index_input, &argv_index_channels,
+    &argv_index_resize, &argv_flag_normalize,
+    &argv_index_patch_size, &argv_index_patch_margin,
+    &argv_index_model, &argv_index_write_mode,
+    &argv_index_output, &argv_index_write_quality);
 
   /* error check */
   if(rc != 0)
@@ -317,6 +347,25 @@ int main(int argc, char **argv)
     /* program error exit code */
     /* 22 EINVAL invalid argument */
     return EINVAL;
+  }
+
+  /* check if the image channels was given (default 3 for RGB) */
+  int desired_channels = 3;
+  if(argv_index_channels != -1)
+  {
+    /* cast given channels option to integer */
+    desired_channels = atoi(argv[argv_index_channels]);
+
+    /* check that the channels value is valid */
+    if(desired_channels < 1 || desired_channels > 4)
+    {
+      /* print error message */
+      printf("invalid channels option. get help: ./%s -?\n", PROGRAM_NAME);
+
+      /* program error exit code */
+      /* 22 EINVAL invalid argument */
+      return EINVAL;
+    }
   }
 
   /* check if the image resize was given */
@@ -435,18 +484,18 @@ int main(int argc, char **argv)
    */
 
   /* read the image */
-  int input_width, input_height, channels;
-  unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels, 0);
+  int input_width, input_height, channels_in_file;
+  unsigned char* img_buffer = stbi_load(inimg_filename, &input_width, &input_height, &channels_in_file, desired_channels);
 
   /* resize the image */
   if(argv_index_resize != -1)
   {
     /* dynamically allocate the resized image buffer so that it can later overwrite the original image buffer */
-    int img_buffer_resized_size = resize_width * resize_height * channels;
+    int img_buffer_resized_size = resize_width * resize_height * desired_channels;
     unsigned char* img_buffer_resized = (unsigned char*) malloc(img_buffer_resized_size * sizeof(unsigned char));
 
     /* resize the image to the target dimension */
-    rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, channels);
+    rc = stbir_resize_uint8(img_buffer, input_width, input_height, 0, img_buffer_resized, resize_width, resize_height, 0, desired_channels);
 
     /* error check */
     /* confusingly, stb result is 1 for success and 0 in case of an error */
@@ -529,10 +578,10 @@ int main(int argc, char **argv)
    */
 
   /* calculate the size of the image buffer data */
-  int img_buffer_size = input_width * input_height * channels;
+  int img_buffer_size = input_width * input_height * desired_channels;
 
-  /* allocate buffer for the sewn, denoised, and denormalized output image */
-  unsigned char* img_buffer_denoised_denormalized = 
+  /* allocate buffer for the sewn, denoised output image */
+  unsigned char* img_buffer_denoised =
     (unsigned char*) malloc(img_buffer_size * sizeof(unsigned char));
 
   /* determine the number of patches, using the entire image if patching is not specified */
@@ -552,7 +601,18 @@ int main(int argc, char **argv)
 
 
   /* obtain pointer to the input tensor */
-  float *input_tensor = interpreter->typed_input_tensor<float>(0);
+  /* it will contain normalized data */
+  float *input_tensor_normalized;
+  unsigned char *input_tensor_unnormalized;
+
+  if(argv_flag_normalize == 1)
+  {
+    input_tensor_normalized = interpreter->typed_input_tensor<float>(0);
+  }
+  else
+  {
+    input_tensor_unnormalized = interpreter->typed_input_tensor<unsigned char>(0);
+  }
 
   /* process image patches (works both with and without explicit patching) */
   for(int w = 0; w < pwidth_max; w++)
@@ -578,12 +638,21 @@ int main(int argc, char **argv)
       {
         for(int i = start_i; i < start_i + patch_size_width; i++)
         {
-          for(int k = 0; k < channels; k++)
+          for(int k = 0; k < desired_channels; k++)
           {
             /* use safe method to fetch pixel values */
-            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, channels);
-            int offset_tensor = (channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
-            input_tensor[offset_tensor] = (float)pixel_val / 255.0;
+            unsigned char pixel_val = safe_get_pixel_value(img_buffer, i, j, k, input_width, input_height, desired_channels);
+            int tensor_offset = (desired_channels * ((patch_size_height * (j - start_j)) + (i - start_i))) + k;
+
+            /* to normalize or not normalize the data contained by the input tensor */
+            if(argv_flag_normalize == 1)
+            {
+              input_tensor_normalized[tensor_offset] = (float)pixel_val / 255.0;
+            }
+            else
+            {
+              input_tensor_unnormalized[tensor_offset] = pixel_val;
+            }
           }
         }
       }
@@ -595,21 +664,32 @@ int main(int argc, char **argv)
         return 1;
       }
 
-      /* get output tensor and sew/denormalize result into main buffer */
-      float *output_tensor = interpreter->typed_output_tensor<float>(0);
+      /* get output tensor and sew result into main buffer */
+      float *output_tensor_normalized;
+      unsigned char *output_tensor_unnormalized;
+
+      if(argv_flag_normalize == 1)
+      {
+        output_tensor_normalized = interpreter->typed_output_tensor<float>(0);
+      }
+      else
+      {
+        output_tensor_unnormalized = interpreter->typed_output_tensor<unsigned char>(0);
+      }
+
       for(int j = 0; j < patch_size_height; j++)
       {
         for(int i = 0; i < patch_size_width; i++)
         {
-          for(int k = 0; k < channels; k++)
+          for(int k = 0; k < desired_channels; k++)
           {
-            int tensor_offset = (channels * (patch_size_width * j + i)) + k;
+            int tensor_offset = (desired_channels * (patch_size_width * j + i)) + k;
             int global_j = start_j + j;
             int global_i = start_i + i;
             
-            if(global_j < input_height && global_i < input_width)  // Ensure within bounds
+            if(global_j < input_height && global_i < input_width)  /* ensure within bounds */
             {
-              // Only stitch back the central part
+              /* only stitch back the central part */
               int border_top = (h == 0) ? 0 : patch_margin;
               int border_left = (w == 0) ? 0 : patch_margin;
               int border_bottom = (h == pheight_max - 1) ? patch_size_height : patch_size_height - patch_margin;
@@ -618,9 +698,16 @@ int main(int argc, char **argv)
               if(j >= border_top && j < border_bottom && 
                  i >= border_left && i < border_right)
               {
-                int global_offset = (channels * (input_width * global_j + global_i)) + k;
-                unsigned char denormalized_value = (unsigned char)(output_tensor[tensor_offset] * 255 + 0.5);
-                img_buffer_denoised_denormalized[global_offset] = denormalized_value;
+                int global_offset = (desired_channels * (input_width * global_j + global_i)) + k;
+
+                if(argv_flag_normalize == 1)
+                {
+                  img_buffer_denoised[global_offset] = (unsigned char)(output_tensor_normalized[tensor_offset] * 255 + 0.5);
+                }
+                else
+                {
+                  img_buffer_denoised[global_offset] = output_tensor_unnormalized[tensor_offset];
+                }
               }
             }
           }
@@ -631,7 +718,7 @@ int main(int argc, char **argv)
 
   /**
    * STEP 5:
-   *  - write the denormalized image output buffer into an image file
+   *  - write the image output buffer into an image file
    */
 
   /* write the denoised image */
@@ -641,7 +728,7 @@ int main(int argc, char **argv)
     char *outimg_filename = argv[argv_index_output];
 
     /* write the noisy image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
+    stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised, jpeg_write_quality);
   }
   else if(write_mode >= 1)
   {
@@ -656,19 +743,19 @@ int main(int argc, char **argv)
 
       /* free the image data buffer */
       stbi_image_free(img_buffer);
-      stbi_image_free(img_buffer_denoised_denormalized);
+      stbi_image_free(img_buffer_denoised);
 
       /* end of program */
       return rc;
     }
 
     /* write the denoised image */
-    stbi_write_jpg(outimg_filename, input_width, input_height, channels, (void*)img_buffer_denoised_denormalized, jpeg_write_quality);
+    stbi_write_jpg(outimg_filename, input_width, input_height, desired_channels, (void*)img_buffer_denoised, jpeg_write_quality);
   }
 
   /* free the image data buffer */
   stbi_image_free(img_buffer);
-  stbi_image_free(img_buffer_denoised_denormalized);
+  stbi_image_free(img_buffer_denoised);
 
 
 #if TARGET_BUILD_OPSSAT /* this logic is specific to the OPS-SAT spacecraft */
