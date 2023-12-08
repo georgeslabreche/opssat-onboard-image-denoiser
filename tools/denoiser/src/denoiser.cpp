@@ -2,8 +2,7 @@
 
  denoiser v1.2 / ipk v1.4:
    - the normalize flag option:
-     - must explicitely be set for the WGANs and Autoencoder models
-     - must not be set for the DnCNN model
+     - must explicitely be enabled for the WGANs, Autoencoder, and DnCNN models included in this project
      - note that the flag won't be present in smartcam logs for all prior WGANs and Autoencoder runs onboard the spacecraft
    - the channels option:
      - used to set the target channels, e.g. 1 for grayscale when using the DnCNN model
