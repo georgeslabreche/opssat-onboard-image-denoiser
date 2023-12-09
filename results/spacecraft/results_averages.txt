@@ -1,0 +1,25 @@
+Earth, Bad, Earth - WGANs:
+  Average PSNR: 19.811273979474176
+  Average SSIM: 0.6651417817598668
+  Average MSE: 5311.27464159492
+
+Earth, Bad, Earth - WGANs (No Outliers):
+  Average PSNR: 24.736824158306153
+  Average SSIM: 0.9141987026960533
+  Average MSE: 281.88977244543645
+
+Earth, Bad, Earth - Autoencoder:
+  Average PSNR: 36.05083510571839
+  Average SSIM: 0.9743335883492427
+  Average MSE: 18.97891920440051
+
+All Rows - WGANs:
+  Average PSNR: 17.291471255164414
+  Average SSIM: 0.6725800337198755
+  Average MSE: 4975.4779102559
+
+All Rows - Autoencoder:
+  Average PSNR: 35.4809678250527
+  Average SSIM: 0.9752722086182051
+  Average MSE: 26.513809100300275
+
