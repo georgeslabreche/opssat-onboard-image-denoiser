@@ -54,32 +54,32 @@ avg_mse_all_ae = df_merged['mse_ae'].mean()
 
 # Results
 results = {
-  "Earth, Bad, Earth - WGANs": {
+  "WGANs: Earth → Bad → Earth": {
     "Average PSNR": avg_psnr_earth_bad_earth_wgans,
     "Average SSIM": avg_ssim_earth_bad_earth_wgans,
     "Average MSE": avg_mse_earth_bad_earth_wgans
   },
-  "Earth, Bad, Earth - Autoencoder": {
-    "Average PSNR": avg_psnr_earth_bad_earth_ae,
-    "Average SSIM": avg_ssim_earth_bad_earth_ae,
-    "Average MSE": avg_mse_earth_bad_earth_ae
-  },
-  "Earth, Bad, Earth - WGANs (No Outliers)": {
+  "WGANs: Earth → Bad → Earth (No Outliers)": {
     "Average PSNR": avg_psnr_earth_bad_earth_wgans_no_outlier,
     "Average SSIM": avg_ssim_earth_bad_earth_wgans_no_outlier,
     "Average MSE": avg_mse_earth_bad_earth_wgans_no_outlier
   },
-  "Earth, Bad, Earth - Autoencoder (No Outliers)": {
-    "Average PSNR": avg_psnr_earth_bad_earth_ae_no_outlier,
-    "Average SSIM": avg_ssim_earth_bad_earth_ae_no_outlier,
-    "Average MSE": avg_mse_earth_bad_earth_ae_no_outlier
-  },
-  "All Rows - WGANs": {
+  "WGANs: All Sequences": {
     "Average PSNR": avg_psnr_all_wgans,
     "Average SSIM": avg_ssim_all_wgans,
     "Average MSE": avg_mse_all_wgans
   },
-  "All Rows - Autoencoder": {
+  "Autoencoder: Earth → Bad → Earth": {
+    "Average PSNR": avg_psnr_earth_bad_earth_ae,
+    "Average SSIM": avg_ssim_earth_bad_earth_ae,
+    "Average MSE": avg_mse_earth_bad_earth_ae
+  },
+  "Autoencoder: Earth → Bad → Earth (No Outliers)": {
+    "Average PSNR": avg_psnr_earth_bad_earth_ae_no_outlier,
+    "Average SSIM": avg_ssim_earth_bad_earth_ae_no_outlier,
+    "Average MSE": avg_mse_earth_bad_earth_ae_no_outlier
+  },
+  "Autoencoder: All Sequences": {
     "Average PSNR": avg_psnr_all_ae,
     "Average SSIM": avg_ssim_all_ae,
     "Average MSE": avg_mse_all_ae
@@ -89,7 +89,7 @@ results = {
 # Print the results and write to a file
 with open('results_averages.txt', 'w') as file:
   for scenario, metrics in results.items():
-    scenario_result = f"{scenario}:"
+    scenario_result = f"{scenario}"
     print(scenario_result)
     file.write(scenario_result + "\n")
 
