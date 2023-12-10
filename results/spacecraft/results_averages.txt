@@ -1,24 +1,65 @@
-Earth, Bad, Earth - WGANs:
+WGANs: Earth → Bad → Earth
+  Sample Size: 4
   Average PSNR: 19.811273979474176
   Average SSIM: 0.6651417817598668
   Average MSE: 5311.27464159492
 
-Earth, Bad, Earth - WGANs (No Outliers):
+WGANs: Earth → Bad → Earth (No Outliers)
+  Sample Size: 3
   Average PSNR: 24.736824158306153
   Average SSIM: 0.9141987026960533
   Average MSE: 281.88977244543645
 
-Earth, Bad, Earth - Autoencoder:
-  Average PSNR: 36.05083510571839
-  Average SSIM: 0.9743335883492427
-  Average MSE: 18.97891920440051
+WGANs: Earth → Bad → Bad
+  Sample Size: 0
+  Average PSNR: nan
+  Average SSIM: nan
+  Average MSE: nan
 
-All Rows - WGANs:
+WGANs: Earth → Earth → Bad
+  Sample Size: 0
+  Average PSNR: nan
+  Average SSIM: nan
+  Average MSE: nan
+
+WGANs: Earth → Earth → Earth
+  Sample Size: 4
+  Average PSNR: 14.77166853085465
+  Average SSIM: 0.6800182856798841
+  Average MSE: 4639.681178916879
+
+WGANs: All Sequences
+  Sample Size: 8
   Average PSNR: 17.291471255164414
   Average SSIM: 0.6725800337198755
   Average MSE: 4975.4779102559
 
-All Rows - Autoencoder:
+Autoencoder: Earth → Bad → Earth
+  Sample Size: 24
+  Average PSNR: 36.05083510571839
+  Average SSIM: 0.9743335883492427
+  Average MSE: 18.97891920440051
+
+Autoencoder: Earth → Bad → Bad
+  Sample Size: 4
+  Average PSNR: 38.74727556826928
+  Average SSIM: 0.988169673808571
+  Average MSE: 9.17999641262755
+
+Autoencoder: Earth → Earth → Bad
+  Sample Size: 0
+  Average PSNR: nan
+  Average SSIM: nan
+  Average MSE: nan
+
+Autoencoder: Earth → Earth → Earth
+  Sample Size: 4
+  Average PSNR: 28.79545639784198
+  Average SSIM: 0.9680064650416138
+  Average MSE: 89.0569611633716
+
+Autoencoder: All Sequences
+  Sample Size: 32
   Average PSNR: 35.4809678250527
   Average SSIM: 0.9752722086182051
   Average MSE: 26.513809100300275
