@@ -1,11 +1,34 @@
 # Results
 
-- Results from running the experiment on both the flatsat and the on-board spacecraft.
+Results from running the experiment on both the flatsat and the on-board spacecraft.
+
+- The "flatsat" folder contains FlatSat results
+- The "spacecraft" folder contains the on-board Spacecraft results
 - The "preliminary" folder contains FlatSat results for denoising tests on a sample image.
 - The "extra" directory just contains scripts to generate figures for the paper.
 - The "blue_dot" folder contains denoising results of "a pale blue dot" executed onboard both the FlatSat and the Spacecraft.
 
-## Image Hisograms
+## Generate metrics
+
+How to generate the metrics PSNR, SSIM, MSE presented in the paper
+
+For spacecraft:
+
+Note that the "spacecraft" folder is defined by default. It is not necessary to add it.
+
+```bash
+python3 calculate_metrics.py -t s -ci /csv/results_classification-WGAN-FPN-50-short.csv -co /csv/results_classification-WGAN-FPN-50-metrics.csv -o /images/WGAN/FPN-50/ -d /images/WGAN/FPN-50/
+```
+
+For Flatsat:
+
+Note that the "flatsat" folder is defined by default. It is not necessary to add it.
+
+```bash
+python3 calculate_metrics.py -t f -f /wgan_fpn50_p0-8_01 -n fpn50
+```
+
+## Image Histograms
 How to produce the grayscale and RGB histograms.
 
 ### Install Dependencies

@@ -1,4 +1,4 @@
-timestamp,label_original,label_original_confidence,label_noised,label_noised_confidence,label_denoised,label_denoised_confidence,confidence_difference,PSNR,SSIM,MSE
+timestamp,label_original,label_original_confidence,label_noised,label_noised_confidence,label_denoised,label_denoised_confidence,confidence_difference,psnr,ssim,mse
 1695963889066,Earth,0.946,Bad,0.597,Earth,0.899,-0.047,20.529306740299972,0.8943640529043747,575.6383064944728
 1695964476824,Earth,0.875,Bad,0.579,Earth,0.909,0.034,27.184658901484944,0.9222130364808782,124.34103289753402
 1697367013830,Earth,0.683,Bad,0.767,Earth,0.727,0.043,5.034623442978242,-0.08202898104869284,20399.42924904337
